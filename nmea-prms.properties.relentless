@@ -1,0 +1,8 @@
+#NMEA Calibration Parameters
+#Tue Mar 30 12:40:34 PDT 2010
+max.leeway=10.0
+deviation.file.name=C\:\\_myWork\\_ForExport\\dev-corner\\olivsoft\\NMEAHTTPLogger\\relentless.csv
+awa.offset=0.0
+aws.coeff=1.0
+hdg.offset=15.0
+bsp.coeff=1.0

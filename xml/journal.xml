@@ -1,0 +1,1454 @@
+<journal>
+  <day date='Saturday, 08 May 2010'>
+    <time value='2010-05-08T12:02:04.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>5.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66426666666667</data>
+      <data id='LNG'>-122.38023333333332</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>266.03339198361897</data>
+      <data id='TWS'>20.068444444444435</data>
+    </time>
+    <time value='2010-05-08T12:07:04.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>5.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.89999131757173</data>
+      <data id='LAT'>37.66428333333333</data>
+      <data id='LNG'>-122.38021666666668</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>272.9333082481942</data>
+      <data id='TWS'>17.570666666666668</data>
+    </time>
+    <time value='2010-05-08T12:12:04.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66426666666667</data>
+      <data id='LNG'>-122.38023333333332</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>276.03330208731825</data>
+      <data id='TWS'>14.277111111111115</data>
+    </time>
+    <time value='2010-05-08T12:17:04.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66415</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>255.63549424512982</data>
+      <data id='TWS'>14.113222222222221</data>
+    </time>
+    <time value='2010-05-08T12:22:04.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66423333333333</data>
+      <data id='LNG'>-122.38018333333333</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>282.332905568687</data>
+      <data id='TWS'>8.524444444444443</data>
+    </time>
+    <time value='2010-05-08T12:27:04.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>280.49959565575966</data>
+      <data id='TWS'>12.654666666666659</data>
+    </time>
+    <time value='2010-05-08T12:32:04.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38023333333334</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>285.3987959640553</data>
+      <data id='TWS'>11.905666666666669</data>
+    </time>
+    <time value='2010-05-08T12:37:04.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66421666666667</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>272.0333218235038</data>
+      <data id='TWS'>14.123555555555555</data>
+    </time>
+    <time value='2010-05-08T12:42:04.000'>
+      <comment><![CDATA[Docked]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66428333333333</data>
+      <data id='LNG'>-122.38025</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>267.70007786856</data>
+      <data id='TWS'>13.39811111111111</data>
+    </time>
+    <time value='2010-05-08T12:47:04.000'>
+      <comment><![CDATA[Docked]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66423333333333</data>
+      <data id='LNG'>-122.38025</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>260.4672151470194</data>
+      <data id='TWS'>14.434777777777771</data>
+    </time>
+    <time value='2010-05-08T12:52:04.000'>
+      <comment><![CDATA[Docked]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66421666666667</data>
+      <data id='LNG'>-122.38023333333334</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>260.0</data>
+      <data id='TWS'>9.848777777777777</data>
+    </time>
+    <time value='2010-05-08T12:57:04.000'>
+      <comment><![CDATA[Docked]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.9333272253058</data>
+      <data id='LAT'>37.66421666666667</data>
+      <data id='LNG'>-122.38021666666668</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>245.1715265872656</data>
+      <data id='TWS'>8.486555555555553</data>
+    </time>
+    <time value='2010-05-08T13:02:05.000'>
+      <comment><![CDATA[Docked]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66423333333333</data>
+      <data id='LNG'>-122.38021666666668</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>257.0</data>
+      <data id='TWS'>12.548555555555556</data>
+    </time>
+    <time value='2010-05-08T13:07:22.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66428333333333</data>
+      <data id='LNG'>-122.38023333333334</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>276.3997626407535</data>
+      <data id='TWS'>13.218333333333323</data>
+    </time>
+    <time value='2010-05-08T13:09:35.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66428333333333</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>276.2330356383455</data>
+      <data id='TWS'>15.790666666666665</data>
+    </time>
+    <time value='2010-05-08T13:11:35.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.8666557145215</data>
+      <data id='LAT'>37.66426666666667</data>
+      <data id='LNG'>-122.38021666666668</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>264.86676155714616</data>
+      <data id='TWS'>10.748111111111115</data>
+    </time>
+    <time value='2010-05-08T13:13:36.000'>
+      <comment><![CDATA[At the dock]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38023333333332</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>261.0667492809831</data>
+      <data id='TWS'>12.905444444444441</data>
+    </time>
+    <time value='2010-05-08T13:15:36.000'>
+      <comment><![CDATA[At the dock]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66421666666667</data>
+      <data id='LNG'>-122.38021666666667</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>259.76695333091396</data>
+      <data id='TWS'>13.497666666666655</data>
+    </time>
+    <time value='2010-05-08T13:17:36.000'>
+      <comment><![CDATA[At the dock]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66423333333333</data>
+      <data id='LNG'>-122.38021666666668</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>279.36546866499503</data>
+      <data id='TWS'>10.55166666666667</data>
+    </time>
+    <time value='2010-05-08T13:19:36.000'>
+      <comment><![CDATA[At the dock]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66426666666667</data>
+      <data id='LNG'>-122.38023333333332</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>252.60065877470817</data>
+      <data id='TWS'>11.646888888888892</data>
+    </time>
+    <time value='2010-05-08T13:21:36.000'>
+      <comment><![CDATA[At the dock]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66426666666667</data>
+      <data id='LNG'>-122.38023333333332</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>261.8344320025017</data>
+      <data id='TWS'>12.590333333333335</data>
+    </time>
+    <time value='2010-05-08T13:23:36.000'>
+      <comment><![CDATA[At the dock]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38023333333334</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>244.83390750335138</data>
+      <data id='TWS'>9.227000000000002</data>
+    </time>
+    <time value='2010-05-08T13:25:36.000'>
+      <comment><![CDATA[At the dock]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.664233333333335</data>
+      <data id='LNG'>-122.38025</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>254.83366657438006</data>
+      <data id='TWS'>14.545444444444444</data>
+    </time>
+    <time value='2010-05-08T13:27:36.000'>
+      <comment><![CDATA[At the dock]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.664300000000004</data>
+      <data id='LNG'>-122.38023333333332</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>276.0</data>
+      <data id='TWS'>11.625222222222225</data>
+    </time>
+    <time value='2010-05-08T13:29:36.000'>
+      <comment><![CDATA[At the dock]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>254.2008901767494</data>
+      <data id='TWS'>12.040444444444443</data>
+    </time>
+    <time value='2010-05-08T13:31:36.000'>
+      <comment><![CDATA[At the dock]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38016666666667</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>231.3733976894686</data>
+      <data id='TWS'>9.991888888888885</data>
+    </time>
+    <time value='2010-05-08T13:33:36.000'>
+      <comment><![CDATA[At the dock]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66426666666667</data>
+      <data id='LNG'>-122.38025</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>262.0</data>
+      <data id='TWS'>10.326777777777776</data>
+    </time>
+    <time value='2010-05-08T13:35:36.000'>
+      <comment><![CDATA[At the dock]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38023333333334</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>263.9003322162557</data>
+      <data id='TWS'>11.040333333333335</data>
+    </time>
+    <time value='2010-05-08T13:37:36.000'>
+      <comment><![CDATA[At the dock]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66421666666667</data>
+      <data id='LNG'>-122.38025</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>256.0014504901237</data>
+      <data id='TWS'>10.904999999999996</data>
+    </time>
+    <time value='2010-05-08T13:39:36.000'>
+      <comment><![CDATA[At the dock]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66426666666667</data>
+      <data id='LNG'>-122.38018333333333</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>267.73797490237035</data>
+      <data id='TWS'>8.585222222222221</data>
+    </time>
+    <time value='2010-05-08T13:41:36.000'>
+      <comment><![CDATA[At the dock]]></comment>
+      <data id='BEAUFORT'>5.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66426666666667</data>
+      <data id='LNG'>-122.38018333333333</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>274.13325615873174</data>
+      <data id='TWS'>17.89311111111111</data>
+    </time>
+    <time value='2010-05-08T13:43:37.000'>
+      <comment><![CDATA[At the dock]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66426666666667</data>
+      <data id='LNG'>-122.38021666666667</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>242.50113568805966</data>
+      <data id='TWS'>11.08966666666667</data>
+    </time>
+    <time value='2010-05-08T13:45:37.000'>
+      <comment><![CDATA[At the dock]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38018333333333</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>245.34336705848335</data>
+      <data id='TWS'>11.97488888888888</data>
+    </time>
+    <time value='2010-05-08T13:47:37.000'>
+      <comment><![CDATA[At the dock]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66428333333333</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>264.13392169210897</data>
+      <data id='TWS'>15.588333333333342</data>
+    </time>
+    <time value='2010-05-08T13:49:37.000'>
+      <comment><![CDATA[At the dock]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66428333333333</data>
+      <data id='LNG'>-122.38018333333333</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>248.00952382384892</data>
+      <data id='TWS'>7.909444444444446</data>
+    </time>
+    <time value='2010-05-08T13:51:37.000'>
+      <comment><![CDATA[At the dock]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66428333333333</data>
+      <data id='LNG'>-122.38018333333333</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>234.76777408554756</data>
+      <data id='TWS'>15.461999999999998</data>
+    </time>
+    <time value='2010-05-08T13:53:37.000'>
+      <comment><![CDATA[At the dock]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.664233333333335</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>243.23411590639236</data>
+      <data id='TWS'>4.0876666666666654</data>
+    </time>
+    <time value='2010-05-08T14:53:37.000'>
+      <comment><![CDATA[At the dock]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38021666666668</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>284.8325497671652</data>
+      <data id='TWS'>12.362</data>
+    </time>
+    <time value='2010-05-08T16:03:17.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>5.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66428333333333</data>
+      <data id='LNG'>-122.38026666666667</data>
+      <data id='TWD'>276.4997514327014</data>
+      <data id='TWS'>16.82166666666665</data>
+    </time>
+    <time value='2010-05-08T16:33:17.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.6642</data>
+      <data id='LNG'>-122.38021666666667</data>
+      <data id='TWD'>270.0</data>
+      <data id='TWS'>15.876111111111117</data>
+    </time>
+    <time value='2010-05-08T17:03:17.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38021666666667</data>
+      <data id='TWD'>261.66736363110357</data>
+      <data id='TWS'>11.916333333333343</data>
+    </time>
+    <time value='2010-05-08T17:33:17.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66426666666667</data>
+      <data id='LNG'>-122.38021666666667</data>
+      <data id='TWD'>273.56653476299323</data>
+      <data id='TWS'>15.395777777777777</data>
+    </time>
+    <time value='2010-05-08T18:19:46.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66428333333333</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>261.4336544733387</data>
+      <data id='TWS'>13.669222222222214</data>
+    </time>
+    <time value='2010-05-08T18:24:46.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>6.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38023333333332</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>280.0</data>
+      <data id='TWS'>22.391555555555556</data>
+    </time>
+    <time value='2010-05-08T18:34:40.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>5.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38025</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>273.53313905507224</data>
+      <data id='TWS'>21.483333333333327</data>
+    </time>
+    <time value='2010-05-08T18:42:51.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>5.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66426666666667</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>266.90004619021823</data>
+      <data id='TWS'>18.76722222222222</data>
+    </time>
+    <time value='2010-05-08T18:44:33.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>5.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66423333333333</data>
+      <data id='LNG'>-122.38023333333332</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>266.13339718729054</data>
+      <data id='TWS'>17.616555555555557</data>
+    </time>
+    <time value='2010-05-08T18:59:33.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>5.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38021666666668</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>276.9666338342988</data>
+      <data id='TWS'>17.590222222222224</data>
+    </time>
+    <time value='2010-05-08T19:14:33.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66426666666667</data>
+      <data id='LNG'>-122.38021666666667</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>277.76645859404056</data>
+      <data id='TWS'>15.312555555555555</data>
+    </time>
+    <time value='2010-05-08T19:29:34.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>5.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38025</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>272.99999999999994</data>
+      <data id='TWS'>19.988111111111103</data>
+    </time>
+    <time value='2010-05-08T19:44:34.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>5.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66421666666667</data>
+      <data id='LNG'>-122.38025</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>267.33489336010746</data>
+      <data id='TWS'>16.64555555555556</data>
+    </time>
+    <time value='2010-05-08T19:59:34.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>5.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66426666666667</data>
+      <data id='LNG'>-122.38018333333333</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>265.6334912224496</data>
+      <data id='TWS'>19.743111111111123</data>
+    </time>
+    <time value='2010-05-08T20:14:34.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.89999131757173</data>
+      <data id='LAT'>37.6642</data>
+      <data id='LNG'>-122.38025</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>276.86600872957274</data>
+      <data id='TWS'>14.572666666666656</data>
+    </time>
+    <time value='2010-05-08T20:29:34.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.664199999999994</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>279.0</data>
+      <data id='TWS'>9.744777777777777</data>
+    </time>
+    <time value='2010-05-08T20:44:34.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66423333333333</data>
+      <data id='LNG'>-122.38018333333333</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>271.5998829929817</data>
+      <data id='TWS'>9.742555555555555</data>
+    </time>
+    <time value='2010-05-08T20:59:34.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66421666666667</data>
+      <data id='LNG'>-122.38025</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>280.59961048456404</data>
+      <data id='TWS'>5.922222222222228</data>
+    </time>
+    <time value='2010-05-08T21:14:34.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.0</data>
+      <data id='LAT'>37.664199999999994</data>
+      <data id='LNG'>-122.38028333333332</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>267.2772702844039</data>
+      <data id='TWS'>7.6252222222222255</data>
+    </time>
+    <time value='2010-05-08T21:29:34.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.59998050382</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38023333333332</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>282.53285134029557</data>
+      <data id='TWS'>6.960000000000003</data>
+    </time>
+    <time value='2010-05-08T21:44:34.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.3333182904978</data>
+      <data id='LAT'>37.66423333333333</data>
+      <data id='LNG'>-122.38026666666667</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>251.73409055739285</data>
+      <data id='TWS'>9.855111111111112</data>
+    </time>
+    <time value='2010-05-08T21:59:34.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66423333333333</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>283.93320136185</data>
+      <data id='TWS'>8.004888888888892</data>
+    </time>
+    <time value='2010-05-08T22:14:34.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.7666506205537</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>261.03356044120534</data>
+      <data id='TWS'>8.757555555555554</data>
+    </time>
+    <time value='2010-05-08T22:29:34.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66421666666667</data>
+      <data id='LNG'>-122.38021666666667</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>275.69982134898214</data>
+      <data id='TWS'>7.169999999999998</data>
+    </time>
+    <time value='2010-05-08T22:44:34.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.6643</data>
+      <data id='LNG'>-122.38015</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>282.59899789985184</data>
+      <data id='TWS'>6.458555555555557</data>
+    </time>
+    <time value='2010-05-08T22:59:35.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.66664786226306</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>264.1335549074141</data>
+      <data id='TWS'>11.51688888888889</data>
+    </time>
+    <time value='2010-05-08T23:14:35.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.0</data>
+      <data id='LAT'>37.664183333333334</data>
+      <data id='LNG'>-122.38023333333334</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>300.43207279314737</data>
+      <data id='TWS'>4.810777777777779</data>
+    </time>
+    <time value='2010-05-08T23:29:35.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38021666666668</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>250.60095093330858</data>
+      <data id='TWS'>5.660444444444442</data>
+    </time>
+    <time value='2010-05-08T23:44:35.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.69998187432213</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38021666666668</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>299.43212259454356</data>
+      <data id='TWS'>7.288666666666668</data>
+    </time>
+    <time value='2010-05-08T23:59:35.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.73331612332294</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38018333333333</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>269.200339530115</data>
+      <data id='TWS'>7.689888888888888</data>
+    </time>
+  </day>
+  <day date='Sunday, 09 May 2010'>
+    <time value='2010-05-09T00:14:35.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66426666666667</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>282.99865690103803</data>
+      <data id='TWS'>6.0078888888888855</data>
+    </time>
+    <time value='2010-05-09T00:29:35.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38023333333334</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>279.83312795643917</data>
+      <data id='TWS'>11.533555555555555</data>
+    </time>
+    <time value='2010-05-09T00:44:35.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.3333182904978</data>
+      <data id='LAT'>37.66426666666667</data>
+      <data id='LNG'>-122.38016666666667</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>280.13253306818217</data>
+      <data id='TWS'>4.935888888888891</data>
+    </time>
+    <time value='2010-05-09T00:59:35.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.7999853773037</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38025</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>262.46744307492855</data>
+      <data id='TWS'>4.469555555555554</data>
+    </time>
+    <time value='2010-05-09T01:14:35.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.664233333333335</data>
+      <data id='LNG'>-122.38021666666667</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>282.4995163407973</data>
+      <data id='TWS'>11.626777777777779</data>
+    </time>
+    <time value='2010-05-09T01:29:35.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.2999861399475</data>
+      <data id='LAT'>37.66428333333333</data>
+      <data id='LNG'>-122.38016666666667</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>288.6648157816792</data>
+      <data id='TWS'>5.294888888888887</data>
+    </time>
+    <time value='2010-05-09T01:44:35.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.0</data>
+      <data id='LAT'>37.66428333333333</data>
+      <data id='LNG'>-122.38021666666668</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>278.23122167214274</data>
+      <data id='TWS'>5.363111111111112</data>
+    </time>
+    <time value='2010-05-09T01:59:35.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38023333333334</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>292.0</data>
+      <data id='TWS'>7.080111111111117</data>
+    </time>
+    <time value='2010-05-09T02:14:35.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.0</data>
+      <data id='LAT'>37.66421666666667</data>
+      <data id='LNG'>-122.38026666666667</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>293.12355725543347</data>
+      <data id='TWS'>5.653666666666668</data>
+    </time>
+    <time value='2010-05-09T02:29:36.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.2666540909251</data>
+      <data id='LAT'>37.66426666666667</data>
+      <data id='LNG'>-122.38021666666667</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>275.73286104805555</data>
+      <data id='TWS'>6.631888888888892</data>
+    </time>
+    <time value='2010-05-09T02:44:36.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.39998294131016</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38021666666668</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>261.333809280448</data>
+      <data id='TWS'>10.097222222222225</data>
+    </time>
+    <time value='2010-05-09T02:59:36.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38026666666667</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>279.2996956392877</data>
+      <data id='TWS'>7.256666666666672</data>
+    </time>
+    <time value='2010-05-09T03:14:36.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38021666666667</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>318.2757988500881</data>
+      <data id='TWS'>8.947999999999999</data>
+    </time>
+    <time value='2010-05-09T03:29:36.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66426666666667</data>
+      <data id='LNG'>-122.38021666666667</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>275.53312376526</data>
+      <data id='TWS'>6.770999999999996</data>
+    </time>
+    <time value='2010-05-09T03:44:36.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.664233333333335</data>
+      <data id='LNG'>-122.38018333333333</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>275.53312376526</data>
+      <data id='TWS'>5.2055555555555575</data>
+    </time>
+    <time value='2010-05-09T03:59:36.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.0</data>
+      <data id='LAT'>37.66426666666667</data>
+      <data id='LNG'>-122.38023333333332</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>263.93394415729995</data>
+      <data id='TWS'>6.79988888888889</data>
+    </time>
+    <time value='2010-05-09T04:14:36.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38023333333332</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>276.7996241782987</data>
+      <data id='TWS'>8.028444444444446</data>
+    </time>
+    <time value='2010-05-09T04:29:36.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.4666481336223</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38018333333333</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>269.2746945579301</data>
+      <data id='TWS'>7.442444444444447</data>
+    </time>
+    <time value='2010-05-09T04:44:36.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66428333333333</data>
+      <data id='LNG'>-122.38015</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>257.535361775461</data>
+      <data id='TWS'>5.9025555555555576</data>
+    </time>
+    <time value='2010-05-09T04:59:36.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.6642</data>
+      <data id='LNG'>-122.38023333333334</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>253.0</data>
+      <data id='TWS'>4.671999999999999</data>
+    </time>
+    <time value='2010-05-09T05:14:36.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66423333333333</data>
+      <data id='LNG'>-122.38025</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>265.50796941827673</data>
+      <data id='TWS'>5.896555555555552</data>
+    </time>
+    <time value='2010-05-09T05:29:36.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38023333333334</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>257.0</data>
+      <data id='TWS'>6.87077777777778</data>
+    </time>
+    <time value='2010-05-09T05:44:36.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.664233333333335</data>
+      <data id='LNG'>-122.38025</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>266.0</data>
+      <data id='TWS'>6.060222222222219</data>
+    </time>
+    <time value='2010-05-09T05:59:37.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.19999025233756</data>
+      <data id='LAT'>37.66428333333333</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>265.03417037197454</data>
+      <data id='TWS'>5.422666666666663</data>
+    </time>
+    <time value='2010-05-09T06:14:37.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>1.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38025</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>263.99999999999994</data>
+      <data id='TWS'>3.5206666666666684</data>
+    </time>
+    <time value='2010-05-09T06:29:37.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66423333333333</data>
+      <data id='LNG'>-122.38023333333332</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>262.4669530525858</data>
+      <data id='TWS'>5.523777777777778</data>
+    </time>
+    <time value='2010-05-09T06:44:37.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38021666666668</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>260.4003518007954</data>
+      <data id='TWS'>6.0298888888888875</data>
+    </time>
+    <time value='2010-05-09T06:59:37.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.0</data>
+      <data id='LAT'>37.66421666666667</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>257.9340705842095</data>
+      <data id='TWS'>5.361555555555557</data>
+    </time>
+    <time value='2010-05-09T07:14:37.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.0</data>
+      <data id='LAT'>37.66433333333334</data>
+      <data id='LNG'>-122.38021666666668</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>236.16437060378655</data>
+      <data id='TWS'>4.457999999999998</data>
+    </time>
+    <time value='2010-05-09T07:29:37.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66428333333333</data>
+      <data id='LNG'>-122.38023333333332</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>281.3995752622689</data>
+      <data id='TWS'>6.779666666666668</data>
+    </time>
+    <time value='2010-05-09T07:44:37.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38021666666667</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>260.76912781324245</data>
+      <data id='TWS'>7.393111111111115</data>
+    </time>
+    <time value='2010-05-09T07:59:37.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66426666666667</data>
+      <data id='LNG'>-122.38023333333332</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>255.73377189697828</data>
+      <data id='TWS'>6.870555555555558</data>
+    </time>
+    <time value='2010-05-09T08:14:37.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66421666666667</data>
+      <data id='LNG'>-122.38023333333332</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>258.9334422715206</data>
+      <data id='TWS'>10.28377777777778</data>
+    </time>
+    <time value='2010-05-09T08:29:37.000'>
+      <comment><![CDATA[Showers]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66423333333333</data>
+      <data id='LNG'>-122.38021666666668</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>256.03470699221725</data>
+      <data id='TWS'>9.98377777777778</data>
+    </time>
+    <time value='2010-05-09T08:44:37.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66421666666667</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>281.6329192669158</data>
+      <data id='TWS'>7.985111111111111</data>
+    </time>
+    <time value='2010-05-09T08:59:38.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38021666666667</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>274.5664971729909</data>
+      <data id='TWS'>8.068888888888885</data>
+    </time>
+    <time value='2010-05-09T09:14:38.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66421666666667</data>
+      <data id='LNG'>-122.38021666666667</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>263.99999999999994</data>
+      <data id='TWS'>13.790666666666668</data>
+    </time>
+    <time value='2010-05-09T09:29:38.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66423333333333</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>247.83946892192301</data>
+      <data id='TWS'>9.15188888888889</data>
+    </time>
+    <time value='2010-05-09T09:44:38.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.5333139577008</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38021666666668</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>279.96641364211774</data>
+      <data id='TWS'>9.14355555555556</data>
+    </time>
+    <time value='2010-05-09T09:59:38.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.0</data>
+      <data id='LAT'>37.66423333333333</data>
+      <data id='LNG'>-122.38025</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>273.9335718682431</data>
+      <data id='TWS'>9.26444444444444</data>
+    </time>
+    <time value='2010-05-09T13:00:38.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.3333182904978</data>
+      <data id='LAT'>37.66423333333333</data>
+      <data id='LNG'>-122.38021666666668</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>274.96613480832264</data>
+      <data id='TWS'>10.269666666666666</data>
+    </time>
+    <time value='2010-05-09T13:15:38.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.0</data>
+      <data id='LAT'>37.66423333333333</data>
+      <data id='LNG'>-122.38018333333333</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>279.565999833985</data>
+      <data id='TWS'>6.3895555555555585</data>
+    </time>
+    <time value='2010-05-09T13:30:38.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>2.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.3333182904978</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38018333333333</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>254.00280534162926</data>
+      <data id='TWS'>6.703555555555554</data>
+    </time>
+    <time value='2010-05-09T13:45:38.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.0</data>
+      <data id='LAT'>37.66428333333333</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>278.2997283911966</data>
+      <data id='TWS'>10.650666666666664</data>
+    </time>
+    <time value='2010-05-09T14:00:38.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.2999861399475</data>
+      <data id='LAT'>37.66428333333333</data>
+      <data id='LNG'>-122.38023333333332</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>287.5621621751995</data>
+      <data id='TWS'>14.187666666666674</data>
+    </time>
+    <time value='2010-05-09T14:15:38.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.0</data>
+      <data id='LAT'>37.6643</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>274.83282846986117</data>
+      <data id='TWS'>12.70533333333333</data>
+    </time>
+    <time value='2010-05-09T14:30:38.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.6643</data>
+      <data id='LNG'>-122.38023333333334</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>262.9337605898909</data>
+      <data id='TWS'>12.942</data>
+    </time>
+    <time value='2010-05-09T14:45:39.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38023333333332</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>289.32998912576585</data>
+      <data id='TWS'>10.702444444444444</data>
+    </time>
+    <time value='2010-05-09T15:00:39.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.0</data>
+      <data id='LAT'>37.66423333333333</data>
+      <data id='LNG'>-122.38025</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>280.63186719365876</data>
+      <data id='TWS'>11.338666666666677</data>
+    </time>
+    <time value='2010-05-09T15:15:39.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.8666557145215</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38025</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>254.43392862447985</data>
+      <data id='TWS'>10.00344444444445</data>
+    </time>
+    <time value='2010-05-09T15:30:39.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.0</data>
+      <data id='LAT'>37.664233333333335</data>
+      <data id='LNG'>-122.38023333333334</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>298.0</data>
+      <data id='TWS'>12.459555555555552</data>
+    </time>
+    <time value='2010-05-09T15:45:39.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.09999497388225</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>290.13295934577815</data>
+      <data id='TWS'>9.944555555555556</data>
+    </time>
+    <time value='2010-05-09T16:00:39.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.2999861399475</data>
+      <data id='LAT'>37.66426666666667</data>
+      <data id='LNG'>-122.38025</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>277.2997609767373</data>
+      <data id='TWS'>15.418111111111113</data>
+    </time>
+    <time value='2010-05-09T16:15:39.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.1333266844851</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38023333333332</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>274.86638156055466</data>
+      <data id='TWS'>14.221666666666664</data>
+    </time>
+    <time value='2010-05-09T16:30:39.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.0</data>
+      <data id='LAT'>37.66426666666667</data>
+      <data id='LNG'>-122.38018333333333</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>269.01387992632965</data>
+      <data id='TWS'>8.526111111111112</data>
+    </time>
+    <time value='2010-05-09T16:45:39.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.664316666666664</data>
+      <data id='LNG'>-122.38016666666667</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>268.55943580220224</data>
+      <data id='TWS'>12.07922222222222</data>
+    </time>
+    <time value='2010-05-09T16:54:32.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.664300000000004</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>258.10016185087386</data>
+      <data id='TWS'>9.978444444444442</data>
+    </time>
+    <time value='2010-05-09T17:00:00.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66426666666667</data>
+      <data id='LNG'>-122.38018333333333</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>279.33254970983205</data>
+      <data id='TWS'>10.43933333333334</data>
+    </time>
+    <time value='2010-05-09T17:15:00.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>283.0</data>
+      <data id='TWS'>9.78355555555556</data>
+    </time>
+    <time value='2010-05-09T17:30:01.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.38021666666667</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>276.5330854331137</data>
+      <data id='TWS'>13.418999999999993</data>
+    </time>
+    <time value='2010-05-09T17:45:01.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66423333333333</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>270.66900851168083</data>
+      <data id='TWS'>10.243111111111116</data>
+    </time>
+    <time value='2010-05-09T18:00:01.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>4.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66425</data>
+      <data id='LNG'>-122.3802</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>280.0665675353155</data>
+      <data id='TWS'>13.127555555555563</data>
+    </time>
+    <time value='2010-05-09T18:15:01.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>270.0</data>
+      <data id='LAT'>37.66426666666667</data>
+      <data id='LNG'>-122.38016666666667</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>298.7658144842769</data>
+      <data id='TWS'>10.910444444444444</data>
+    </time>
+    <time value='2010-05-09T18:30:01.000'>
+      <comment><![CDATA[]]></comment>
+      <data id='BEAUFORT'>3.0</data>
+      <data id='BSP'>0.0</data>
+      <data id='HDG'>271.0</data>
+      <data id='LAT'>37.66428333333333</data>
+      <data id='LNG'>-122.38025</data>
+      <data id='LOG'>0.0</data>
+      <data id='TWD'>295.5598386240878</data>
+      <data id='TWS'>9.340777777777776</data>
+    </time>
+  </day>
+</journal>
