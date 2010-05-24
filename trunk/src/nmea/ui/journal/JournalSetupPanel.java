@@ -370,8 +370,6 @@ public class JournalSetupPanel
           value2log = ((Temperature)cache.get(NMEADataCache.WATER_TEMP)).getValue();
         else if (key.equals("DBT"))   
           value2log = ((Depth)cache.get(NMEADataCache.DBT)).getValue();
-        else if (key.equals("BEAUFORT"))   
-          value2log = Utils.getBeaufort(((Speed)cache.get(NMEADataCache.TWS)).getValue());
         else 
           value2log = -1D;
         
