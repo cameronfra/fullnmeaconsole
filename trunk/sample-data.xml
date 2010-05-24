@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?xml-stylesheet href="html.xsl" type="text/xsl"?>
+<!DOCTYPE data [
+ <!ENTITY deg     "&#176;">
+]>
+<data>
+  <D>015</D>
+  <gps-date-time>1273208932532</gps-date-time>
+  <gps-date-time-fmt>22:08:52 UTC</gps-date-time-fmt>
+  <aws>11.34</aws>
+
+  <wtemp>00.00</wtemp>
+  <gps-time>1273162436313</gps-time>
+  <gps-time-fmt>06 May 2010 09:13:56 UTC</gps-time-fmt>
+  <cdr>328</cdr>
+  <tws>08.85</tws>
+  <cog>239</cog>
+
+  <awa>-031</awa>
+  <hdg>223</hdg>
+  <cmg>227</cmg>
+  <twd>160</twd>
+  <leeway>008</leeway>
+  <d>000</d>
+
+  <csp>00.87</csp>
+  <twa>-062</twa>
+  <sog>05.39</sog>
+  <bsp>05.43</bsp>
+  <lat>37.90383333333333</lat>
+  <lng>-122.39233333333334</lng>
+
+  <pos>N  37&deg;54.23' / W 122&deg;23.54'</pos>
+  <dbt>00.00</dbt>
+</data>

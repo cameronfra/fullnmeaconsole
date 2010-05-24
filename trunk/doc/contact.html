@@ -1,0 +1,67 @@
+<html>
+  <head>
+    <title>NMEA, Weather Charts &amp; GRIB</title>
+    <link rel="stylesheet" href="print.css" type="text/css" id="styleLink">
+  	<script language="JavaScript1.1">
+	  function sendMyMail()
+	  {
+	    if (confirm('OK to send the message?'))
+	    {
+//      alert('Forms1:' + document.forms[1].name);
+	      document.forms[1].Message4you.value =
+	      "\n" + 
+	      "This message has been sent from the Grib Help System\n" +
+	      "-------------------------------------------------------------------------------\n" +
+	      "Sent by            : " + document.forms[0].email.value + "\n" +
+	      "Comments           :\n" + document.forms[0].commentArea.value + "\n";
+	      document.forms[1].submit();
+//      alert("Sending:\n" + document.forms[1].fld.value);
+	      alert('Thanks!');
+	      document.forms[0].commentArea.value = ""; // Reset
+	    }
+	  }
+    function mailpage()
+    {
+      mail_str = "mailto:olivier@lediouris.net?subject=From the Grib Help System";
+      mail_str += "&body=" + document.forms[0].commentArea.value;
+      mail_str += "%0A%0A" + document.forms[0].email.value;
+      location.href = mail_str;
+      document.forms[0].commentArea.value = ""; // Reset
+    }
+    </script>
+  </head>
+  <body bgcolor="white" text="navy">
+    <h2>Contact the development team</h2>
+    <p name="content">
+      Enter your message below, and hit the Send button. 
+      <br>
+      This will send the 
+      message you've entered to olivier@lediouris.net.
+    </p>
+    <form>
+      <table width="98%" border="0">
+        <tr>
+          <td valign="top" align="right">Your email address:</td>
+          <td><input type="text" name="email" size="40"></td>
+        </tr>
+        <tr>  
+          <td colspan="2" valign="top" width="100%" align="center">
+            <textarea cols="40" rows="10" name="commentArea"></textarea>
+  				</td>
+        </tr>
+        <tr>
+          <td colspan="2" align="center">
+            <!--input type="button" value="Send" onclick="javascript:sendMyMail();"-->
+            <input type="button" value="Send" onclick="javascript:mailpage();">
+          </td>
+        </tr>
+      </table>
+	  </form>
+    <form name="TheOne2Send"
+          method="post"
+          action="mailto:olivier@lediouris.net?subject=From the GRIB Viewer Help Page"
+          enctype="text/plain">
+      <input type="hidden" name="Message4you">
+    </form>
+  </body>
+</html>
