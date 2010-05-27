@@ -43,6 +43,8 @@ import ocss.nmea.parser.Speed;
 public class CurrentSituationPanel
   extends JPanel
 {
+  private CurrentSituationPanel instance = this;
+  
   private JPanel drawingPlusCompass = new JPanel();
   private DrawingBoard drawingBoard = new DrawingBoard();
   private JPanel compasPanel = new JPanel();
@@ -92,6 +94,11 @@ public class CurrentSituationPanel
   private ImageIcon pause = new ImageIcon(this.getClass().getResource("elements/resources/pause.png"));
   private ImageIcon start = new ImageIcon(this.getClass().getResource("elements/resources/start.png"));
   private JButton freezeButton = new JButton();
+  private JButton shiftLeftRightButton = new JButton();
+  private ImageIcon left  = new ImageIcon(this.getClass().getResource("elements/resources/shuttleLeftAll.png"));
+  private ImageIcon right = new ImageIcon(this.getClass().getResource("elements/resources/shuttleRightAll.png"));
+  
+  private boolean jumbosOnTheRight = true;
 
   public CurrentSituationPanel()
   {
@@ -193,7 +200,10 @@ public class CurrentSituationPanel
     displayPanel.add(miniMaxiCheckBox, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 3, 0, 0), 0, 0));
     displayPanel.add(showTemperatureCheckBox, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 3, 0, 0), 0, 0));
     displayPanel.add(displayCurrentCheckBox, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 3, 0, 0), 0, 0));
-    displayPanel.add(freezeButton, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 3, 0, 0), 0, 0));
+    JPanel buttonPanel = new JPanel();
+    buttonPanel.add(freezeButton, null);
+    buttonPanel.add(shiftLeftRightButton, null);
+    displayPanel.add(buttonPanel, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 3, 0, 0), 0, 0));
 
     bspDisplay = new JumboDisplay("BSP", "00.00", "Boat Speed", basicJumboSize);
     hdgDisplay = new JumboDisplay("HDG", "000", "Heading", basicJumboSize);
@@ -227,7 +237,7 @@ public class CurrentSituationPanel
     cogLabel.setText("COG:");
 
     
-    showLeftPaneCheckBox.setText("Show Left Pane");
+    showLeftPaneCheckBox.setText("Show 2D Pane");
     showLeftPaneCheckBox.setSelected(true);
     showLeftPaneCheckBox.addActionListener(new ActionListener()
       {
@@ -268,6 +278,7 @@ public class CurrentSituationPanel
     freezeButton.setPreferredSize(new Dimension(24, 24));
     freezeButton.setBorderPainted(false);
     freezeButton.setIcon(pause);
+    freezeButton.setToolTipText("<html>Freeze the display so<br>you can adjust coefficients</html>");
     freezeButton.addActionListener(new ActionListener()
       {
         public void actionPerformed(ActionEvent e)
@@ -276,6 +287,33 @@ public class CurrentSituationPanel
         }
       });
     
+    shiftLeftRightButton.setPreferredSize(new Dimension(24, 24));
+    shiftLeftRightButton.setBorderPainted(false);
+    shiftLeftRightButton.setIcon(left);
+    shiftLeftRightButton.setToolTipText("Shift the all panel left");
+    shiftLeftRightButton.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          if (jumbosOnTheRight) // Then shift left
+          {
+            instance.remove(rightScrollPane);
+            instance.add(rightScrollPane, BorderLayout.WEST);
+            shiftLeftRightButton.setIcon(right);
+            shiftLeftRightButton.setToolTipText("Shift the all panel right");
+            jumbosOnTheRight = false;
+          }
+          else // Then shift right
+          {
+            instance.remove(rightScrollPane);
+            instance.add(rightScrollPane, BorderLayout.EAST);
+            shiftLeftRightButton.setIcon(left);
+            shiftLeftRightButton.setToolTipText("Shift the all panel left");
+            jumbosOnTheRight = true;
+          }
+        }
+      });
+      
     topDisplayPanel.add(bspDisplay, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0));
     topDisplayPanel.add(hdgDisplay, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0));
     topDisplayPanel.add(awaDisplay, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0));
@@ -314,6 +352,8 @@ public class CurrentSituationPanel
       NMEAContext.getInstance().setFrozenDataCache(null);
     ImageIcon icon = (frozen?start:pause);
     freezeButton.setIcon(icon);
+    freezeButton.setToolTipText(frozen?"Resume display":"<html>Freeze the display so<br>you can adjust coefficients</html>");
+
     freezeButton.repaint();
     setFreeze(frozen);
   }

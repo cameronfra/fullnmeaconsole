@@ -70,14 +70,14 @@ public class JournalSetupPanel
   private final static String INSERT_LOG_HEADER    = "insert into datalog values (?, ?)";
   private final static String INSERT_LOG_DETAIL    = "insert into datacell values (?, ?, ?)";
   
-  private LoggingThread lt = null;
+  private transient LoggingThread lt = null;
   
   private static final String KEY   = "Data";
   private static final String VALUE = "Write";
 
   private final String configNames[] = new String[] { KEY, VALUE };
-  private Object configData[][] = new Object[0][configNames.length];
-  private TableModel configDataModel;
+  private transient Object configData[][] = new Object[0][configNames.length];
+  private transient TableModel configDataModel;
   private JTable configTable;
   
   private JScrollPane centerScrollPane = null;
