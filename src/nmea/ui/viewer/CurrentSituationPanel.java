@@ -370,7 +370,10 @@ public class CurrentSituationPanel
 
   private void setAWA(double d)
   {
-    awaDisplay.setValue(df3.format(d));
+    String str = df3.format(d);
+    if (d > 0)
+      str += "-";
+    awaDisplay.setValue(str);
     awDisplay.setAWA(d);
   }
 
@@ -382,7 +385,10 @@ public class CurrentSituationPanel
 
   private void setTWA(double d)
   {
-    twaDisplay.setValue(df3.format(d));
+    String str = df3.format(d);
+    if (d > 0)
+      str += "-";
+    twaDisplay.setValue(str);
   }
 
   private void setTWD(double d)

@@ -461,9 +461,14 @@ public class Utils
     try
     {
       // Warning, the MHU is carried by the boat, that has the HDG...
-      double diffCogHdg = (cog - (hdg + hdgOffset));
-      if (diffCogHdg > 180)
-        diffCogHdg -= 360;
+      // Only if the boat is moving (ie SOG > 0)
+      double diffCogHdg = 0;
+      if (sog > 0d)
+      {
+        diffCogHdg = (cog - (hdg + hdgOffset));
+        if (diffCogHdg > 180)
+          diffCogHdg -= 360;
+      }
       double awaOnCOG = (awa + awaOffset) - diffCogHdg;      
       double d = ((aws * awsCoeff) * Math.cos(Math.toRadians(awaOnCOG))) - (sog);
       double h = ((aws * awsCoeff) * Math.sin(Math.toRadians(awaOnCOG)));
@@ -473,8 +478,10 @@ public class Utils
         twaOnCOG = 0d;
       if (Math.abs(awaOnCOG) > 180 || awaOnCOG < 0)
         twaOnCOG = 360 - twaOnCOG;
-      
-      twd = (int)(cog) + (int)twaOnCOG;
+      if (sog > 0)
+        twd = (int)(cog) + (int)twaOnCOG;
+      else
+        twd = (int)(hdg) + (int)twaOnCOG;
       while (twd > 360) twd -= 360;
       while (twd < 0) twd += 360;
       
@@ -676,6 +683,10 @@ public class Utils
     if (g != null) g.setColor(orig);
   }
   
+  /**
+   * @deprecated Use calculateTWwithGPS instead
+   */
+  @Deprecated
   public static double[] calculateTW(double aws, double awsCoeff, 
                                      double awa, double awaOffset,
                                      double bsp, double bspCoeff, 
