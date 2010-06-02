@@ -39,6 +39,7 @@ import ocss.nmea.parser.Angle360;
 import ocss.nmea.parser.Depth;
 import ocss.nmea.parser.Distance;
 import ocss.nmea.parser.GeoPos;
+import ocss.nmea.parser.SolarDate;
 import ocss.nmea.parser.Speed;
 import ocss.nmea.parser.Temperature;
 import ocss.nmea.parser.UTCDate;
@@ -56,8 +57,9 @@ public class CalculatedDataTablePane
       { NMEADataCache.POSITION ,   GeoPos.init() },
       { NMEADataCache.GPS_DATE_TIME, new UTCDate(new Date()) },
       { NMEADataCache.GPS_TIME,    new UTCTime(new Date()) },
+      { NMEADataCache.GPS_SOLAR_TIME, new SolarDate(new Date()) },
       // Boat
-      { NMEADataCache.HDG_COMPASS, new Angle360() },           // 5
+      { NMEADataCache.HDG_COMPASS, new Angle360() },           // 6
       { NMEADataCache.DECLINATION, new Angle180EW(-Double.MAX_VALUE) },
       { NMEADataCache.DEVIATION,   new Angle180EW(-Double.MAX_VALUE) },
       { NMEADataCache.VARIATION,   new Angle180EW(-Double.MAX_VALUE) },
@@ -66,7 +68,7 @@ public class CalculatedDataTablePane
       { NMEADataCache.BSP,         new Speed() },
       { NMEADataCache.LEEWAY,      new Angle180LR() },
       { NMEADataCache.CMG,         new Angle360() },
-      { NMEADataCache.LOG,         new Distance() },          // 14
+      { NMEADataCache.LOG,         new Distance() },          // 15
       { NMEADataCache.DAILY_LOG,   new Distance() },
       { NMEADataCache.WATER_TEMP,  new Temperature() },
       { NMEADataCache.DBT,         new Depth(0) },
@@ -77,10 +79,10 @@ public class CalculatedDataTablePane
       { NMEADataCache.TWS,         new Speed() },
       { NMEADataCache.TWD,         new Angle360() },
       // Others
-      { NMEADataCache.CSP,         new Speed() },             // 23
+      { NMEADataCache.CSP,         new Speed() },             // 24
       { NMEADataCache.CDR,         new Angle360() },
       // Nav
-      { NMEADataCache.FROM_WP,     "" },                      // 25
+      { NMEADataCache.FROM_WP,     "" },                      // 26
       { NMEADataCache.TO_WP,       "" },
       { NMEADataCache.WP_POS,      GeoPos.init() },
       { NMEADataCache.D2WP,        new Distance() },
@@ -89,7 +91,7 @@ public class CalculatedDataTablePane
       { NMEADataCache.XTE,         new Distance() },
       { NMEADataCache.S2STEER,     "" },
       // Coeff
-      { NMEADataCache.MAX_LEEWAY, 10d },                       // 33
+      { NMEADataCache.MAX_LEEWAY, 10d },                       // 34
       { NMEADataCache.BSP_FACTOR,  1d },
       { NMEADataCache.AWS_FACTOR,  1d },
       { NMEADataCache.AWA_OFFSET,  0d },
@@ -254,19 +256,19 @@ public class CalculatedDataTablePane
     {
       this.setText(value.toString());
       this.setForeground(Color.black);
-      if (row < 5)
+      if (row < 6)
         this.setBackground(Color.pink);
-      else if (row < 12)
+      else if (row < 13)
         this.setBackground(Color.cyan);
-      else if (row < 14)
+      else if (row < 15)
         this.setBackground(Color.red);
-      else if (row < 18)
+      else if (row < 19)
         this.setBackground(Color.orange);
-      else if (row < 23)
+      else if (row < 24)
         this.setBackground(Color.green);
-      else if (row < 25)
+      else if (row < 26)
         this.setBackground(Color.lightGray);
-      else if (row < 33)
+      else if (row < 34)
         this.setBackground(Color.lightGray);
       else
       {
@@ -282,6 +284,7 @@ public class CalculatedDataTablePane
           defaultTable[row][0] == NMEADataCache.POSITION ||
           defaultTable[row][0] == NMEADataCache.GPS_TIME ||
           defaultTable[row][0] == NMEADataCache.GPS_DATE_TIME ||
+          defaultTable[row][0] == NMEADataCache.GPS_SOLAR_TIME ||
           defaultTable[row][0] == NMEADataCache.FROM_WP ||
           defaultTable[row][0] == NMEADataCache.D2WP ||
           defaultTable[row][0] == NMEADataCache.XTE ||
