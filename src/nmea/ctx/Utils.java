@@ -60,6 +60,7 @@ import ocss.nmea.parser.OverGround;
 import ocss.nmea.parser.RMB;
 import ocss.nmea.parser.RMC;
 
+import ocss.nmea.parser.SolarDate;
 import ocss.nmea.parser.Speed;
 import ocss.nmea.parser.StringParsers;
 
@@ -236,6 +237,11 @@ public class Utils
         rmcMap.put(NMEADataCache.GPS_DATE_TIME, new UTCDate(rmc.getRmcDate()));
         rmcMap.put(NMEADataCache.COG,         new Angle360(rmc.getCog()));
         rmcMap.put(NMEADataCache.DECLINATION, new Angle180EW(rmc.getDeclination()));
+        
+        // Compute Solar Time here
+        long solarTime = rmc.getRmcDate().getTime() + longitudeToTime(rmc.getGp().lng);        
+        Date solarDate = new Date(solarTime);
+        rmcMap.put(NMEADataCache.GPS_SOLAR_TIME, new SolarDate(solarDate));
 
         NMEAContext.getInstance().putDataCache(rmcMap);
       }
@@ -318,7 +324,12 @@ public class Utils
           NMEAContext.getInstance().putDataCache(NMEADataCache.POSITION, pos);
         Date date = (Date)obj[StringParsers.DATE_in_GLL];
         if (date != null)
+        {
           NMEAContext.getInstance().putDataCache(NMEADataCache.GPS_TIME, new UTCTime(date));
+          long solarTime = date.getTime() + longitudeToTime(pos.lng);        
+          Date solarDate = new Date(solarTime);
+          NMEAContext.getInstance().putDataCache(NMEADataCache.GPS_SOLAR_TIME, new SolarDate(solarDate));
+        }
       }
     }
     else if ("HDM".equals(sentenceId)) // Heading
@@ -518,6 +529,12 @@ public class Utils
     cdr = getDir((float) a, (float) b);
     
     return new double[] { cdr, csp };
+  }
+  
+  public static long longitudeToTime(double longitude)
+  {
+    long offset = (long)(longitude * 3600000L / 15L);
+    return offset;
   }
   
   public static double getDir(float x, float y)
