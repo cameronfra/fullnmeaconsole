@@ -1,5 +1,6 @@
 package nmea.ui.viewer.elements;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -9,6 +10,7 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 
@@ -42,12 +44,13 @@ public class SpeedEvolutionDisplay
   private String toolTipText = null;
 
   private String name = "BSP";
-  private ArrayList<DatedData> aldd = null;
-  private DatedData mini = null, maxi = null; // Extrema
+  private transient ArrayList<DatedData> aldd = null;
+  private transient ArrayList<DatedData> alnddd = null; // Not Damped
+  private transient DatedData mini = null, maxi = null; // Extrema
   
   private long maxDataLength = 2500L;
   
-  private double min = 0d, max = 0d; // Boundaries
+  private transient  double min = 0d, max = 0d; // Boundaries
   private double step = 1d;
   private String unit = "kts";
   private DecimalFormat df21 = new DecimalFormat("##0.0");
@@ -60,6 +63,7 @@ public class SpeedEvolutionDisplay
   {
     this.name = name;
     aldd = new ArrayList<DatedData>();
+    alnddd = new ArrayList<DatedData>();
   }
 
   public SpeedEvolutionDisplay(String name, String ttText)
@@ -73,6 +77,7 @@ public class SpeedEvolutionDisplay
     toolTipText = ttText;
     this.jumboFontSize = basicSize;
     aldd = new ArrayList<DatedData>();
+    alnddd = new ArrayList<DatedData>();
     try
     {
       jbInit();
@@ -204,6 +209,21 @@ public class SpeedEvolutionDisplay
     }
   }
 
+  public void addNDValue(Date date, double value)
+  {
+    synchronized (alnddd)
+    {
+      if (!Double.isInfinite(value) && value != -Double.MAX_VALUE && (alnddd.size() == 0 || (date.getTime() - alnddd.get(alnddd.size() - 1).getDate().getTime() > 1000L)))
+      {
+  //      if ("BSP".equals(this.name))
+  //        System.out.println("Adding value to BSP:" + sdf.format(date));
+        alnddd.add(new DatedData(date, value));
+      }
+      while (alnddd.size() > maxDataLength)
+        alnddd.remove(0);
+    }
+  }
+
   public void setDisplayColor(Color c)
   {
     displayColor = c;
@@ -263,9 +283,15 @@ public class SpeedEvolutionDisplay
     Point mouse = e.getPoint();
     int width = dataPanel.getWidth();
     int arraySize = aldd.size();
-    if (mouse.x <= width)
+    if (mouse.x <= width && arraySize > 0)
     {
       int index = (int)(((double)mouse.x / (double)width) * (double)arraySize);
+      index -= 1;
+      while (index >= aldd.size())
+        index--;
+      if (index == -1)
+        return;
+      
       Date date = aldd.get(index).getDate();
       boolean onMini = false, onMaxi = false;
       if (date.equals(mini.getDate()))
@@ -358,6 +384,15 @@ public class SpeedEvolutionDisplay
           begin = aldd.get(0).getDate().getTime();
           end   = aldd.get(aldd.size() - 1).getDate().getTime();
         }
+        // Min and max, for scale
+        for (DatedData dd : alnddd) // Undamped ones
+        {
+          if (mini == null) mini = dd;
+          if (maxi == null) maxi = dd;
+          if (dd.getValue() < mini.getValue()) mini = dd;
+          if (dd.getValue() > maxi.getValue()) maxi = dd;
+        }
+        max = (1 + (int)(maxi.getValue() / 10)) * 10; // Setting the scale there
         // 2 - Grid and data
         long length = (end - begin);
         if (length > 0)
@@ -373,15 +408,33 @@ public class SpeedEvolutionDisplay
             int y = h - (int)((d - min) * stepV);
             gr.drawLine(0, y, w, y);
           }
+          // Not Damped Data
+          gr.setColor(Color.yellow);
+          Point previous = null;
+          for (DatedData dd : alnddd)
+          {
+            int x = (int)((dd.getDate().getTime() - begin) * stepH);
+            int y = h - (int)((dd.getValue() - min) * stepV);
+            Point p = new Point(x, y);
+            if (previous != null)
+              gr.drawLine(previous.x, previous.y, p.x, p.y);
+            previous = p;
+          }
+                    
           // Data
           gr.setColor(Color.red);
-          Point previous = null;
+          Stroke origStroke = ((Graphics2D)gr).getStroke();
+          Stroke stroke =  new BasicStroke(2, 
+                                           BasicStroke.CAP_BUTT,
+                                           BasicStroke.JOIN_BEVEL);
+          ((Graphics2D)gr).setStroke(stroke);  
+       /* Point */ previous = null;
           for (DatedData dd : aldd)
           {
-            if (mini == null) mini = dd;
-            if (maxi == null) maxi = dd;
-            if (dd.getValue() < mini.getValue()) mini = dd;
-            if (dd.getValue() > maxi.getValue()) maxi = dd;
+//          if (mini == null) mini = dd;
+//          if (maxi == null) maxi = dd;
+//          if (dd.getValue() < mini.getValue()) mini = dd;
+//          if (dd.getValue() > maxi.getValue()) maxi = dd;
             int x = (int)((dd.getDate().getTime() - begin) * stepH);
             int y = h - (int)((dd.getValue() - min) * stepV);
             Point p = new Point(x, y);
@@ -390,6 +443,7 @@ public class SpeedEvolutionDisplay
             previous = p;
 //          System.out.println(name + ":" + dd.getValue() + " " + unit);
           }
+          ((Graphics2D)gr).setStroke(origStroke);  
           // Plot mini/maxi
           int x = (int)((mini.getDate().getTime() - begin) * stepH);
           gr.drawLine(x, 0, x, this.getHeight());

@@ -1,5 +1,6 @@
 package nmea.ui.viewer.elements;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -9,6 +10,7 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 
@@ -41,7 +43,7 @@ public class DepthEvolutionDisplay
   private String toolTipText = null;
 
   private String name = "DBT";
-  private ArrayList<DatedData> aldd = null;
+  private transient ArrayList<DatedData> aldd = null;
 
   private long maxDataLength = 2500L;
 
@@ -123,10 +125,12 @@ public class DepthEvolutionDisplay
           {
             try 
             { 
-              addValue(new Date(), ((Depth)cache.get(NMEADataCache.DBT)).getValue()); 
+              addValue(new Date(), ((Depth)cache.get(NMEADataCache.DBT, false)).getValue()); // Not Damped!!
             }
             catch (Exception ex)
-            {}
+            {
+              ex.printStackTrace();
+            }
           }
         }
       });
@@ -345,8 +349,13 @@ public class DepthEvolutionDisplay
             gr.drawLine(0, y, w, y);
           }
           // Data
-          gr.setColor(Color.red);
+          gr.setColor(Color.yellow);
           Point previous = null;
+          Stroke origStroke = ((Graphics2D)gr).getStroke();
+          Stroke stroke =  new BasicStroke(2, 
+                                           BasicStroke.CAP_BUTT,
+                                           BasicStroke.JOIN_BEVEL);
+          ((Graphics2D)gr).setStroke(stroke);  
           for (DatedData dd: aldd)
           {
             int x = (int) ((dd.getDate().getTime() - begin) * stepH);
@@ -357,6 +366,7 @@ public class DepthEvolutionDisplay
             previous = p;
 //          System.out.println(name + ":" + dd.getValue() + " " + unit);
           }
+          ((Graphics2D)gr).setStroke(origStroke);  
           // Last value
           String str = df21.format(aldd.get(aldd.size() - 1).getValue()) + " " + unit;
           int strWidth = gr.getFontMetrics(gr.getFont()).stringWidth(str);

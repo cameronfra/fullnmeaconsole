@@ -65,7 +65,7 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
   // Damping ArrayList's
   private int dampingSize = 1;  
   
-  private HashMap<String, ArrayList<Object>> dampingMap = new HashMap<String, ArrayList<Object>>();
+  private transient HashMap<String, ArrayList<Object>> dampingMap = new HashMap<String, ArrayList<Object>>();
   
   public NMEADataCache()
   {
@@ -147,11 +147,20 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
   // For debug
   double prevTWD = 0d;
   
+  /**
+   * @param key
+   * @return Damped Data, by default
+   */
   @Override
   public synchronized Object get(Object key)
   {
+    return get(key, true);
+  }
+
+  public synchronized Object get(Object key, boolean useDamping)
+  {
 //  System.out.println("Damping = " + dampingSize);
-    if (dampingSize > 1 && dampingMap.containsKey(key))
+    if (useDamping && dampingSize > 1 && dampingMap.containsKey(key))
     {
       Object ret = null;
       Class cl = null;
