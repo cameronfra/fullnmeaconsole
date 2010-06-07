@@ -1,5 +1,6 @@
 package nmea.ui.viewer.elements;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -10,6 +11,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 
+import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 
 import java.awt.event.MouseMotionListener;
@@ -40,7 +42,8 @@ public class DirectionEvolutionDisplay
   private String toolTipText = null;
 
   private String name = "HDG";
-  private ArrayList<DatedData> aldd = null;
+  private transient ArrayList<DatedData> aldd = null;
+  private transient ArrayList<DatedData> alnddd = null;
   public final static int DEFAULT_WIDTH = 150;
 
   private long maxDataLength = 2500L;
@@ -57,6 +60,7 @@ public class DirectionEvolutionDisplay
   {
     this.name = name;
     aldd = new ArrayList<DatedData>();
+    alnddd = new ArrayList<DatedData>();
   }
 
   public DirectionEvolutionDisplay(String name, String ttText)
@@ -70,6 +74,7 @@ public class DirectionEvolutionDisplay
     toolTipText = ttText;
     this.jumboFontSize = basicSize;
     aldd = new ArrayList<DatedData>();
+    alnddd = new ArrayList<DatedData>();
     try
     {
       jbInit();
@@ -197,6 +202,17 @@ public class DirectionEvolutionDisplay
     }
   }
 
+  public void addNDValue(Date date, double value)
+  {
+    synchronized (alnddd)
+    {
+      if (!Double.isInfinite(value) && value != -Double.MAX_VALUE && (alnddd.size() == 0 || (date.getTime() - alnddd.get(alnddd.size() - 1).getDate().getTime() > 1000L)))
+        alnddd.add(new DatedData(date, value));
+      while (alnddd.size() > maxDataLength)
+        alnddd.remove(0);
+    }
+  }
+
   public void setDisplayColor(Color c)
   {
     displayColor = c;
@@ -256,9 +272,15 @@ public class DirectionEvolutionDisplay
     Point mouse = e.getPoint();
     int height = dataPanel.getHeight();
     int arraySize = aldd.size();
-    if (mouse.y <= height)
+    if (mouse.x <= height && arraySize > 0)
     {
-      int index = (int)(((double)mouse.y / (double)height) * (double)arraySize);
+      int index = (int)(((double)mouse.x / (double)height) * (double)arraySize);
+      index -= 1;
+      while (index >= aldd.size())
+        index--;
+      if (index == -1)
+        return;
+        
       try
       {
         Date date = aldd.get(index).getDate();
@@ -358,9 +380,31 @@ public class DirectionEvolutionDisplay
             int x = (int) ((d - min) * stepH);
             gr.drawLine(x, 0, x, h);
           }
-          // Data
-          gr.setColor(Color.red);
+          // No damped Data
+          gr.setColor(Color.yellow);
           Point previous = null;
+          for (DatedData dd: alnddd)
+          {
+            double value = dd.getValue();
+          //          value += dataOffset;
+            while (value > max) value -= 360d;
+            while (value < min) value += 360d;
+            
+            int x = (int) ((value - min) * stepH);
+            int y = (int) ((dd.getDate().getTime() - begin) * stepV);
+            Point p = new Point(x, y);
+            if (previous != null)
+              gr.drawLine(previous.x, previous.y, p.x, p.y);
+            previous = p;
+          }
+          // Data
+          Stroke origStroke = ((Graphics2D)gr).getStroke();
+          Stroke stroke =  new BasicStroke(2, 
+                                           BasicStroke.CAP_BUTT,
+                                           BasicStroke.JOIN_BEVEL);
+          ((Graphics2D)gr).setStroke(stroke);  
+          gr.setColor(Color.red);
+       /* Point */ previous = null;
           for (DatedData dd: aldd)
           {
             double value = dd.getValue();
@@ -375,6 +419,7 @@ public class DirectionEvolutionDisplay
               gr.drawLine(previous.x, previous.y, p.x, p.y);
             previous = p;
           }
+          ((Graphics2D)gr).setStroke(origStroke);  
           // Last value
           String str = df21.format(aldd.get(aldd.size() - 1).getValue()); // + unit;
           int strWidth  = gr.getFontMetrics(gr.getFont()).stringWidth(str);

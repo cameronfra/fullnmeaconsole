@@ -34,8 +34,8 @@ public class NMEAContext implements Serializable
   
   private boolean fromFile = false;
   
-  private DOMParser parser = null;
-  private Connection dbConnection = null;
+  private transient DOMParser parser = null;
+  private transient Connection dbConnection = null;
   
   private NMEAContext()
   {

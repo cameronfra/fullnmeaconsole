@@ -64,9 +64,11 @@ public class DirectionEvolutionPanel
           NMEADataCache cache = NMEAContext.getInstance().getCache();
           if (cache != null)
           {
+            Date d = new Date();
             try
             {
-              hdgLoggingDisplay.addValue(new Date(), ((Angle360) cache.get(NMEADataCache.HDG_TRUE)).getValue());
+              hdgLoggingDisplay.addValue(d, ((Angle360) cache.get(NMEADataCache.HDG_TRUE)).getValue());
+              hdgLoggingDisplay.addNDValue(d, ((Angle360) cache.get(NMEADataCache.HDG_TRUE, false)).getValue());
               hdgLoggingDisplay.repaint();
             }
             catch (Exception ex)
@@ -74,7 +76,8 @@ public class DirectionEvolutionPanel
             }
             try
             {
-              cogLoggingDisplay.addValue(new Date(), ((Angle360) cache.get(NMEADataCache.COG)).getValue());
+              cogLoggingDisplay.addValue(d, ((Angle360) cache.get(NMEADataCache.COG)).getValue());
+              cogLoggingDisplay.addNDValue(d, ((Angle360) cache.get(NMEADataCache.COG, false)).getValue());
               cogLoggingDisplay.repaint();
             }
             catch (Exception ex)
@@ -82,7 +85,8 @@ public class DirectionEvolutionPanel
             }
             try
             {
-              twdLoggingDisplay.addValue(new Date(), ((Angle360) cache.get(NMEADataCache.TWD)).getValue());
+              twdLoggingDisplay.addValue(d, ((Angle360) cache.get(NMEADataCache.TWD)).getValue());
+              twdLoggingDisplay.addNDValue(d, ((Angle360) cache.get(NMEADataCache.TWD, false)).getValue());
               twdLoggingDisplay.repaint();
             }
             catch (Exception ex)
@@ -90,7 +94,8 @@ public class DirectionEvolutionPanel
             }
             try
             {
-              cdrLoggingDisplay.addValue(new Date(), ((Angle360) cache.get(NMEADataCache.CDR)).getValue());
+              cdrLoggingDisplay.addValue(d, ((Angle360) cache.get(NMEADataCache.CDR)).getValue());
+              cdrLoggingDisplay.addNDValue(d, ((Angle360) cache.get(NMEADataCache.CDR, false)).getValue());
               cdrLoggingDisplay.repaint();
             }
             catch (Exception ex)
