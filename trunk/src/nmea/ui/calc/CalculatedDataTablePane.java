@@ -114,6 +114,7 @@ public class CalculatedDataTablePane
   BorderLayout borderLayout2 = new BorderLayout();
   JScrollPane centerScrollPane = null;
   JPanel topPanel = new JPanel();
+  JLabel topLabel = new JLabel();
   private JButton logButton = new JButton();
 //private NMEAFrameInterface parent;
   private BorderLayout borderLayout3 = new BorderLayout();
@@ -161,6 +162,8 @@ public class CalculatedDataTablePane
     centerPanel.setLayout(borderLayout2);
     add(centerPanel, BorderLayout.CENTER);
     add(topPanel, BorderLayout.NORTH);
+    topPanel.add(topLabel, null);
+    topLabel.setText("<html><i>Warning:</i> Values in this table are damped (see damping factor at the bottom of the table).</html>");
     initTable();
     
     TableColumn colOne = table.getColumnModel().getColumn(0);

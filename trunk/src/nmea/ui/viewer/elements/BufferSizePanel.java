@@ -6,6 +6,10 @@ import java.awt.GridBagLayout;
 
 import java.awt.Insets;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -20,6 +24,8 @@ public class BufferSizePanel
   private GridBagLayout gridBagLayout = new GridBagLayout();
   private JLabel bufferLabel = new JLabel();
   private JSpinner bufferSizeSpinner = new JSpinner();
+  
+  private JCheckBox showRawDataCheckBox = new JCheckBox();
 
   public BufferSizePanel()
   {
@@ -42,7 +48,7 @@ public class BufferSizePanel
     bufferSizeSpinner.setMinimumSize(new Dimension(100, 20));
     this.add(bufferLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     this.add(bufferSizeSpinner, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    bufferSizeSpinner.setValue(new Integer(2500));
+    bufferSizeSpinner.setValue(new Integer(NMEAContext.DEFAULT_BUFFER_SIZE));
     bufferSizeSpinner.addChangeListener(new ChangeListener()
       {
         public void stateChanged(ChangeEvent evt)
@@ -56,6 +62,18 @@ public class BufferSizePanel
             Integer d = (Integer) value;
             NMEAContext.getInstance().fireDataBufferSizeChanged(d.intValue());
           }
+        }
+      });
+    showRawDataCheckBox.setText("Show raw (un-damped) data");
+    this.add(showRawDataCheckBox,
+             new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+          new Insets(0, 10, 0, 0), 0, 0));
+    showRawDataCheckBox.setSelected(true);
+    showRawDataCheckBox.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          NMEAContext.getInstance().fireShowRawData(showRawDataCheckBox.isSelected());
         }
       });
   }

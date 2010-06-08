@@ -29,4 +29,5 @@ public abstract class NMEAListener
   public void stopReading() throws Exception {}
 
   public void refreshLogJournal() {}
+  public void showRawData(boolean b) {}
 }

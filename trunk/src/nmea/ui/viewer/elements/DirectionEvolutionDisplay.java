@@ -46,7 +46,7 @@ public class DirectionEvolutionDisplay
   private transient ArrayList<DatedData> alnddd = null;
   public final static int DEFAULT_WIDTH = 150;
 
-  private long maxDataLength = 2500L;
+  private long maxDataLength = NMEAContext.DEFAULT_BUFFER_SIZE;
 
   private double min = -180d, max = 180d;
   private double step = 45d;
@@ -54,8 +54,10 @@ public class DirectionEvolutionDisplay
   private DecimalFormat df21 = new DecimalFormat("##0");
 
   private DataPanel    dataPanel    = new DataPanel();
-  private HeadingPanel headingPanel = new HeadingPanel();
+  private HeadingPanel headingPanel = null;
 
+  private boolean showRawData = true;
+  
   public DirectionEvolutionDisplay(String name)
   {
     this.name = name;
@@ -70,6 +72,12 @@ public class DirectionEvolutionDisplay
 
   public DirectionEvolutionDisplay(String name, String ttText, int basicSize)
   {
+    this(name, ttText, basicSize, HeadingPanel.ROSE);
+  }
+  
+  public DirectionEvolutionDisplay(String name, String ttText, int basicSize, int compassType)
+  {
+    headingPanel = new HeadingPanel(compassType);
     this.name = name;
     toolTipText = ttText;
     this.jumboFontSize = basicSize;
@@ -128,6 +136,10 @@ public class DirectionEvolutionDisplay
       public void dataBufferSizeChanged(int size) 
       {
         maxDataLength = size;
+      }
+      public void showRawData(boolean b) 
+      {
+        showRawData = b;
       }
     });
   }
@@ -352,13 +364,14 @@ public class DirectionEvolutionDisplay
         // 1 - Length
         long begin = 0L;
         long end = 0L;
+        double center = 0d;
         if (aldd != null && aldd.size() > 1)
         {
           begin = aldd.get(0).getDate().getTime();
           end = aldd.get(aldd.size() - 1).getDate().getTime();
+          // Center value: last value
+          center = aldd.get(aldd.size() - 1).getValue();
         }
-        // Center value: last value
-        double center = aldd.get(aldd.size() - 1).getValue();
         min = center - 180d;
         max = min + 360;
         // Grid and data
@@ -383,19 +396,23 @@ public class DirectionEvolutionDisplay
           // No damped Data
           gr.setColor(Color.yellow);
           Point previous = null;
-          for (DatedData dd: alnddd)
+          
+          if (showRawData)
           {
-            double value = dd.getValue();
-          //          value += dataOffset;
-            while (value > max) value -= 360d;
-            while (value < min) value += 360d;
-            
-            int x = (int) ((value - min) * stepH);
-            int y = (int) ((dd.getDate().getTime() - begin) * stepV);
-            Point p = new Point(x, y);
-            if (previous != null)
-              gr.drawLine(previous.x, previous.y, p.x, p.y);
-            previous = p;
+            for (DatedData dd: alnddd)
+            {
+              double value = dd.getValue();
+            //          value += dataOffset;
+              while (value > max) value -= 360d;
+              while (value < min) value += 360d;
+              
+              int x = (int) ((value - min) * stepH);
+              int y = (int) ((dd.getDate().getTime() - begin) * stepV);
+              Point p = new Point(x, y);
+              if (previous != null)
+                gr.drawLine(previous.x, previous.y, p.x, p.y);
+              previous = p;
+            }
           }
           // Data
           Stroke origStroke = ((Graphics2D)gr).getStroke();

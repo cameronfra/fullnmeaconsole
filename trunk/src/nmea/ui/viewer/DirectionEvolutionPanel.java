@@ -15,8 +15,10 @@ import nmea.event.NMEAListener;
 
 import nmea.ui.viewer.elements.DirectionEvolutionDisplay;
 
-import ocss.nmea.parser.Angle360;
+import nmea.ui.viewer.elements.HeadingPanel;
 
+import ocss.nmea.parser.Angle180;
+import ocss.nmea.parser.Angle360;
 
 public class DirectionEvolutionPanel
      extends JPanel  
@@ -24,6 +26,7 @@ public class DirectionEvolutionPanel
 
   private DirectionEvolutionDisplay hdgLoggingDisplay = new DirectionEvolutionDisplay("HDG", "Heading", 36);
   private DirectionEvolutionDisplay cogLoggingDisplay = new DirectionEvolutionDisplay("COG", "Course Over Ground", 36);
+  private DirectionEvolutionDisplay awaLoggingDisplay = new DirectionEvolutionDisplay("AWA", "Apparent Wind Angle", 36, HeadingPanel.MINUS_180_TO_PLUS_180);
   private DirectionEvolutionDisplay twdLoggingDisplay = new DirectionEvolutionDisplay("TWD", "True Wind Direction", 36);
   private DirectionEvolutionDisplay cdrLoggingDisplay = new DirectionEvolutionDisplay("CDR", "Current Direction", 36);
   
@@ -48,12 +51,14 @@ public class DirectionEvolutionPanel
     this.setSize(new Dimension(450, 430));
     this.add(hdgLoggingDisplay, null); // new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
     this.add(cogLoggingDisplay, null); // new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 0, 0, 0), 0, 0));
+    this.add(awaLoggingDisplay, null); // new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 0, 0, 0), 0, 0));
     this.add(twdLoggingDisplay, null); // new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 0, 0, 0), 0, 0));
     this.add(cdrLoggingDisplay, null); // new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 0, 0, 0), 0, 0));
 
     Dimension dim = new Dimension(DirectionEvolutionDisplay.DEFAULT_WIDTH, this.getHeight());
     hdgLoggingDisplay.setPreferredSize(dim);
     cogLoggingDisplay.setPreferredSize(dim);
+    awaLoggingDisplay.setPreferredSize(dim);
     twdLoggingDisplay.setPreferredSize(dim);
     cdrLoggingDisplay.setPreferredSize(dim);
 
@@ -73,6 +78,7 @@ public class DirectionEvolutionPanel
             }
             catch (Exception ex)
             {
+              ex.printStackTrace();
             }
             try
             {
@@ -82,6 +88,17 @@ public class DirectionEvolutionPanel
             }
             catch (Exception ex)
             {
+              ex.printStackTrace();
+            }
+            try
+            {
+              awaLoggingDisplay.addValue(d, ((Angle180) cache.get(NMEADataCache.AWA)).getValue());
+              awaLoggingDisplay.addNDValue(d, ((Angle180) cache.get(NMEADataCache.AWA, false)).getValue());
+              awaLoggingDisplay.repaint();
+            }
+            catch (Exception ex)
+            {
+              ex.printStackTrace();
             }
             try
             {
@@ -91,6 +108,7 @@ public class DirectionEvolutionPanel
             }
             catch (Exception ex)
             {
+              ex.printStackTrace();
             }
             try
             {
@@ -100,6 +118,7 @@ public class DirectionEvolutionPanel
             }
             catch (Exception ex)
             {
+              ex.printStackTrace();
             }
           }
         }
@@ -111,6 +130,7 @@ public class DirectionEvolutionPanel
     Dimension dim = new Dimension(DirectionEvolutionDisplay.DEFAULT_WIDTH, this.getHeight());
     hdgLoggingDisplay.setPreferredSize(dim);
     cogLoggingDisplay.setPreferredSize(dim);
+    awaLoggingDisplay.setPreferredSize(dim);
     twdLoggingDisplay.setPreferredSize(dim);
     cdrLoggingDisplay.setPreferredSize(dim);
      
