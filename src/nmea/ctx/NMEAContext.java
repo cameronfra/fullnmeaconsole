@@ -32,6 +32,8 @@ public class NMEAContext implements Serializable
   
   public final static DecimalFormat DF22 = new DecimalFormat("00.00");
   
+  public final static int DEFAULT_BUFFER_SIZE = 3600;
+  
   private boolean fromFile = false;
   
   private transient DOMParser parser = null;
@@ -224,6 +226,15 @@ public class NMEAContext implements Serializable
     }
   }
   
+  public void fireShowRawData(boolean b)
+  {
+    for (int i=0; i<NMEAListeners.size(); i++)
+    {
+      NMEAListener l = NMEAListeners.get(i);
+      l.showRawData(b);
+    }
+  }
+    
   public synchronized NMEADataCache getCache()
   {
 //  System.out.println("NMEAContext getCache:" + Integer.toString(dataCache.size()) + " pos.");

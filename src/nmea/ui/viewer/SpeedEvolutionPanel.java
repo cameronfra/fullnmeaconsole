@@ -26,6 +26,7 @@ public class SpeedEvolutionPanel
   private VerticalFlowLayout verticalFlowLayout = new VerticalFlowLayout();
 
   private SpeedEvolutionDisplay bspLoggingDisplay = new SpeedEvolutionDisplay("BSP", "Boat Speed", 36);
+  private SpeedEvolutionDisplay awsLoggingDisplay = new SpeedEvolutionDisplay("AWS", "Apparent Wind Speed", 36);
   private SpeedEvolutionDisplay twsLoggingDisplay = new SpeedEvolutionDisplay("TWS", "True Wind Speed", 36);
   private SpeedEvolutionDisplay sogLoggingDisplay = new SpeedEvolutionDisplay("SOG", "Speed Over Ground", 36);
   private SpeedEvolutionDisplay cspLoggingDisplay = new SpeedEvolutionDisplay("CSP", "Current Speed", 36);
@@ -47,12 +48,17 @@ public class SpeedEvolutionPanel
   {
     this.setLayout(verticalFlowLayout);
     this.setSize(new Dimension(450, 350));
-    this.add(bspLoggingDisplay, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-    this.add(twsLoggingDisplay, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 0, 0, 0), 0, 0));
-    this.add(sogLoggingDisplay, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 0, 0, 0), 0, 0));
-    this.add(cspLoggingDisplay, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 0, 0, 0), 0, 0));
+    int i = 0;
+    this.add(bspLoggingDisplay, new GridBagConstraints(0, i++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+    this.add(awsLoggingDisplay, new GridBagConstraints(0, i++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 0, 0, 0), 0, 0));
+    this.add(twsLoggingDisplay, new GridBagConstraints(0, i++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 0, 0, 0), 0, 0));
+    this.add(sogLoggingDisplay, new GridBagConstraints(0, i++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 0, 0, 0), 0, 0));
+    this.add(cspLoggingDisplay, new GridBagConstraints(0, i++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 0, 0, 0), 0, 0));
 
     bspLoggingDisplay.setMax(10d);
+    
+    awsLoggingDisplay.setMax(70d);
+    awsLoggingDisplay.setStep(10d);
     
     twsLoggingDisplay.setMax(70d);
     twsLoggingDisplay.setStep(10d);
@@ -67,27 +73,39 @@ public class SpeedEvolutionPanel
         NMEADataCache cache = NMEAContext.getInstance().getCache();
         if (cache != null)
         {
+          Date d = new Date();
           try 
           { 
-            bspLoggingDisplay.addValue(new Date(), ((Speed)cache.get(NMEADataCache.BSP)).getValue()); 
+            bspLoggingDisplay.addValue(d, ((Speed)cache.get(NMEADataCache.BSP)).getValue()); 
+            bspLoggingDisplay.addNDValue(d, ((Speed)cache.get(NMEADataCache.BSP, false)).getValue()); 
             bspLoggingDisplay.repaint();
           } 
           catch (Exception ex) {}
           try 
           { 
-            twsLoggingDisplay.addValue(new Date(), ((Speed)cache.get(NMEADataCache.TWS)).getValue()); 
+            awsLoggingDisplay.addValue(d, ((Speed)cache.get(NMEADataCache.AWS)).getValue()); 
+            awsLoggingDisplay.addNDValue(d, ((Speed)cache.get(NMEADataCache.AWS, false)).getValue()); 
+            awsLoggingDisplay.repaint();
+          } 
+          catch (Exception ex) {}
+          try 
+          { 
+            twsLoggingDisplay.addValue(d, ((Speed)cache.get(NMEADataCache.TWS)).getValue()); 
+            twsLoggingDisplay.addNDValue(d, ((Speed)cache.get(NMEADataCache.TWS, false)).getValue()); 
             twsLoggingDisplay.repaint();
           } 
           catch (Exception ex) {}
           try 
           { 
-            sogLoggingDisplay.addValue(new Date(), ((Speed)cache.get(NMEADataCache.SOG)).getValue()); 
+            sogLoggingDisplay.addValue(d, ((Speed)cache.get(NMEADataCache.SOG)).getValue()); 
+            sogLoggingDisplay.addNDValue(d, ((Speed)cache.get(NMEADataCache.SOG, false)).getValue()); 
             sogLoggingDisplay.repaint();
           } 
           catch (Exception ex) {}
           try 
           { 
-            cspLoggingDisplay.addValue(new Date(), ((Speed)cache.get(NMEADataCache.CSP)).getValue()); 
+            cspLoggingDisplay.addValue(d, ((Speed)cache.get(NMEADataCache.CSP)).getValue()); 
+            cspLoggingDisplay.addNDValue(d, ((Speed)cache.get(NMEADataCache.CSP, false)).getValue()); 
             cspLoggingDisplay.repaint();
           } 
           catch (Exception ex) {}

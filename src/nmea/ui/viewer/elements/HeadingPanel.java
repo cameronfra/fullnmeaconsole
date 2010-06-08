@@ -12,6 +12,12 @@ import javax.swing.JPanel;
 public class HeadingPanel 
      extends JPanel 
 {
+  public final static int ROSE                  = 0;
+  public final static int ZERO_TO_360           = 1;
+  public final static int MINUS_180_TO_PLUS_180 = 2;
+  
+  private int roseType = ROSE;
+  
   private int hdg = 0;
   private boolean whiteOnBlack = true;
   private boolean draggable = true;
@@ -21,6 +27,12 @@ public class HeadingPanel
   
   public HeadingPanel()
   {
+    this(ROSE);
+  }
+  
+  public HeadingPanel(int roseOption)
+  {
+    this.roseType = roseOption;
     try
     {
       jbInit();
@@ -96,28 +108,15 @@ public class HeadingPanel
         Font f = gr.getFont();
         gr.setFont(new Font("Arial", Font.BOLD, FONT_SIZE));
         String roseStr = Integer.toString(Math.round(roseToDisplay));
+        boolean cardinal = false;
         if (withCardinalPoints)
         {
-          if (roseToDisplay == 0)
-            roseStr = "N";
-          else if (roseToDisplay == 180)
-            roseStr = "S";    
-          else if (roseToDisplay == 90)
-            roseStr = "E";    
-          else if (roseToDisplay == 270)
-            roseStr = "W";    
-          else if (roseToDisplay == 45)
-            roseStr = "NE";    
-          else if (roseToDisplay == 135)
-            roseStr = "SE";    
-          else if (roseToDisplay == 225)
-            roseStr = "SW";    
-          else if (roseToDisplay == 315)
-            roseStr = "NW";    
+          roseStr = getRoseStr(roseToDisplay);
+          if (roseStr.trim().length() > 0)
+            cardinal = true;
         }
 //      System.out.println("String:" + roseStr);
-        boolean cardinal = false;
-        try { int x = Integer.parseInt(roseStr); } catch (NumberFormatException nfe) { cardinal = true; }
+//      try { int x = Integer.parseInt(roseStr); } catch (NumberFormatException nfe) { cardinal = true; } // Deprecated, see above
         if (withNumber || (cardinal && withCardinalPoints))
         {
           int strWidth  = gr.getFontMetrics(gr.getFont()).stringWidth(roseStr);
@@ -128,6 +127,85 @@ public class HeadingPanel
     }    
     gr.setColor(Color.red);
     gr.drawLine(w/2, 0, w/2, h);
+  }
+
+  private String getRoseStr(int rtd)
+  {
+    String roseStr = "";
+    if (rtd == 0)
+    {
+      if (roseType == ROSE)
+        roseStr = "N";
+      else if (roseType == MINUS_180_TO_PLUS_180)
+        roseStr = "0";
+      else
+        roseStr = "0";
+    }
+    else if (rtd == 180)
+    {
+      if (roseType == ROSE)
+        roseStr = "S";
+      else if (roseType == MINUS_180_TO_PLUS_180)
+        roseStr = "180";
+      else
+        roseStr = "180";
+    }
+    else if (rtd == 90)
+    {
+      if (roseType == ROSE)
+        roseStr = "E";
+      else if (roseType == MINUS_180_TO_PLUS_180)
+        roseStr = "90";
+      else
+        roseStr = "90";
+    }
+    else if (rtd == 270)
+    {
+      if (roseType == ROSE)
+        roseStr = "W";
+      else if (roseType == MINUS_180_TO_PLUS_180)
+        roseStr = "90";
+      else
+        roseStr = "270";
+    }
+    else if (rtd == 45)
+    {
+      if (roseType == ROSE)
+        roseStr = "NE";
+      else if (roseType == MINUS_180_TO_PLUS_180)
+        roseStr = "45";
+      else
+        roseStr = "45";
+    }
+    else if (rtd == 135)
+    {
+      if (roseType == ROSE)
+        roseStr = "SE";
+      else if (roseType == MINUS_180_TO_PLUS_180)
+        roseStr = "135";
+      else
+        roseStr = "135";
+    }
+    else if (rtd == 225)
+    {
+      if (roseType == ROSE)
+        roseStr = "SW";
+      else if (roseType == MINUS_180_TO_PLUS_180)
+        roseStr = "135";
+      else
+        roseStr = "225";
+    }
+    else if (rtd == 315)
+    {
+      if (roseType == ROSE)
+        roseStr = "NW";
+      else if (roseType == MINUS_180_TO_PLUS_180)
+        roseStr = "45";
+      else
+        roseStr = "315";
+    }
+    
+    return roseStr;
   }
 
   public void setHdg(int hdg)
