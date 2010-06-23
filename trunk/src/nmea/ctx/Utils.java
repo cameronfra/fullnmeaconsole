@@ -71,6 +71,8 @@ import ocss.nmea.parser.Wind;
 
 import oracle.xml.parser.v2.NSResolver;
 
+import user.util.GeomUtil;
+
 public class Utils
 {
   public final static String PROPERTIES_FILE = "nmea-config.properties";
@@ -221,7 +223,7 @@ public class Utils
     }
   }
   
-  public static void parseAndCalculate(String key, String value)
+  public static void parseAndCalculate(String key, String value, NMEADataCache ndc)
   {
     String sentenceId = key.substring(2);
     
@@ -243,20 +245,29 @@ public class Utils
         Date solarDate = new Date(solarTime);
         rmcMap.put(NMEADataCache.GPS_SOLAR_TIME, new SolarDate(solarDate));
 
-        NMEAContext.getInstance().putDataCache(rmcMap);
+        if (ndc == null)
+          NMEAContext.getInstance().putDataCache(rmcMap);
+        else
+          ndc.putAll(rmcMap);
       }
     }
     else if ("VHW".equals(sentenceId)) // Water Speed and Heading
     {
       double[] vhw = StringParsers.parseVHW(value);
       double bsp = vhw[StringParsers.BSP_in_VHW];
-      double hdm = vhw[StringParsers.HDM_in_VHW]             ;
-      NMEAContext.getInstance().putDataCache(NMEADataCache.BSP, new Speed(bsp));
+      double hdm = vhw[StringParsers.HDM_in_VHW];
+      if (ndc == null)
+        NMEAContext.getInstance().putDataCache(NMEADataCache.BSP, new Speed(bsp));
+      else
+        ndc.put(NMEADataCache.BSP, new Speed(bsp));
       // Question for NMEA, HDG is TRUE when there is a Dec in HDG, or RMC
       double dec = ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DECLINATION)).getValue();
       if (dec == -Double.MAX_VALUE)
         dec = ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEFAULT_DECLINATION)).getValue();
-      NMEAContext.getInstance().putDataCache(NMEADataCache.HDG_COMPASS, new Angle360(hdm - dec));        
+      if (ndc == null)
+        NMEAContext.getInstance().putDataCache(NMEADataCache.HDG_COMPASS, new Angle360(hdm - dec));        
+      else
+        ndc.put(NMEADataCache.HDG_COMPASS, new Angle360(hdm - dec));
     }
     else if ("VLW".equals(sentenceId)) // Log
     {
@@ -265,12 +276,18 @@ public class Utils
       map.put(NMEADataCache.LOG      , new Distance(d[0]));
       map.put(NMEADataCache.DAILY_LOG, new Distance(d[1]));
 
-      NMEAContext.getInstance().putDataCache(map);
+      if (ndc == null)
+        NMEAContext.getInstance().putDataCache(map);
+      else
+        ndc.putAll(map);
     }
     else if ("MTW".equals(sentenceId)) // Water Temperature
     {
       double t = StringParsers.parseMTW(value);
-      NMEAContext.getInstance().putDataCache(NMEADataCache.WATER_TEMP, new Temperature(t));
+      if (ndc == null)
+        NMEAContext.getInstance().putDataCache(NMEADataCache.WATER_TEMP, new Temperature(t));
+      else
+        ndc.put(NMEADataCache.WATER_TEMP, new Temperature(t));
     }
     else if ("MWV".equals(sentenceId)) // Apparent Wind Speed and Direction
     {
@@ -283,8 +300,11 @@ public class Utils
         if (awa > 180)
           awa -= 360;
         map.put(NMEADataCache.AWA, new Angle180(awa));
-
-        NMEAContext.getInstance().putDataCache(map);
+ 
+        if (ndc == null)
+          NMEAContext.getInstance().putDataCache(map);
+        else
+          ndc.putAll(map);
       }
     }
     else if ("VWR".equals(sentenceId)) // Apparent Wind Speed and Direction (2)
@@ -299,7 +319,10 @@ public class Utils
           awa -= 360;
         map.put(NMEADataCache.AWA, new Angle180(awa));
 
-        NMEAContext.getInstance().putDataCache(map);
+        if (ndc == null)
+          NMEAContext.getInstance().putDataCache(map);
+        else
+          ndc.putAll(map);
       }
     }
     else if ("VTG".equals(sentenceId)) // Speed and Course over Ground
@@ -311,7 +334,10 @@ public class Utils
         map.put(NMEADataCache.COG, new Angle360(og.getCourse()));
         map.put(NMEADataCache.SOG, new Speed(og.getSpeed()));
 
-        NMEAContext.getInstance().putDataCache(map);
+        if (ndc == null)
+          NMEAContext.getInstance().putDataCache(map);
+        else
+          ndc.putAll(map);
       }
     }
     else if ("GLL".equals(sentenceId)) // Lat & Long
@@ -321,21 +347,32 @@ public class Utils
       {
         GeoPos pos = (GeoPos)obj[StringParsers.GP_in_GLL];
         if (pos != null)
-          NMEAContext.getInstance().putDataCache(NMEADataCache.POSITION, pos);
+        {
+          if (ndc == null)
+            NMEAContext.getInstance().putDataCache(NMEADataCache.POSITION, pos);
+          else
+            ndc.put(NMEADataCache.POSITION, pos);
+        }
         Date date = (Date)obj[StringParsers.DATE_in_GLL];
         if (date != null)
         {
           NMEAContext.getInstance().putDataCache(NMEADataCache.GPS_TIME, new UTCTime(date));
           long solarTime = date.getTime() + longitudeToTime(pos.lng);        
           Date solarDate = new Date(solarTime);
-          NMEAContext.getInstance().putDataCache(NMEADataCache.GPS_SOLAR_TIME, new SolarDate(solarDate));
+          if (ndc == null)
+            NMEAContext.getInstance().putDataCache(NMEADataCache.GPS_SOLAR_TIME, new SolarDate(solarDate));
+          else
+            ndc.put(NMEADataCache.GPS_SOLAR_TIME, new SolarDate(solarDate));
         }
       }
     }
     else if ("HDM".equals(sentenceId)) // Heading
     {
       int hdg = StringParsers.parseHDM(value);
-      NMEAContext.getInstance().putDataCache(NMEADataCache.HDG_COMPASS, new Angle360(hdg));
+      if (ndc == null)
+        NMEAContext.getInstance().putDataCache(NMEADataCache.HDG_COMPASS, new Angle360(hdg));
+      else
+        ndc.put(NMEADataCache.HDG_COMPASS, new Angle360(hdg));
     }
     else if ("HDG".equals(sentenceId)) // Heading
     {
@@ -343,7 +380,12 @@ public class Utils
       double dev = StringParsers.parseHDG(value)[StringParsers.DEV_in_HDG];
       double var = StringParsers.parseHDG(value)[StringParsers.VAR_in_HDG];
       if (dev == -Double.MAX_VALUE && var == -Double.MAX_VALUE)
-        NMEAContext.getInstance().putDataCache(NMEADataCache.HDG_COMPASS, new Angle360(hdg));
+      {
+        if (ndc == null)
+          NMEAContext.getInstance().putDataCache(NMEADataCache.HDG_COMPASS, new Angle360(hdg));
+        else
+          ndc.put(NMEADataCache.HDG_COMPASS, new Angle360(hdg));
+      }
       else
       {
         double dec = 0d;
@@ -351,8 +393,16 @@ public class Utils
           dec = dev;
         else
           dec = var;
-        NMEAContext.getInstance().putDataCache(NMEADataCache.DECLINATION, new Angle180EW(dec));
-        NMEAContext.getInstance().putDataCache(NMEADataCache.HDG_COMPASS, new Angle360(hdg - dec));
+        if (ndc == null)
+        {
+          NMEAContext.getInstance().putDataCache(NMEADataCache.DECLINATION, new Angle180EW(dec));
+          NMEAContext.getInstance().putDataCache(NMEADataCache.HDG_COMPASS, new Angle360(hdg - dec));
+        }
+        else
+        {
+          ndc.put(NMEADataCache.DECLINATION, new Angle180EW(dec));
+          ndc.put(NMEADataCache.HDG_COMPASS, new Angle360(hdg - dec));
+        }
       }
     }
     else if ("RMB".equals(sentenceId))
@@ -370,17 +420,27 @@ public class Utils
         map.put(NMEADataCache.S2WP,    new Speed(rmb.getDcv()));
         map.put(NMEADataCache.S2STEER, rmb.getDts());
 
-        NMEAContext.getInstance().putDataCache(map);
+        if (ndc == null)
+          NMEAContext.getInstance().putDataCache(map);
+        else
+          ndc.putAll(map);
       }
     }
     else if ("DBT".equals(sentenceId)) // Depth
     {
       float f = StringParsers.parseDBT(value, StringParsers.DEPTH_IN_METERS);
-      NMEAContext.getInstance().putDataCache(NMEADataCache.DBT, new Depth(f));
+      if (ndc == null)
+        NMEAContext.getInstance().putDataCache(NMEADataCache.DBT, new Depth(f));
+      else
+        ndc.put(NMEADataCache.DBT, new Depth(f));
     }
-    
-    computeAndSendValues(NMEAContext.getInstance().getCache());
-    NMEAContext.getInstance().fireDataChanged();
+    if (ndc == null)
+    {
+      computeAndSendValues(NMEAContext.getInstance().getCache());
+      NMEAContext.getInstance().fireDataChanged();
+    }
+    else
+    computeAndSendValues(ndc);
   }
 
   /**
@@ -1312,7 +1372,104 @@ public class Utils
     bw.close();
   }
   
-  public static void main(String[] args)
+  public static void dsiplayNMEADetails(String fName)
+  {
+    String message = ""; // The one to display
+    try
+    {
+      BufferedReader br = new BufferedReader(new FileReader(fName));
+      String line = "";
+      int nbRec = 0;
+      double north = -90d, south = 90d;
+      double east  = -180d, west = 180d;
+      double bspMin = Double.MAX_VALUE, bspMax = 0d;
+      double sogMin = Double.MAX_VALUE, sogMax = 0d;
+      double twsMin = Double.MAX_VALUE, twsMax = 0d;
+      double awsMin = Double.MAX_VALUE, awsMax = 0d;
+
+      NMEADataCache ndc = new NMEADataCache();
+      
+      double maxLeeway = 0d; // Max Leeway
+      try 
+      { 
+        maxLeeway = ((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.MAX_LEEWAY)).doubleValue();
+        ndc.put(NMEADataCache.MAX_LEEWAY, new Double(maxLeeway));
+      }
+      catch (Exception ex)
+      {
+        ex.printStackTrace();
+      }
+      
+      boolean keepReading = true;
+      while (keepReading)
+      {
+        line = br.readLine();
+        if (line == null)
+          keepReading = false;
+        else
+        {
+          nbRec++;
+          // Analyze here
+          if (line.startsWith("$"))
+          {
+            String key = line.substring(1, 6);
+            try { Utils.parseAndCalculate(key, line, ndc); } catch (Exception ex) {}
+            // Get values for statistics
+            Speed bsp = (Speed)ndc.get(NMEADataCache.BSP);
+            if (bsp != null)
+            {
+              if (bsp.getValue() < bspMin) bspMin = bsp.getValue();
+              if (bsp.getValue() > bspMax) bspMax = bsp.getValue();
+            }
+            Speed sog = (Speed)ndc.get(NMEADataCache.SOG);
+            if (sog != null)
+            {
+              if (sog.getValue() < sogMin) sogMin = sog.getValue();
+              if (sog.getValue() > sogMax) sogMax = sog.getValue();
+            }
+            Speed tws = (Speed)ndc.get(NMEADataCache.TWS);
+            if (tws != null)
+            {
+              if (tws.getValue() < twsMin) twsMin = tws.getValue();
+              if (tws.getValue() > twsMax) twsMax = tws.getValue();
+            }
+            Speed aws = (Speed)ndc.get(NMEADataCache.AWS);
+            if (aws != null)
+            {
+              if (aws.getValue() < awsMin) awsMin = aws.getValue();
+              if (aws.getValue() > awsMax) awsMax = aws.getValue();
+            }
+            GeoPos pos = (GeoPos)ndc.get(NMEADataCache.POSITION);
+            if (pos != null)
+            {
+              if (pos.lat > north) north = pos.lat;
+              if (pos.lat < south) south = pos.lat;
+              if (pos.lng > east) east = pos.lng;
+              if (pos.lng < west) west = pos.lng;
+            }
+          }
+        }
+      }
+      br.close();
+      message += (Integer.toString(nbRec) + " record(s).");
+      message += ("\nLatitude between " + GeomUtil.decToSex(north, GeomUtil.SWING, GeomUtil.NS, GeomUtil.LEADING_SIGN) +
+                  " and " + GeomUtil.decToSex(south, GeomUtil.SWING, GeomUtil.NS, GeomUtil.LEADING_SIGN));
+      message += ("\nLongitude between " + GeomUtil.decToSex(east, GeomUtil.SWING, GeomUtil.EW, GeomUtil.LEADING_SIGN) +
+                  " and " + GeomUtil.decToSex(west, GeomUtil.SWING, GeomUtil.EW, GeomUtil.LEADING_SIGN));
+      message += ("\nBSP between " + bspMin + " and " + bspMax);
+      message += ("\nSOG between " + sogMin + " and " + sogMax);
+      message += ("\nTWS between " + twsMin + " and " + twsMax);
+      message += ("\nAWS between " + awsMin + " and " + awsMax);
+    }
+    catch (Exception ex)
+    {
+      message = ex.toString();
+      ex.printStackTrace();
+    }
+    JOptionPane.showMessageDialog(null, message, "NMEA Details", JOptionPane.PLAIN_MESSAGE); // LOCALIZE
+  }
+  
+  public static void main1(String[] args)
   {
     for (int i=0; i<360; i++)
       System.out.println(Integer.toString(i) + ":" + getRoseDir((double)i));

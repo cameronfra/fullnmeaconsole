@@ -3,6 +3,11 @@ package nmea.ui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -16,8 +21,14 @@ import java.util.Date;
 import java.util.Properties;
 
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
+
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 import nmea.ctx.NMEAContext;
 import nmea.ctx.Utils;
@@ -38,6 +49,7 @@ import nmea.ui.logger.LoggerTablePane;
 import nmea.ui.viewer.BulkPanel;
 import nmea.ui.viewer.Full2DPanel;
 import nmea.ui.viewer.ViewerTablePane;
+import nmea.ui.viewer.minimaxi.GaugePanel;
 
 
 public class NMEAMasterPanel
@@ -66,7 +78,6 @@ public class NMEAMasterPanel
   private JTabbedPane nmeaTabbedPane = new JTabbedPane();
 
   private Full2DPanel            f2d = new Full2DPanel();
-  private JournalPanel            jp = new JournalPanel();
   
   private JPanel                  ep = new JPanel(new BorderLayout());
   
@@ -166,19 +177,64 @@ public class NMEAMasterPanel
 //  setTitle(LogisailResourceBundle.buildMessage("frame-title"));
     bottomPanel.setLayout(new BorderLayout());
     bottomPanel.add(status, BorderLayout.WEST);
+    status.addMouseListener(new MouseListener()
+      {
+        public void mouseClicked(MouseEvent e)
+        {
+          // Right click: popup -> Reset
+          int mask = e.getModifiers();
+          // Right-click only (Actually: no left-click)
+          if ((mask & MouseEvent.BUTTON2_MASK) != 0 || (mask & MouseEvent.BUTTON3_MASK) != 0)
+          {
+            String fileName = status.getText();
+            if (fileName.startsWith("Simulation:"))
+              fileName = fileName.substring("Sumulation:".length());
+            File f = new File(fileName);
+            if (f.exists())
+            {
+              LoggingDetailsPopup popup = new LoggingDetailsPopup(fileName);
+              popup.show(status, e.getX(), e.getY());
+            }
+            else
+              System.out.println(fileName + " does not exist.");
+          }
+        }
+
+        public void mousePressed(MouseEvent e)
+        {
+        }
+
+        public void mouseReleased(MouseEvent e)
+        {
+        }
+
+        public void mouseEntered(MouseEvent e)
+        {
+        }
+
+        public void mouseExited(MouseEvent e)
+        {
+        }
+      });
     this.add(bottomPanel, BorderLayout.SOUTH);
 
     nmeaTabbedPane.setTabPlacement(JTabbedPane.BOTTOM);
     nmeaTabbedPane.add(LogisailResourceBundle.buildMessage("bulk-data"), bp);
     nmeaTabbedPane.add(LogisailResourceBundle.buildMessage("viewer"), vp);
-    nmeaTabbedPane.add(LogisailResourceBundle.buildMessage("logger"), lp);
+    String withLogger = System.getProperty("with.logger", "false");
+    if ("true".equals(withLogger))
+      nmeaTabbedPane.add(LogisailResourceBundle.buildMessage("logger"), lp);
     nmeaTabbedPane.add(LogisailResourceBundle.buildMessage("data-viewer"), cp);
       
     tabbedPane.add(LogisailResourceBundle.buildMessage("nmea-data"), nmeaTabbedPane);
     tabbedPane.add(LogisailResourceBundle.buildMessage("2d-visualization"), f2d);
 
-    tabbedPane.add("Journal", jp); // TODO Localize
-    
+    String withJournal = System.getProperty("with.journal", "false");
+    if ("true".equals(withJournal))
+    {
+      JournalPanel jp = new JournalPanel();
+      tabbedPane.add("Journal", jp); // LOCALIZE
+    }
 //  tabbedPane.add("Evolution", dataP);
     
     JPanel shifLeftPanel = new JPanel(new BorderLayout());
@@ -296,7 +352,7 @@ public class NMEAMasterPanel
       if (key.length() > 5)
         key = key.substring(0, 5);
       if (key.length() == 5)
-        vp.setValue(key, payload); // Feed the viewer here
+        vp.setValue(key, payload, null); // Feed the viewer here
     }
     catch (Exception ex)
     {
@@ -521,5 +577,52 @@ public class NMEAMasterPanel
   public ViewerTablePane getVp()
   {
     return vp;
+  }
+
+  class LoggingDetailsPopup extends JPopupMenu
+                         implements ActionListener,
+                                    PopupMenuListener
+  {
+    private JMenuItem details;
+    private String fileName;
+
+    private final static String DETAILS = "Recording Details";
+
+    public LoggingDetailsPopup(String fName)
+    {
+      super();
+      fileName = fName;
+      this.add(details = new JMenuItem(DETAILS));
+      details.addActionListener(this);
+    }
+
+    public void actionPerformed(ActionEvent event)
+    {
+      if (event.getActionCommand().equals(DETAILS))
+      {
+     // System.out.println("Details on " + fileName);
+//      JOptionPane.showMessageDialog(null, "Details on " + fileName, "Recording Details", JOptionPane.PLAIN_MESSAGE);
+        Thread detailThread = new Thread()
+          {
+            public void run()
+            {
+              Utils.dsiplayNMEADetails(fileName);
+            }
+          };
+        detailThread.start();
+      }
+    }
+
+    public void popupMenuWillBecomeVisible(PopupMenuEvent e)
+    {
+    }
+
+    public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
+    {
+    }
+
+    public void popupMenuCanceled(PopupMenuEvent e)
+    {
+    }
   }
 }

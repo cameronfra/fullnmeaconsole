@@ -43,6 +43,8 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
+import nmea.ctx.NMEADataCache;
+
 import ocss.nmea.parser.StringParsers;
 
 import oracle.xml.parser.v2.DOMParser;
@@ -248,7 +250,9 @@ public class ViewerTablePane
     jSeparator1.setPreferredSize(new Dimension(2, 20));
     add(centerPanel, BorderLayout.CENTER);
     add(topPanel, BorderLayout.NORTH);
-    add(bottomPanel, BorderLayout.SOUTH);
+    String withLogger = System.getProperty("with.logger", "false");
+    if ("true".equals(withLogger))
+      add(bottomPanel, BorderLayout.SOUTH);
     
     setupConfigList();    
 
@@ -455,12 +459,12 @@ public class ViewerTablePane
 
   private Hashtable<String, Long> timemap = new Hashtable<String, Long>();
 
-  public void setValue(String key, String val)
+  public void setValue(String key, String val, NMEADataCache ndc)
   {
 //  System.out.println("VP, setValue, key[" + key + "], val [" + val + "]");
     
     // Isolate and Calculate values
-    Utils.parseAndCalculate(key, val);
+    Utils.parseAndCalculate(key, val, ndc);
     
     boolean found = false;
     for (int i = 0; i < data.length; i++)
