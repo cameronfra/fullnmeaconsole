@@ -2,7 +2,6 @@ package nmea.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -22,11 +21,9 @@ import java.util.Properties;
 
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
-
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
@@ -49,7 +46,6 @@ import nmea.ui.logger.LoggerTablePane;
 import nmea.ui.viewer.BulkPanel;
 import nmea.ui.viewer.Full2DPanel;
 import nmea.ui.viewer.ViewerTablePane;
-import nmea.ui.viewer.minimaxi.GaugePanel;
 
 
 public class NMEAMasterPanel
@@ -61,7 +57,7 @@ public class NMEAMasterPanel
   private boolean goLog = false;
   private boolean logWithDate = true;
   private long nbRec = 0L;
-  private FileWriter fw = null;
+  private transient FileWriter fw = null;
   private long nbFSFile = 0L;
   private DecimalFormat nf = new DecimalFormat("000000");
   private SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss:");
@@ -122,7 +118,7 @@ public class NMEAMasterPanel
     }
   }
   
-  private NMEAListener nl = new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+  private transient NMEAListener nl = new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
     {
       public void manageNMEAString(String str)
       {
@@ -592,7 +588,8 @@ public class NMEAMasterPanel
     {
       super();
       fileName = fName;
-      this.add(details = new JMenuItem(DETAILS));
+      details = new JMenuItem(DETAILS);
+      this.add(details);
       details.addActionListener(this);
     }
 
