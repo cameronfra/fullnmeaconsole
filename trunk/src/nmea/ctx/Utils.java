@@ -222,6 +222,7 @@ public class Utils
       ex.printStackTrace();
     }
   }
+  private static boolean rmcPresent = false;
   
   public static void parseAndCalculate(String key, String value, NMEADataCache ndc)
   {
@@ -249,6 +250,7 @@ public class Utils
           NMEAContext.getInstance().putDataCache(rmcMap);
         else
           ndc.putAll(rmcMap);
+        rmcPresent = true;
       }
     }
     else if ("VHW".equals(sentenceId)) // Water Speed and Heading
@@ -340,7 +342,7 @@ public class Utils
           ndc.putAll(map);
       }
     }
-    else if ("GLL".equals(sentenceId)) // Lat & Long
+    else if ("GLL".equals(sentenceId) && !rmcPresent) // Lat & Long, UTC (No date)
     {
       Object[] obj = StringParsers.parseGLL(value);
       if (obj != null)
