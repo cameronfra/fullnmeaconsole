@@ -284,9 +284,9 @@ public class DirectionEvolutionDisplay
     Point mouse = e.getPoint();
     int height = dataPanel.getHeight();
     int arraySize = aldd.size();
-    if (mouse.x <= height && arraySize > 0)
+    if (mouse.y <= height && arraySize > 0)
     {
-      int index = (int)(((double)mouse.x / (double)height) * (double)arraySize);
+      int index = (int)(((double)mouse.y / (double)height) * (double)arraySize);
       index -= 1;
       while (index >= aldd.size())
         index--;
