@@ -32,18 +32,19 @@ public class ControlPanelForAll
 {
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private final static DecimalFormat DF22 = new DecimalFormat("00.00");
+  private final static DecimalFormat DF24 = new DecimalFormat("00.0000");
   private final static DecimalFormat DF3  = new DecimalFormat("000");
 
   private CurrentSituationPanel parent = null;
 
   private JLabel jLabel2 = new JLabel();
-  private JFormattedTextField bspCoeffTextField = new JFormattedTextField(new DecimalFormat("00.00"));
+  private JFormattedTextField bspCoeffTextField = new JFormattedTextField(DF24);
   private JLabel jLabel4 = new JLabel();
-  private JFormattedTextField hdgOffsetTextField = new JFormattedTextField(new DecimalFormat("000"));
+  private JFormattedTextField hdgOffsetTextField = new JFormattedTextField(DF3);
   private JLabel jLabel5 = new JLabel();
-  private JFormattedTextField awsCoeffTextField = new JFormattedTextField(new DecimalFormat("00.00"));
+  private JFormattedTextField awsCoeffTextField = new JFormattedTextField(DF24);
   private JLabel jLabel6 = new JLabel();
-  private JFormattedTextField awaOffsetTextField = new JFormattedTextField(new DecimalFormat("000"));
+  private JFormattedTextField awaOffsetTextField = new JFormattedTextField(DF3);
   private JLabel jLabel9 = new JLabel();
   private JFormattedTextField maxLeewayTextField = new JFormattedTextField();
   private JLabel jLabel1 = new JLabel();
@@ -81,7 +82,7 @@ public class ControlPanelForAll
     bspCoeffTextField.setHorizontalAlignment(JTextField.TRAILING);
     double bspCoeff = 1d;
     try { bspCoeff = ((Double) NMEAContext.getInstance().getDataCache(NMEADataCache.BSP_FACTOR)).doubleValue(); } catch (Exception ex) {}
-    bspCoeffTextField.setText(DF22.format(bspCoeff));
+    bspCoeffTextField.setText(DF24.format(bspCoeff));
     bspCoeffTextField.setMinimumSize(new Dimension(35, 20));
     bspCoeffTextField.setSize(new Dimension(40, 20));
     bspCoeffTextField.addActionListener(new ActionListener()
