@@ -53,6 +53,7 @@ import ocss.nmea.parser.Angle180;
 import ocss.nmea.parser.Angle180EW;
 import ocss.nmea.parser.Angle180LR;
 import ocss.nmea.parser.Angle360;
+import ocss.nmea.parser.ApparentWind;
 import ocss.nmea.parser.Depth;
 import ocss.nmea.parser.Distance;
 import ocss.nmea.parser.GeoPos;
@@ -294,7 +295,7 @@ public class Utils
     else if ("MWV".equals(sentenceId)) // Apparent Wind Speed and Direction
     {
       Wind wind = StringParsers.parseMWV(value);
-      if (wind != null)
+      if (wind != null && wind instanceof ApparentWind) // TrueWind not used for now
       {
         HashMap<String, Object> map = new HashMap<String, Object>(2);
         map.put(NMEADataCache.AWS, new Speed(wind.speed));
@@ -431,6 +432,14 @@ public class Utils
     else if ("DBT".equals(sentenceId)) // Depth
     {
       float f = StringParsers.parseDBT(value, StringParsers.DEPTH_IN_METERS);
+      if (ndc == null)
+        NMEAContext.getInstance().putDataCache(NMEADataCache.DBT, new Depth(f));
+      else
+        ndc.put(NMEADataCache.DBT, new Depth(f));
+    }
+    else if ("DPT".equals(sentenceId)) // Depth
+    {
+      float f = StringParsers.parseDPT(value, StringParsers.DEPTH_IN_METERS);
       if (ndc == null)
         NMEAContext.getInstance().putDataCache(NMEADataCache.DBT, new Depth(f));
       else
