@@ -42,7 +42,7 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
   public final static String FROM_WP     = "From Waypoint";
   public final static String TO_WP       = "To Waypoint";
   public final static String WP_POS      = "WayPoint pos";
-  public final static String DBT         = "DBT";
+  public final static String DBT         = "Depth";
   public final static String D2WP        = "Distance to WP";
   public final static String B2WP        = "Bearing to WP";
   public final static String S2WP        = "Speed to WP";
@@ -102,7 +102,7 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
     TOOLTIP_MAP.put(FROM_WP,     "<html>From Waypoint<br>From the GPS</html>");
     TOOLTIP_MAP.put(TO_WP,       "<html>To Waypoint<br>From the GPS</html>");
     TOOLTIP_MAP.put(WP_POS,      "<html>WayPoint position<br>From the GPS</html>");
-    TOOLTIP_MAP.put(DBT,         "<html>Depth Below Transducer<br>From the NMEA Station</html>");
+    TOOLTIP_MAP.put(DBT,         "<html>Depth<br>From the NMEA Station</html>");
     TOOLTIP_MAP.put(D2WP,        "<html>Distance to WayPoint<br>From the GPS</html>");
     TOOLTIP_MAP.put(B2WP,        "<html>Bearing to WayPoint<br>From the GPS</html>");
     TOOLTIP_MAP.put(S2WP,        "<html>Speed to WayPoint<br>From the GPS</html>");
