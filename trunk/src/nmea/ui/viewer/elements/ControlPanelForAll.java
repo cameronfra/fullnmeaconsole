@@ -95,6 +95,7 @@ public class ControlPanelForAll
     jLabel4.setText("HDG Offset:");
     hdgOffsetTextField.setPreferredSize(new Dimension(40, 20));
     hdgOffsetTextField.setHorizontalAlignment(JTextField.TRAILING);
+    hdgOffsetTextField.setToolTipText("in degrees");
     double hdgOffset = 0d;
     try { hdgOffset = ((Double) NMEAContext.getInstance().getDataCache(NMEADataCache.HDG_OFFSET)).doubleValue(); } catch (Exception ex) {}
     hdgOffsetTextField.setText(DF3.format(hdgOffset));
@@ -128,6 +129,7 @@ public class ControlPanelForAll
     try { awaOffset = ((Double) NMEAContext.getInstance().getDataCache(NMEADataCache.AWA_OFFSET)).doubleValue(); } catch (Exception ex) {}
     awaOffsetTextField.setText(DF3.format(awaOffset));
     awaOffsetTextField.setHorizontalAlignment(JTextField.RIGHT);
+    awaOffsetTextField.setToolTipText("in degrees");
     awaOffsetTextField.setMinimumSize(new Dimension(35, 20));
     awaOffsetTextField.setSize(new Dimension(40, 20));
     awaOffsetTextField.addActionListener(new ActionListener()
@@ -143,6 +145,7 @@ public class ControlPanelForAll
     try { mlw = ((Double) NMEAContext.getInstance().getDataCache(NMEADataCache.MAX_LEEWAY)).doubleValue(); } catch (Exception ex) {}
     maxLeewayTextField.setText(DF22.format(mlw));
     maxLeewayTextField.setHorizontalAlignment(JTextField.RIGHT);
+    maxLeewayTextField.setToolTipText("in degrees");
     maxLeewayTextField.setMinimumSize(new Dimension(35, 20));
     maxLeewayTextField.setSize(new Dimension(40, 20));
     maxLeewayTextField.addActionListener(new ActionListener()
@@ -187,13 +190,14 @@ public class ControlPanelForAll
     defaultDeclinationFormattedTextField.setMinimumSize(new Dimension(35, 20));
     defaultDeclinationFormattedTextField.setPreferredSize(new Dimension(40, 20));
     defaultDeclinationFormattedTextField.setSize(new Dimension(40, 20));
-    dampingLabel.setText("Damping:");
+    dampingLabel.setText("Damping:");    
     int dv = 1;
     try { dv = ((Integer) NMEAContext.getInstance().getDataCache(NMEADataCache.DAMPING)).intValue(); } catch (Exception ex) {}    
     dampingSpinner.setValue(new Integer(dv));
     dampingSpinner.setMinimumSize(new Dimension(35, 20));
     dampingSpinner.setPreferredSize(new Dimension(40, 20));
     dampingSpinner.setSize(new Dimension(40, 20));
+    dampingSpinner.setToolTipText("In number of points");
     NMEAContext.getInstance().getCache().setDampingSize(dv);
     dampingSpinner.addChangeListener(new ChangeListener()
     {
