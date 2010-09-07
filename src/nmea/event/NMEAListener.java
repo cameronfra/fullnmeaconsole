@@ -7,7 +7,8 @@ public abstract class NMEAListener
 {
   private String groupID = "";
   
-  public NMEAListener() {}
+  public NMEAListener() 
+  { this("default"); }
   public NMEAListener(String gID)
   { this.groupID = gID; }
   public final String getGroupID() { return groupID; }
