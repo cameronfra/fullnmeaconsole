@@ -133,7 +133,7 @@ public class CustomSerialReader extends NMEAReader implements DataReader
         s = new String(toPrint);
 //      System.out.println(s);
       }
-      System.out.println(this.getClass().getName() + ":Stop Reading serial port.");
+      System.out.println("2 - " + this.getClass().getName() + ":Stop Reading serial port.");
     }
     catch(Exception e)
     {
@@ -143,7 +143,7 @@ public class CustomSerialReader extends NMEAReader implements DataReader
   
   public void closeReader() throws Exception
   {
-    System.out.println("Stop reading Serial Port");
+    System.out.println("1 - Stop reading Serial Port");
     try
     {
       if (thePort != null)
