@@ -156,14 +156,6 @@ public class ControlPanelForAll
         }
       });
     jLabel1.setText("Wind Scale:");
-    scaleComboBox.addActionListener(new ActionListener()
-      {
-        public void actionPerformed(ActionEvent e)
-        {
-          scaleComboBox_actionPerformed(e);
-        }
-      });
-    defaultDeclinationLabel.setText("Default Declination:");
     scaleComboBox.removeAllItems();
     scaleComboBox.addItem(new ScaleForWind( 3,    "10 knots"));
     scaleComboBox.addItem(new ScaleForWind( 4.5f, "15 knots"));
@@ -174,6 +166,27 @@ public class ControlPanelForAll
     scaleComboBox.addItem(new ScaleForWind(15,    "50 knots"));
     scaleComboBox.addItem(new ScaleForWind(18,    "60 knots"));
 
+    float f = Float.parseFloat(System.getProperty("wind.scale", "-1"));
+    for (int i=0; i<scaleComboBox.getItemCount(); i++)
+    {
+      ScaleForWind sfw = (ScaleForWind)scaleComboBox.getItemAt(i);
+      if (sfw.getScale() == f)
+      {
+        scaleComboBox.setSelectedIndex(i);
+        parent.setWindScale(sfw.getScale());
+        System.setProperty("wind.scale", Float.toString(sfw.getScale()));
+        break;
+      }
+    }
+    scaleComboBox.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          scaleComboBox_actionPerformed(e);
+        }
+      });
+
+    defaultDeclinationLabel.setText("Default Declination:");
     defaultDeclinationFormattedTextField.setHorizontalAlignment(JTextField.RIGHT);
     defaultDeclinationFormattedTextField.addActionListener(new ActionListener()
       {
@@ -324,7 +337,9 @@ public class ControlPanelForAll
 
   private void scaleComboBox_actionPerformed(ActionEvent e)
   {
-    parent.setWindScale(((ScaleForWind)scaleComboBox.getSelectedItem()).getScale());
+    float f = ((ScaleForWind)scaleComboBox.getSelectedItem()).getScale();
+    parent.setWindScale(f);
+    System.setProperty("wind.scale", Float.toString(f));
   }
 
   class ScaleForWind
