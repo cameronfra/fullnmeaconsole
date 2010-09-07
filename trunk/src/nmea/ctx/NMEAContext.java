@@ -64,7 +64,7 @@ public class NMEAContext implements Serializable
     {
       NMEAListeners.add(l);
     }
-    System.out.println("We have " + NMEAListeners.size() + " NMEAListener(s).");
+    System.out.println("We have " + NMEAListeners.size() + " NMEAListener(s). Last one belongs to group [" + l.getGroupID() + "]");
   }
 
   public synchronized void removeNMEAListener(NMEAListener l)
@@ -84,7 +84,11 @@ public class NMEAContext implements Serializable
     }
     for (NMEAListener nl : toRemove)
       removeNMEAListener(nl);
-    System.out.println("End up with " + NMEAListeners.size() + " NMEAListener(s).");
+    System.out.println("End up with " + NMEAListeners.size() + " NMEAListener(s):");
+    for (NMEAListener listener : NMEAListeners)
+    {
+      System.out.println("Remaining: Listener belongs to group [" + listener.getGroupID() + "]");
+    }
   }
 
   public DOMParser getParser()
