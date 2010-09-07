@@ -258,12 +258,16 @@ public class CurrentSituationPanel
       });
     
     showTemperatureCheckBox.setText("Show Water Temperature");
-    showTemperatureCheckBox.setSelected(false);
+    
+    boolean dt = "true".equals(System.getProperty("display.temperature", "false"));
+    showTemperatureCheckBox.setSelected(dt);
+    drawingBoard.setShowTemperature(dt);
     showTemperatureCheckBox.addActionListener(new ActionListener()
       {
         public void actionPerformed(ActionEvent e)
         {
           drawingBoard.setShowTemperature(showTemperatureCheckBox.isSelected());
+          System.setProperty("display.temperature", showTemperatureCheckBox.isSelected()?"true":"false");
         }
       });
     displayCurrentCheckBox.setText("Display Current");
