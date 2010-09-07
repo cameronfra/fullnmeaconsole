@@ -173,6 +173,9 @@ public class Utils
     props.put("default.declination", Double.toString(((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEFAULT_DECLINATION)).getValue()));
     props.put("damping.value",       Integer.toString(((Integer) NMEAContext.getInstance().getCache().get(NMEADataCache.DAMPING)).intValue()));
     
+    props.put("display.temperature", System.getProperty("display.temperature", "false"));
+    props.put("wind.scale",          System.getProperty("wind.scale", "-1"));
+    
     try
     {
       PrintWriter pw = new PrintWriter(new FileOutputStream(PARAMETER_FILE));
@@ -216,7 +219,10 @@ public class Utils
       NMEAContext.getInstance().getCache().put(NMEADataCache.DEFAULT_DECLINATION, new Angle180EW(Double.parseDouble(ddStr)));
 
       String damp = props.getProperty("damping.value", "1");
-      NMEAContext.getInstance().getCache().put(NMEADataCache.DAMPING, Integer.parseInt(damp));
+      NMEAContext.getInstance().getCache().put(NMEADataCache.DAMPING, Integer.parseInt(damp));      
+      
+      System.setProperty("display.temperature", props.getProperty("display.temperature", "false"));
+      System.setProperty("wind.scale",          props.getProperty("wind.scale", "-1"));
     }
     catch (Exception ex)
     {
