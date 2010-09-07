@@ -1,13 +1,5 @@
 package nmea.ui;
 
-import nmea.ctx.NMEAContext;
-
-import nmea.ctx.Utils;
-
-import nmea.local.LogisailResourceBundle;
-
-import nmea.ui.widgets.ConfigTablePanel;
-
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -28,14 +20,20 @@ import javax.swing.JSeparator;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 
+import nmea.ctx.NMEAContext;
 import nmea.ctx.NMEADataCache;
+import nmea.ctx.Utils;
+
+import nmea.local.LogisailResourceBundle;
+
+import nmea.server.constants.Constants;
 
 import nmea.ui.widgets.BeaufortPanel;
+import nmea.ui.widgets.ConfigTablePanel;
 
-import ocss.nmea.parser.Angle180;
-import ocss.nmea.parser.Angle180LR;
 import ocss.nmea.parser.Angle360;
 import ocss.nmea.parser.Speed;
+
 
 public class NMEAInternalFrame
   extends JInternalFrame
@@ -181,10 +179,11 @@ public class NMEAInternalFrame
       {
         public void internalFrameClosed(InternalFrameEvent e)
         {
-          try { NMEAContext.getInstance().fireStopReading(); } catch (Exception ex) {}
+     //   try { NMEAContext.getInstance().fireStopReading(); } catch (Exception ex) {}
           NMEAContext.getInstance().getCache().resetDampingBuffers();
           NMEAContext.getInstance().fireInternalFrameClosed();
-          NMEAContext.getInstance().removeNMEAListener(nmeaTP.getNMEAListener());
+//        NMEAContext.getInstance().removeNMEAListener(nmeaTP.getNMEAListener());
+          NMEAContext.getInstance().removeNMEAListenerGroup(Constants.NMEA_SERVER_LISTENER_GROUP_ID);
           Utils.play(this.getClass().getResource("R2D2.wav"));
         }
       });
