@@ -41,8 +41,9 @@ public class DrawingBoard
 {
   private boolean debug = System.getProperty("debug", "off").equals("on");
   
-  private DecimalFormat df3 = new DecimalFormat("###");
+  private DecimalFormat df3  = new DecimalFormat("###");
   private DecimalFormat df22 = new DecimalFormat("##0.00");
+  private DecimalFormat df23 = new DecimalFormat("##0.000");
   private DecimalFormat df21 = new DecimalFormat("##0.0");
 
   private int boatPosX = 0, boatPosY = 0;
@@ -287,6 +288,7 @@ public class DrawingBoard
                   dec.toFormattedString() +
                   ", d=" + 
                   ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEVIATION)).toFormattedString() +
+                  ", W=" + df3.format(dec.getValue() + ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEVIATION)).getValue()) + "\272" +
                   ")", 10, y);
     y += 12;
     gr.drawString("AWS (corrected) :" + df22.format(aws * awsCoeff) + " kts", 10, y);
@@ -294,7 +296,7 @@ public class DrawingBoard
     gr.drawString("AWA (corrected) :" + df3.format(awa + awaOffset) + "\272", 10, y);
     gr.setColor(Color.red);
     y += 12;
-    gr.drawString("BSP Coeff       :" + df22.format(bspCoeff), 10, y);
+    gr.drawString("BSP Coeff       :" + df23.format(bspCoeff), 10, y);
     y += 12;
     gr.drawString("HDG Offset      :" + df3.format(hdgOffset) + "\272", 10, y);
     y += 12;
@@ -353,18 +355,26 @@ public class DrawingBoard
                    getTemperatureYValue(tubeBottom),
                    tubeWidth * 2,
                    tubeWidth * 2);
-        ((Graphics2D)gr).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f));
-        gr.setColor(Color.red);
-        gr.fillOval(midThermometer - tubeWidth, 
-                   getTemperatureYValue(tubeBottom),
-                   tubeWidth * 2,
-                   tubeWidth * 2);
+        ((Graphics2D)gr).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.75f));
+        gradient = new GradientPaint(midThermometer - (tubeWidth / 2), 
+                                     getTemperatureYValue(wt), 
+                                     Color.red, 
+                                     midThermometer - (tubeWidth / 2),
+                                     getTemperatureYValue(tubeBottom - 1), 
+                                     new Color(102, 0, 0)); // Vertical
+        ((Graphics2D)gr).setPaint(gradient);
         // Value
         gr.fillRect(midThermometer - (tubeWidth / 2),
                    getTemperatureYValue(wt),
                    tubeWidth,
                    getTemperatureYValue(tubeBottom - 1) - getTemperatureYValue(wt));
+        // Ampoule en bas
+        gr.fillOval(midThermometer - tubeWidth, 
+                   getTemperatureYValue(tubeBottom),
+                   tubeWidth * 2,
+                   tubeWidth * 2);
         ((Graphics2D)gr).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+        gr.setColor(Color.red);
         String value = df21.format(wt) + "\272C";
         Font f = gr.getFont();
         gr.setFont(f.deriveFont(Font.BOLD));
