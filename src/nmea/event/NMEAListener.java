@@ -31,4 +31,8 @@ public abstract class NMEAListener
 
   public void refreshLogJournal() {}
   public void showRawData(boolean b) {}
+  
+  public void fireError(Throwable t) {}
+  
+  public void setWindScale(float f) {}
 }
