@@ -11,17 +11,19 @@ import java.awt.event.ActionListener;
 
 import java.text.DecimalFormat;
 
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 
-import nmea.ctx.NMEAContext;
-import nmea.ctx.NMEADataCache;
-import nmea.ctx.Utils;
+import nmea.server.ctx.NMEAContext;
+import nmea.server.ctx.NMEADataCache;
+import nmea.server.utils.Utils;
 
 import nmea.event.NMEAListener;
 
@@ -39,6 +41,9 @@ import ocss.nmea.parser.Angle180;
 import ocss.nmea.parser.Angle180LR;
 import ocss.nmea.parser.Angle360;
 import ocss.nmea.parser.Speed;
+import ocss.nmea.parser.TrueWindDirection;
+import ocss.nmea.parser.TrueWindSpeed;
+import ocss.nmea.utils.WindUtils;
 
 public class CurrentSituationPanel
   extends JPanel
@@ -89,6 +94,12 @@ public class CurrentSituationPanel
   private JCheckBox showTemperatureCheckBox = new JCheckBox();
 
   private JCheckBox displayCurrentCheckBox = new JCheckBox();
+  
+  private JPanel twsMethodPanel = new JPanel();
+  private JLabel twLabel = new JLabel("True Wind:");
+  private JRadioButton gpsMethod = new JRadioButton("With GPS Data");
+  private JRadioButton bspMethod = new JRadioButton("With BSP & AW");
+  private ButtonGroup twsMethodGroup = new ButtonGroup();
 
   private boolean frozen = false;
   private ImageIcon pause = new ImageIcon(this.getClass().getResource("elements/resources/pause.png"));
@@ -147,12 +158,12 @@ public class CurrentSituationPanel
             if (frozen)
             {
               // Recalculated Data - if coeffs have been changed
-              Utils.computeAndSendValues(cache);
+              Utils.computeAndSendValuesToCache(cache);
             }
             
-            try { setTWS(((Speed)cache.get(NMEADataCache.TWS)).getValue()); } catch (Exception ex) {}
+            try { setTWS(((TrueWindSpeed)cache.get(NMEADataCache.TWS)).getValue()); } catch (Exception ex) {}
             try { setTWA(((Angle180)cache.get(NMEADataCache.TWA)).getValue()); } catch (Exception ex) {}
-            try { setTWD(((Angle360)cache.get(NMEADataCache.TWD)).getValue()); } catch (Exception ex) {}
+            try { setTWD(((TrueWindDirection)cache.get(NMEADataCache.TWD)).getValue()); } catch (Exception ex) {}
             try { setLWY(((Angle180LR)cache.get(NMEADataCache.LEEWAY)).getValue()); } catch (Exception ex) {}
             try { setCDR(((Angle360)cache.get(NMEADataCache.CDR)).getValue()); } catch (Exception ex) {}
             try { setCSP(((Speed)cache.get(NMEADataCache.CSP)).getValue()); } catch (Exception ex) {}
@@ -200,23 +211,25 @@ public class CurrentSituationPanel
     displayPanel.add(miniMaxiCheckBox, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 3, 0, 0), 0, 0));
     displayPanel.add(showTemperatureCheckBox, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 3, 0, 0), 0, 0));
     displayPanel.add(displayCurrentCheckBox, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 3, 0, 0), 0, 0));
+    displayPanel.add(twsMethodPanel, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 3, 0, 0), 0, 0));
+
     JPanel buttonPanel = new JPanel();
     buttonPanel.add(freezeButton, null);
     buttonPanel.add(shiftLeftRightButton, null);
-    displayPanel.add(buttonPanel, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 3, 0, 0), 0, 0));
+    displayPanel.add(buttonPanel, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 3, 0, 0), 0, 0));
 
     bspDisplay = new JumboDisplay("BSP", "00.00", "Boat Speed", basicJumboSize);
-    hdgDisplay = new JumboDisplay("HDG", "000", "Heading", basicJumboSize);
-    awaDisplay = new JumboDisplay("AWA", "000", "Apparent Wind Angle", basicJumboSize);
+    hdgDisplay = new JumboDisplay("HDG", "000",   "True Heading", basicJumboSize);
+    awaDisplay = new JumboDisplay("AWA", "000",   "Apparent Wind Angle", basicJumboSize);
     awsDisplay = new JumboDisplay("AWS", "00.00", "Apparent Wind Speed", basicJumboSize);
     sogDisplay = new JumboDisplay("SOG", "00.00", "Speed Over Ground", basicJumboSize);
-    cogDisplay = new JumboDisplay("COG", "000", "Course Over Ground", basicJumboSize);
+    cogDisplay = new JumboDisplay("COG", "000",   "Course Over Ground", basicJumboSize);
 
-    twaDisplay = new JumboDisplay("TWA", "000", "True Wind Angle", basicJumboSize);
+    twaDisplay = new JumboDisplay("TWA", "000",   "True Wind Angle", basicJumboSize);
     twaDisplay.setDisplayColor(Color.cyan);
     twsDisplay = new JumboDisplay("TWS", "00.00", "True Wind Speed", basicJumboSize);
     twsDisplay.setDisplayColor(Color.cyan);
-    twdDisplay = new JumboDisplay("TWD", "000", "True Wind Direction", basicJumboSize);
+    twdDisplay = new JumboDisplay("WINDIR", "000", "True Wind Direction", basicJumboSize); // TWD
     twdDisplay.setDisplayColor(Color.cyan);
 
     lwyDisplay = new JumboDisplay("LWY", "00.00", "Leeway", basicJumboSize);
@@ -224,18 +237,18 @@ public class CurrentSituationPanel
 
     cspDisplay = new JumboDisplay("CSP", "00.00", "Current Speed", basicJumboSize);
     cspDisplay.setDisplayColor(Color.cyan);
-    cdrDisplay = new JumboDisplay("CDR", "000", "Current Direction", basicJumboSize);
+    cdrDisplay = new JumboDisplay("CDR", "000",   "Current Direction", basicJumboSize);
     cdrDisplay.setDisplayColor(Color.cyan);
     
-    awDisplay = new AWDisplay("Wind", "00.00", "Apparent Wind", basicJumboSize);
+    awDisplay      = new AWDisplay("Wind", "00.00", "Apparent Wind", basicJumboSize);
     currentDisplay = new CurrentDisplay("Current", "00.00", "Current", basicJumboSize);
+    currentDisplay.setDisplayColor(Color.cyan);
 
     beaufortDisplay = new JumboDisplay("Beaufort", "F 0", "True Wind Speed", basicJumboSize);
     beaufortDisplay.setDisplayColor(Color.cyan);
 
-    hdgLabel.setText("True HDG:");
+    hdgLabel.setText("HDG (t):");
     cogLabel.setText("COG:");
-
     
     showLeftPaneCheckBox.setText("Show 2D Pane");
     showLeftPaneCheckBox.setSelected(true);
@@ -279,6 +292,36 @@ public class CurrentSituationPanel
           displayCurrentCheckBox_actionPerformed(e);
         }
       });
+    
+    twsMethodPanel.add(twLabel, null);
+    twsMethodPanel.add(gpsMethod, null);
+    twsMethodPanel.add(bspMethod, null);
+    twsMethodGroup.add(gpsMethod);
+    twsMethodGroup.add(bspMethod);
+    gpsMethod.setSelected(true);
+    bspMethod.setSelected(false);
+    System.setProperty("use.gps.method", "true");
+    gpsMethod.addActionListener(new ActionListener()
+                                {
+                                  public void actionPerformed(ActionEvent e)
+                                  {
+                                    if (gpsMethod.isSelected())
+                                      System.setProperty("use.gps.method", "true");
+                                    else
+                                      System.setProperty("use.gps.method", "false");
+                                  }
+                                });
+    bspMethod.addActionListener(new ActionListener()
+                                {
+                                  public void actionPerformed(ActionEvent e)
+                                  {
+                                    if (bspMethod.isSelected())
+                                      System.setProperty("use.gps.method", "false");
+                                    else
+                                      System.setProperty("use.gps.method", "true");
+                                  }
+                                });
+    
     freezeButton.setPreferredSize(new Dimension(24, 24));
     freezeButton.setBorderPainted(false);
     freezeButton.setIcon(pause);
@@ -403,7 +446,7 @@ public class CurrentSituationPanel
   private void setTWS(double d)
   {
     twsDisplay.setValue(df22.format(d));
-    beaufortDisplay.setValue("F " + df2.format(Utils.getBeaufort(d)));
+    beaufortDisplay.setValue("F " + df2.format(WindUtils.getBeaufort(d)));
   }
 
   private void setCSP(double d)
@@ -431,11 +474,6 @@ public class CurrentSituationPanel
   private void setSOG(double d)
   {
     sogDisplay.setValue(df22.format(d));
-  }
-  
-  public void setWindScale(double d)
-  {
-    try { drawingBoard.setWindScale(d); } catch (Exception ex) {}
   }
   
   public void setDisplayCurrent(boolean b)

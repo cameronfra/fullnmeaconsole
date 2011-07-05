@@ -1,6 +1,6 @@
 package nmea.ui.viewer.elements;
 
-import nmea.ctx.Utils;
+import nmea.server.utils.Utils;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
