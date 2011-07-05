@@ -1,8 +1,8 @@
 package nmea.ui.viewer;
 
-import nmea.ctx.JTableFocusChangeListener;
-import nmea.ctx.NMEAContext;
-import nmea.ctx.Utils;
+import utils.JTableFocusChangeListener;
+import nmea.server.ctx.NMEAContext;
+import nmea.server.utils.Utils;
 
 import nmea.event.NMEAListener;
 
@@ -43,7 +43,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
-import nmea.ctx.NMEADataCache;
+import nmea.server.ctx.NMEADataCache;
 
 import ocss.nmea.parser.StringParsers;
 
@@ -91,20 +91,20 @@ public class ViewerTablePane
   
   private String[] currentSentences = null;
   
-  Object data[][] = new Object[0][names.length];
-  TableModel dataModel;
-  JTable table;
-  BorderLayout borderLayout1 = new BorderLayout();
-  JPanel centerPanel = new JPanel();
-  JPanel bottomPanel = new JPanel();
-  JComboBox predefList = new JComboBox();
-  JButton applyButton = new JButton(LogisailResourceBundle.buildMessage("apply"));
-  JButton revertButton = new JButton(LogisailResourceBundle.buildMessage("reset"));
-  JButton saveButton = new JButton(LogisailResourceBundle.buildMessage("save-logging"));
-  BorderLayout borderLayout2 = new BorderLayout();
-  JScrollPane centerScrollPane = null;
-  JPanel topPanel = new JPanel();
-  private NMEAFrameInterface parent;
+  private transient Object data[][] = new Object[0][names.length];
+  private transient TableModel dataModel;
+  private JTable table;
+  private BorderLayout borderLayout1 = new BorderLayout();
+  private JPanel centerPanel = new JPanel();
+  private JPanel bottomPanel = new JPanel();
+  private JComboBox predefList = new JComboBox();
+  private JButton applyButton = new JButton(LogisailResourceBundle.buildMessage("apply"));
+  private JButton revertButton = new JButton(LogisailResourceBundle.buildMessage("reset"));
+  private JButton saveButton = new JButton(LogisailResourceBundle.buildMessage("save-logging"));
+  private BorderLayout borderLayout2 = new BorderLayout();
+  private JScrollPane centerScrollPane = null;
+  private JPanel topPanel = new JPanel();
+  private transient NMEAFrameInterface parent;
   private BorderLayout borderLayout3 = new BorderLayout();
   private SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
   private JSeparator jSeparator1 = new JSeparator();
@@ -169,7 +169,10 @@ public class ViewerTablePane
         userConfig.put(key, value);
       }
     }
-    catch (Exception ignore) {}
+    catch (Exception ignore) 
+    {
+      ignore.printStackTrace();
+    }
 
     NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
      {
