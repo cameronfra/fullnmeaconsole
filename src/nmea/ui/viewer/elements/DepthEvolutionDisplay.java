@@ -24,11 +24,13 @@ import java.util.Date;
 
 import javax.swing.JPanel;
 
-import nmea.ctx.NMEAContext;
-import nmea.ctx.NMEADataCache;
-import nmea.ctx.Utils;
+import nmea.server.ctx.NMEAContext;
+import nmea.server.ctx.NMEADataCache;
+import nmea.server.utils.Utils;
 
 import nmea.event.NMEAListener;
+
+import nmea.server.constants.Constants;
 
 import ocss.nmea.parser.Depth;
 
@@ -45,7 +47,7 @@ public class DepthEvolutionDisplay
   private String name = "DBT";
   private transient ArrayList<DatedData> aldd = null;
 
-  private long maxDataLength = 2500L;
+  private long maxDataLength = NMEAContext.DEFAULT_BUFFER_SIZE;
 
   private double min = 0d, max = 100d;
   private double step = 10d;
@@ -111,7 +113,7 @@ public class DepthEvolutionDisplay
 
     this.add(dataPanel, BorderLayout.CENTER);
 
-    NMEAContext.getInstance().addNMEAListener(new NMEAListener()
+    NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
         public void dataBufferSizeChanged(int size)
         {
