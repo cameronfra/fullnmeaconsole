@@ -1,8 +1,8 @@
 package nmea.ui.viewer.minimaxi.wind;
 
-import nmea.ctx.NMEAContext;
+import nmea.server.ctx.NMEAContext;
 
-import nmea.ctx.NMEADataCache;
+import nmea.server.ctx.NMEADataCache;
 
 import nmea.event.NMEAListener;
 
@@ -29,6 +29,8 @@ import javax.swing.JPanel;
 import nmea.server.constants.Constants;
 
 import ocss.nmea.parser.Speed;
+import ocss.nmea.parser.TrueWindSpeed;
+import ocss.nmea.utils.WindUtils;
 
 public class WindSpeed
   extends JPanel
@@ -45,8 +47,6 @@ implements MinMaxPanelInterface
   
   private Date minDate = null;
   private Date maxDate = null;
-                                // Beaufort Scale 0   1   2   3    4    5    6    7    8    9   10   11   12
-  public final static double[] BEAUFORT_SCALE = { 0d, 1d, 4d, 7d, 11d, 16d, 22d, 28d, 34d, 41d, 48d, 56d, 64d };
 
   public WindSpeed(int refSize)
   {
@@ -77,9 +77,9 @@ implements MinMaxPanelInterface
           // Print beaufort scale
           gr.setColor(Color.red);
           int h = this.getHeight() - fontSize;
-          for (int b=0; b<BEAUFORT_SCALE.length; b++)
+          for (int b=0; b < WindUtils.BEAUFORT_SCALE.length; b++)
           {
-            int y = (int)(h + (fontSize / 2) - ((BEAUFORT_SCALE[b] / (maxValue - minValue)) * h));
+            int y = (int)(h + (fontSize / 2) - ((WindUtils.BEAUFORT_SCALE[b] / (maxValue - minValue)) * h));
             String str = /* "F " + */ Integer.toString(b);
             int strWidth  = gr.getFontMetrics(gr.getFont()).stringWidth(str);
             gr.drawString(str, this.getWidth() - strWidth, y + (gr.getFont().getSize() / 2));
@@ -99,10 +99,10 @@ implements MinMaxPanelInterface
           }
           
           // Find current beaufort
-          int currentBeaufort = BEAUFORT_SCALE.length;
-          for (int b=0; b<BEAUFORT_SCALE.length; b++)
+          int currentBeaufort = WindUtils.BEAUFORT_SCALE.length;
+          for (int b=0; b < WindUtils.BEAUFORT_SCALE.length; b++)
           {
-            if (value < BEAUFORT_SCALE[b])
+            if (value < WindUtils.BEAUFORT_SCALE[b])
             {
               currentBeaufort = b;
               break;
@@ -128,13 +128,13 @@ implements MinMaxPanelInterface
     tws = new JumboDisplay("TWS min-max", "00.00", "True Wind Speed", jumboFontSize);
     this.add(tws, BorderLayout.SOUTH);
     tws.setDisplayColor(Color.orange);
-    
+
     NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
         @Override
         public void dataUpdate()
         {
-          double trueWS = ((Speed) NMEAContext.getInstance().getCache().get(NMEADataCache.TWS)).getValue();
+          double trueWS = ((TrueWindSpeed) NMEAContext.getInstance().getCache().get(NMEADataCache.TWS)).getValue();
           if (trueWS != -Double.MAX_VALUE && !Double.isInfinite(trueWS))
           {
   //        wgp.setValue(trueWS);          
