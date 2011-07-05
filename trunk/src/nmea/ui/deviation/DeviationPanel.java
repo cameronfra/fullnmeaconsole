@@ -1,8 +1,10 @@
 package nmea.ui.deviation;
 
-import nmea.ctx.NMEAContext;
-import nmea.ctx.NMEADataCache;
-import nmea.ctx.Utils;
+import chartlib.ui.components.CommandPanel;
+
+import nmea.server.ctx.NMEAContext;
+import nmea.server.ctx.NMEADataCache;
+import nmea.server.utils.Utils;
 
 import nmea.event.NMEAListener;
 
@@ -11,6 +13,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -39,6 +42,8 @@ import javax.swing.JOptionPane;
 
 import nmea.server.constants.Constants;
 
+import nmea.ui.deviation.deviationcurve.DeviationCurve;
+
 import ocss.nmea.parser.Angle360;
 
 public class DeviationPanel 
@@ -50,21 +55,32 @@ public class DeviationPanel
   
   private int draggedFromX = -1;
   private int draggedFromY = -1;
+  
+  private int draggedToX = -1;
+  private int draggedToY = -1;
+  
   private boolean dragged  = false;
   private boolean mouseDraggedEnabled = true;
   private double[] draggedPoint = null;
+  
+  private boolean sprayPoints = false;
+  private boolean deletePoints = false;
+  private boolean deleting = false;
 
   private Color bgColor    = Color.black;
   private Color gridColor  = Color.green;
   private Color lineColor1 = Color.green;
   private Color lineColor2 = Color.red;
+  private Color lineColor3 = Color.yellow;
   
   private Hashtable<Double, Double> htDeviationCurve = new Hashtable<Double, Double>(); 
+  private ArrayList<double[]> alSprayedPoints = new ArrayList<double[]>(); 
   private ArrayList<double[]> dataPoint = null;
   private boolean showData = true;
+  private boolean showCurvePoints = true;
   
   private double widthFactor = 1d;  
-  private double currentHDM = 0d;
+  private double currentHDM  = 0d;
   
   public DeviationPanel()
   {
@@ -120,20 +136,29 @@ public class DeviationPanel
   double halfWidth = 0d;
   
   double extraVerticalOverlap = 30d;
+  
+  private boolean printVersion = false;
 
   public void paintComponent(Graphics g)
   {
     int w = this.getSize().width;
     int h = this.getSize().height;
-    GradientPaint gradient = new GradientPaint(0, 0, 
-                                               Color.black, 
-                                               this.getWidth(), this.getHeight(), 
-                                               new Color(80, 80, 80));
-    ((Graphics2D)g).setPaint(gradient);
-    
+    if (!printVersion)
+    {
+      GradientPaint gradient = new GradientPaint(0, 0, 
+                                                 Color.black, 
+                                                 this.getWidth(), this.getHeight(), 
+                                                 new Color(80, 80, 80));
+      ((Graphics2D)g).setPaint(gradient);
+    }
+    else
+      g.setColor(Color.white);
  // g.setColor(bgColor);
     g.fillRect(0, 0, w, h);
-    g.setColor(gridColor);
+    if (!printVersion)
+      g.setColor(gridColor);
+    else
+      g.setColor(Color.gray);
     
     // Find boundaries
     double min = Double.MAX_VALUE;
@@ -178,7 +203,10 @@ public class DeviationPanel
       if (i == 0)
       {
         c = g.getColor();
-        g.setColor(Color.red);
+        if (!printVersion)
+          g.setColor(Color.red);
+        else
+          g.setColor(Color.black);
       }
       g.drawLine(_x, 0, _x, h);
       g.drawString(Integer.toString(i), _x, 10);
@@ -194,8 +222,39 @@ public class DeviationPanel
       while (_d < 0) _d += 360d;
       while (_d > 360) _d -= 360d;
       g.drawString(Integer.toString((int)_d), 2, _y);
+      if (_d == 0 || _d == 90 || _d == 180 || _d == 270 || _d == 360)
+      {
+        String card = "N";
+        switch ((int)_d)
+        {
+          case 0   :
+            break;
+          case 90  :
+            card = "E";
+            break;
+          case 180 :
+            card = "S";
+            break;
+          case 270 :
+            card = "W";
+            break;
+          case 360 :
+            break;
+        }
+        Font origFont = g.getFont();
+        Color origColor = g.getColor();
+        int fontSize = 20;
+        g.setFont(g.getFont().deriveFont(Font.BOLD, fontSize));
+        g.setColor(Color.lightGray);
+        int strWidth  = g.getFontMetrics(g.getFont()).stringWidth(card);
+        int _x = (int)(halfWidth * xDataScale);
+        g.drawString(card, _x - (int)(strWidth / 2), _y + (int)(fontSize / 2));        
+        g.setFont(origFont);
+        g.setColor(origColor);
+      }
     }
     // Current Heading
+    if (!printVersion)
     {
       g.setColor(Color.cyan);
       int _y = (int)((currentHDM + extraVerticalOverlap) * yDataScale);
@@ -212,29 +271,135 @@ public class DeviationPanel
       g.drawLine(0, _y, w, _y);
     }
     // Painting data points if any
+    Point previousPoint = null;
     if (dataPoint != null && showData)
     {
+      // Plot curve calculated after the bulk data points
+      if (false)  // DISABLED
+      {
+        try
+        {        
+          ArrayList<double[]> dp = new ArrayList<double[]>();
+          for (double[] da : dataPoint)
+          {
+            double hdg = da[0], 
+                   cog = da[1];
+            double dev = (hdg - cog);
+            dev += hdgOffset;  
+            while (dev > 180) dev -= 360;
+            while (dev < -180) dev += 360;
+            dp.add(new double[] {hdg, dev});
+          }
+          if (alSprayedPoints != null)
+          {
+            for (double[] da : alSprayedPoints)
+            {
+              double hdg = da[0], 
+                     cog = da[1];
+              double dev = (hdg - cog);
+              dev += hdgOffset;  
+              while (dev > 180) dev -= 360;
+              while (dev < -180) dev += 360;
+              dp.add(new double[] {hdg, dev});
+            }
+          }
+          double[] c = DeviationCurve.calculateCurve(dp);
+          g.setColor(Color.cyan);
+          for (int cm=-30; cm<=390; cm += 5)
+          {
+            double dev = DeviationCurve.devFunc(c, cm);
+  //        System.out.println("For Cm:" + cm + " dev=" + dev);
+            int _x = (int)((((dev - 180) * widthFactor) + halfWidth) * xDataScale);
+            int _y = (int)((extraVerticalOverlap + cm) * yDataScale);
+            Point p = new Point(_x, _y);
+            if (previousPoint != null)
+              g.drawLine(previousPoint.x, previousPoint.y, p.x, p.y);
+            previousPoint = p;
+          }
+        }
+        catch (Exception ex)
+        {
+          ex.printStackTrace();
+        }
+      }
       g.setColor(Color.yellow);
       for (double[] da : dataPoint)
       {
         double hdg = da[0], 
                cog = da[1];
-        double val = (hdg - cog);
-        val += hdgOffset;  
-        while (val > 180) val -= 360;
-        while (val < -180) val += 360;
+        double dev = (hdg - cog);
+        dev += hdgOffset;  
+        while (dev > 180) dev -= 360;
+        while (dev < -180) dev += 360;
         
 //      System.out.println("For hdg:" + hdg + ", dev=" + val);        
         // Rounding might look weird, because HDG and COG are int values. Thus dev is also an int.
-        int _x = (int)(((val * widthFactor) + halfWidth) * xDataScale);
+        int _x = (int)(((dev * widthFactor) + halfWidth) * xDataScale);
         int _y = (int)((extraVerticalOverlap + hdg) * yDataScale);
         g.fillOval(_x-1, _y-1, 2, 2);
       }
+      if (alSprayedPoints != null)
+      {
+        g.setColor(Color.cyan);
+        for (double[] da : alSprayedPoints)
+        {
+          double hdg = da[0], 
+                 cog = da[1];
+          double dev = (hdg - cog);
+          dev += hdgOffset; 
+          while (dev > 180) dev -= 360;
+          while (dev < -180) dev += 360;
+          int _x = (int)(((dev * widthFactor) + halfWidth) * xDataScale);
+          int _y = (int)((extraVerticalOverlap + hdg) * yDataScale);
+          g.fillOval(_x-1, _y-1, 2, 2);
+        }
+      }      
     }
     
     // Paint original deviation curve
-    g.setColor(lineColor2);
-    Point previousPoint = null;
+    previousPoint = null;
+    if (htDeviationCurve != null)
+    {
+      // Smoothed one
+      try
+      {
+        // Dislay smoothed one, based on (possibly) suggested one
+        double[] f = DeviationCurve.calculateCurve(htDeviationCurve); // TODO Dont re-smooth everytime...
+        if (!printVersion)
+        {
+          g.setColor(lineColor3);
+          // Display coefficients
+          Font font = g.getFont();
+          int fSize = 10;
+          g.setFont(font.deriveFont(fSize));
+          for (int i=0; i<f.length; i++)
+            g.drawString("coef[" + i + "]=" + Double.toString(f[i]), 5, this.getHeight() - ((f.length - i - 1) * (fSize + 2)) - 2);
+          g.setFont(font);
+        }
+        else
+          g.setColor(Color.darkGray);
+        for (int cm=-30; cm<=390; cm += 5)
+        {
+          double dev = DeviationCurve.devFunc(f, cm);
+          int _x = (int)(((dev * widthFactor) + halfWidth) * xDataScale);
+          int _y = (int)((extraVerticalOverlap + cm) * yDataScale);
+          Point p = new Point(_x, _y);
+          if (previousPoint != null)
+            g.drawLine(previousPoint.x, previousPoint.y, p.x, p.y);
+          previousPoint = p;
+        }
+      }
+      catch (Exception ex)
+      {
+        ex.printStackTrace();
+      }
+    }
+        
+    if (!printVersion)
+      g.setColor(lineColor2);
+    else
+      g.setColor(Color.black);
+    previousPoint = null;
     Set<Double> set = htDeviationCurve.keySet();
     ArrayList<Double> list = new ArrayList<Double>(set.size());
     for (Double d: set)
@@ -256,11 +421,12 @@ public class DeviationPanel
       int _x = (int)(((deviation * widthFactor) + halfWidth) * xDataScale);
       int _y = (int)((extraVerticalOverlap + cm) * yDataScale);
       Point p = new Point(_x, _y);
-      g.drawOval(p.x - 2, p.y - 2, 4, 4);
+      if (showCurvePoints)
+        g.drawOval(p.x - 2, p.y - 2, 4, 4);
       if (previousPoint != null)
         g.drawLine(previousPoint.x, previousPoint.y, p.x, p.y);
       previousPoint = p;
-      if (displayTwice)
+      if (displayTwice && showCurvePoints)
       {
         Color c = g.getColor();
         g.setColor(Color.white);
@@ -274,6 +440,20 @@ public class DeviationPanel
       }
     }    
     ((Graphics2D)g).setStroke(origStroke);  
+    
+    if (deleting)
+    {
+      if (draggedFromX != -1 && draggedFromY != -1 &&
+          draggedToX != -1 && draggedToY != -1)
+      {
+        g.setColor(Color.green);
+        int topLeftX = Math.min(draggedFromX, draggedToX);
+        int topLeftY = Math.min(draggedFromY, draggedToY);
+        int width  = Math.abs(draggedFromX - draggedToX);
+        int height = Math.abs(draggedFromY - draggedToY);
+        g.drawRect(topLeftX, topLeftY, width, height);
+      }
+    }
   }
   
   public void suggestCurve()
@@ -297,6 +477,19 @@ public class DeviationPanel
           nbval++;
         }
       }
+      for (double[] da : alSprayedPoints)
+      {
+        if (da[0] < (i+5) && da[0] > (i-5))
+        {
+          double hdg = da[0], cog = da[1];
+          double val = (hdg - cog);
+          val += hdgOffset;  
+          while (val > 180) val -= 360;
+          while (val < -180) val += 360;
+          value += val;
+          nbval++;
+        }
+      }
       Double dbl = new Double(value / (double)nbval);
       if (dbl.equals(Double.NaN))
         dbl = new Double(0d);
@@ -306,6 +499,33 @@ public class DeviationPanel
     ArrayList<double[]> ald = Utils.loadDeviationCurve(htDeviationCurve);
     NMEAContext.getInstance().setDeviation(ald);
     repaint();
+  }
+  
+  public void resetSprayedPoints()
+  {
+    alSprayedPoints = null;
+  }
+  
+  public void stickPointsToCurve()
+  {
+    try
+    {
+      double[] f = DeviationCurve.calculateCurve(htDeviationCurve); 
+      Hashtable<Double, Double> ht = new Hashtable<Double, Double>(); 
+      for (int cm=0; cm<=360; cm += 5)
+      {
+        double dev = DeviationCurve.devFunc(f, cm);
+        ht.put(new Double(cm), new Double(dev));
+      }
+      htDeviationCurve = ht;
+      // TODO Ask question 
+      ArrayList<double[]> ald = Utils.loadDeviationCurve(htDeviationCurve);
+      NMEAContext.getInstance().setDeviation(ald);
+    }
+    catch (Exception ex)
+    {
+      ex.printStackTrace();
+    }
   }
   
   // Tooltip
@@ -329,7 +549,7 @@ public class DeviationPanel
   public void mouseClicked(MouseEvent e)
   {
     e.consume();
-    // TASK Add point, delete point?
+    // TASK delete point?
 //  int x = e.getX();
 //  int y = e.getY();
 //  String mess = "Pos:" + Integer.toString(x) + ", " + Integer.toString(y);
@@ -349,6 +569,11 @@ public class DeviationPanel
 //      System.out.println("Found! " + draggedPoint[0] + ":" + draggedPoint[1]);
         // Change the component's cursor to another shape
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+      }
+      else if (deletePoints)
+      {
+//      System.out.println("Starting Delete Points process...");
+        deleting = true;
       }
     }
   }
@@ -393,10 +618,25 @@ public class DeviationPanel
     return mouseDraggedEnabled;
   }
 
-  private static boolean showDuringDrag = false;
+  private static boolean showDuringDrag = true;
   
   public void mouseDragged(MouseEvent e)
   {
+    Point mouse = e.getPoint();
+    if (sprayPoints && !deletePoints)
+    {
+      if (alSprayedPoints == null)
+        alSprayedPoints = new ArrayList<double[]>();
+      double value = (((double)mouse.x / xDataScale) - halfWidth) / widthFactor;
+      double cm    = ((double)mouse.y / yDataScale) - extraVerticalOverlap;
+      cm += ((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.HDG_OFFSET)).doubleValue();
+      while (cm < 0)   cm += 360;
+      while (cm > 360) cm -= 360;
+      alSprayedPoints.add(new double[] { cm, cm - value });
+      suggestCurve();
+      this.repaint();
+    }
+
     if (mouseDraggedEnabled)
     {
       dragged = true;
@@ -412,7 +652,12 @@ public class DeviationPanel
           htDeviationCurve.remove(draggedPoint[0]);
           // Add new one
           htDeviationCurve.put((double)cm, value);  // Only if moved.
-        }      
+        }  
+        else if (deleting)
+        {
+          draggedToX = mouse.x;
+          draggedToY = mouse.y;
+        }
         this.repaint(); 
       }
     }
@@ -432,7 +677,79 @@ public class DeviationPanel
         htDeviationCurve.remove(draggedPoint[0]);
         // Add new one
         htDeviationCurve.put((double)cm, value);  // Only if moved.
-      }      
+      } 
+      else if (deleting)
+      {
+        deleting = false;              
+//      System.out.println("Deleting points !");
+        int minX = Math.min(draggedFromX, draggedToX);
+        int maxX = Math.max(draggedFromX, draggedToX);
+        int minY = Math.min(draggedFromY, draggedToY);
+        int maxY = Math.max(draggedFromY, draggedToY);
+        double minHdg = ((double)minY / yDataScale) - extraVerticalOverlap;
+        double maxHdg = ((double)maxY / yDataScale) - extraVerticalOverlap;
+        double minDev = (((double)minX / xDataScale) - halfWidth) / widthFactor;
+        double maxDev = (((double)maxX / xDataScale) - halfWidth) / widthFactor;
+        
+        String mess = "Deleting from\nhdg[" +
+                       DF22.format(minHdg) + ", " + DF22.format(maxHdg) + "]\ndev[" + 
+                       DF22.format(minDev) + ", " + DF22.format(maxDev) + "]";
+//      System.out.println(mess);
+        int resp = JOptionPane.showConfirmDialog(this, mess, "Deleting points", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (resp == JOptionPane.OK_OPTION)
+        {
+          int nbPtDeleted = 0;
+          double hdgOffset = ((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.HDG_OFFSET)).doubleValue();
+          ArrayList<double[]> newData = new ArrayList<double[]>();
+          for (double[] d : dataPoint)
+          {
+            double hdg = d[0], 
+                   cog = d[1];
+            double dev = (hdg - cog);
+            dev += hdgOffset;  
+            while (dev > 180) dev -= 360;
+            while (dev < -180) dev += 360;
+//          System.out.println("Is " + DF22.format(hdg) + " in [" + DF22.format(minHdg) + ", " + DF22.format(maxHdg) + "] and\n" +
+//                             "   " + DF22.format(dev) + " in [" +  DF22.format(minDev) + ", " + DF22.format(maxDev) + "] ?");
+            if (hdg >= minHdg && hdg <= maxHdg && dev >= minDev && dev <= maxDev)
+              nbPtDeleted++;
+            else
+              newData.add(d);
+          }
+          synchronized (dataPoint) { dataPoint = newData; }
+          /*
+          Set<Double> set = htDeviationCurve.keySet();
+          for (Double hdg : set)
+          {
+            double dev = htDeviationCurve.get(hdg).doubleValue();
+            if (hdg.doubleValue() >= minHdg && hdg.doubleValue() <= maxHdg && dev >= minDev && dev <= maxDev)
+            {
+              htDeviationCurve.remove(hdg);
+              nbPtDeleted++;
+            }
+          }
+          */
+          newData = new ArrayList<double[]>();
+          for (double[] da : alSprayedPoints)
+          {
+            double hdg = da[0], 
+                   cog = da[1];
+            double dev = (hdg - cog);
+            dev += hdgOffset;  
+            while (dev > 180) dev -= 360;
+            while (dev < -180) dev += 360;
+            if (hdg >= minHdg && hdg <= maxHdg && dev >= minDev && dev <= maxDev)
+              nbPtDeleted++;
+            else
+              newData.add(da);
+          }
+          synchronized (alSprayedPoints) { alSprayedPoints = newData; }
+          suggestCurve();
+//        System.out.println("Deleted " + nbPtDeleted + " Pt(s).");
+        }        
+        draggedToX = -1;
+        draggedToY = -1;
+      }
       dragged = false;
 //    System.out.println("Moved from " + draggedFromX + "/" + draggedFromY + 
 //                       " to " + e.getX() + "/" + e.getY() +
@@ -528,5 +845,31 @@ public class DeviationPanel
   public boolean isShowData()
   {
     return showData;
+  }
+  
+  public void setShowCurveData(boolean b)
+  {
+    this.showCurvePoints = b;
+  }
+
+  public boolean isShowCurvePoints()
+  {
+    return showCurvePoints;
+  }
+
+  public void setPrintVersion(boolean printVersion)
+  {
+    this.printVersion = printVersion;
+  }
+
+  public void setSprayPoints(boolean sprayPoints)
+  {
+    this.sprayPoints = sprayPoints;
+  }
+  
+  public void setDeletePoints(boolean deletePoints)
+  {
+    this.deletePoints = deletePoints;
+    setMouseDraggedEnabled(deletePoints);
   }
 }
