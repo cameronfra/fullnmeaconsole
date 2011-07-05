@@ -2,20 +2,22 @@ package nmea.ui.viewer.elements;
 
 import java.awt.AlphaComposite;
 
-import nmea.ctx.NMEAContext;
+import nmea.server.ctx.NMEAContext;
 
-import nmea.ctx.NMEADataCache;
+import nmea.server.ctx.NMEADataCache;
 
-import nmea.ctx.Utils;
+import nmea.server.utils.Utils;
 
 import nmea.event.NMEAListener;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Stroke;
 
@@ -32,6 +34,8 @@ import ocss.nmea.parser.Angle360;
 import ocss.nmea.parser.Speed;
 
 import ocss.nmea.parser.Temperature;
+import ocss.nmea.parser.TrueWindDirection;
+import ocss.nmea.parser.TrueWindSpeed;
 
 /**
  * All computing done in this class
@@ -41,10 +45,10 @@ public class DrawingBoard
 {
   private boolean debug = System.getProperty("debug", "off").equals("on");
   
-  private DecimalFormat df3  = new DecimalFormat("###");
-  private DecimalFormat df22 = new DecimalFormat("##0.00");
-  private DecimalFormat df23 = new DecimalFormat("##0.000");
-  private DecimalFormat df21 = new DecimalFormat("##0.0");
+  private final DecimalFormat DF3  = new DecimalFormat("###");
+  private final DecimalFormat DF32 = new DecimalFormat("##0.00");
+  private final DecimalFormat DF33 = new DecimalFormat("##0.000");
+  private final DecimalFormat DF31 = new DecimalFormat("##0.0");  
 
   private int boatPosX = 0, boatPosY = 0;
 
@@ -67,7 +71,7 @@ public class DrawingBoard
   private double tws = 0, twa = 0, twd = 0;
   private double wt  = -Double.MAX_VALUE;
   
-  private double windScale       = 3d; // 10 knots
+  private double speedScale      = 3d; // 10 knots
   private boolean displayCurrent = true;
   private boolean freeze         = false;
   private boolean showTemperature = false;
@@ -111,6 +115,14 @@ public class DrawingBoard
             repaint();
           }
         }
+        
+        public void setWindScale(float f) 
+        {
+          try 
+          { 
+            setSpeedScale((double)f); 
+          } catch (Exception ex) {}
+        }
       });
     this.setLayout(null);
     this.setBackground(Color.white);
@@ -132,7 +144,7 @@ public class DrawingBoard
     
     gr.fillRect(0, 0, this.getWidth(), this.getHeight());
 
-    double bspLengthAt10 = 1d * this.getWidth() / windScale; // 3d;
+    double bspLengthAt10 = 1d * this.getWidth() / speedScale; // 3d;
     
     // Draw speed circles
     for (int w=1; w<=60; w++)
@@ -164,10 +176,14 @@ public class DrawingBoard
     /*
      * Boat Speed and Heading
      */    
+    stroke = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
+    ((Graphics2D) gr).setStroke(stroke);
     gr.setColor(Color.red);
     if (debug || bsp > 0)
-      Utils.drawArrow((Graphics2D) gr, new Point(boatPosX, boatPosY), new Point((int) rvX, (int) rvY), Color.red);
-    gr.drawString("BSP:" + df22.format(bsp * bspCoeff) + " kts, HDG:" + df3.format((hdg + hdgOffset)) + "\272", (int) rvX + 5,
+      Utils.drawHollowArrow((Graphics2D) gr, new Point(boatPosX, boatPosY), new Point((int) rvX, (int) rvY), Color.red);
+    stroke = new BasicStroke(5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
+    ((Graphics2D) gr).setStroke(stroke);
+    gr.drawString("BSP:" + DF32.format(bsp * bspCoeff) + " kts, HDG:" + DF3.format((hdg + hdgOffset)) + "\272", (int) rvX + 5,
                   (int) rvY + 5);
     /*
      * Leeway
@@ -183,7 +199,9 @@ public class DrawingBoard
     {
       gr.setColor(Color.cyan);
       Utils.drawArrow((Graphics2D) gr, new Point(boatPosX, boatPosY), new Point((int) rsX, (int) rsY), Color.pink);
-      gr.drawString("LWY:" + df22.format(leeway) + "\272", (int) rsX + 5, (int) rsY + 5);
+      gr.setColor(Color.blue);
+//    gr.drawString("LWY:" + df22.format(leeway) + "\272", (int) rsX + 5, (int) rsY + 5);
+      gr.drawString("CMG:" + DF32.format(hdg + hdgOffset + leeway) + "\272", (int) rsX + 5, (int) rsY + 5);
     }
     /*
      * SOG, COG
@@ -195,7 +213,7 @@ public class DrawingBoard
     {
       gr.setColor(Color.magenta);
       Utils.drawArrow((Graphics2D) gr, new Point(boatPosX, boatPosY), new Point((int) rfX, (int) rfY), Color.magenta);
-      gr.drawString("SOG:" + df22.format(sog) + " kts, COG:" + df3.format(cog) + "\272", (int) rfX + 5, (int) rfY + 5);
+      gr.drawString("SOG:" + DF32.format(sog) + " kts, COG:" + DF3.format(cog) + "\272", (int) rfX + 5, (int) rfY + 5);
     }
     /*
      * AWA, AWS
@@ -206,7 +224,7 @@ public class DrawingBoard
     {
       gr.setColor(Color.blue);
       Utils.drawAnemometerArrow((Graphics2D) gr, new Point((int) awX, (int) awY), new Point(boatPosX, boatPosY), Color.blue);
-      gr.drawString("AWS:" + df22.format(aws * awsCoeff) + " kts, AWA:" + df3.format((awa + awaOffset)) + "\272", (int) awX + 5, (int) awY + 5);
+      gr.drawString("AWS:" + DF32.format(aws * awsCoeff) + " kts, AWA:" + DF3.format((awa + awaOffset)) + "\272", (int) awX + 5, (int) awY + 5);
     }
     /*
      * TWA, TWS
@@ -230,8 +248,8 @@ public class DrawingBoard
     else
     {
       twa = ((Angle180) NMEAContext.getInstance().getCache().get(NMEADataCache.TWA)).getValue();      
-      tws = ((Speed) NMEAContext.getInstance().getCache().get(NMEADataCache.TWS)).getValue();      
-      twd = ((Angle360) NMEAContext.getInstance().getCache().get(NMEADataCache.TWD)).getValue();      
+      tws = ((TrueWindSpeed) NMEAContext.getInstance().getCache().get(NMEADataCache.TWS)).getValue();      
+      twd = ((TrueWindDirection) NMEAContext.getInstance().getCache().get(NMEADataCache.TWD)).getValue();      
     }
     double twX = boatPosX + (tws * (bspLengthAt10 / 10D) * Math.sin(Math.toRadians(twd)));
     double twY = boatPosY - (tws * (bspLengthAt10 / 10D) * Math.cos(Math.toRadians(twd)));
@@ -245,7 +263,7 @@ public class DrawingBoard
     
     gr.setColor(Color.black);
     Utils.drawAnemometerArrow((Graphics2D) gr, new Point((int) twX, (int) twY), new Point(boatPosX, boatPosY), Color.black);
-    gr.drawString("TWS:" + df22.format(tws) + " kts, TWA:" + df3.format(twa) + "\272", (int) twX + 5, (int) twY + 5);
+    gr.drawString("TWS:" + DF32.format(tws) + " kts, TWA:" + DF3.format(twa) + "\272", (int) twX + 5, (int) twY + 5);
 
     /*
      * Current
@@ -257,7 +275,11 @@ public class DrawingBoard
     if (debug || (displayCurrent && csp > 0.2))
     {
       gr.setColor(Color.green);
-      Utils.drawArrow((Graphics2D) gr, new Point((int) rsX, (int) rsY), new Point((int) rfX, (int) rfY), Color.green);
+      stroke = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
+      ((Graphics2D) gr).setStroke(stroke);
+      Utils.drawCurrentArrow((Graphics2D) gr, new Point((int) rsX, (int) rsY), new Point((int) rfX, (int) rfY), Color.green);
+      stroke = new BasicStroke(5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
+      ((Graphics2D) gr).setStroke(stroke);
     }
     /*
      * Boat itself
@@ -276,44 +298,89 @@ public class DrawingBoard
                    0.75f);
 
     // Display All Data Values:
-    gr.setFont(new Font("Courier New", Font.PLAIN, 12)); // TODO 12 as a parameter
+    final int FONT_SIZE = 12;  // TODO 12 as a parameter
+    gr.setFont(new Font("Courier New", Font.PLAIN, FONT_SIZE));
     gr.setColor(new Color(0, 142, 0));
-    int y = 12;
-    gr.drawString("BSP (corrected) :" + df22.format(bsp * bspCoeff) + " kts", 10, y);
-    y += 12;
+    int y = FONT_SIZE;
+    gr.drawString("BSP (corrected) :" + DF32.format(bsp * bspCoeff) + " kts", 10, y);
+    y += FONT_SIZE;
     Angle180EW dec = (Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DECLINATION);
     if (dec.getValue() == -Double.MAX_VALUE)
       dec = (Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEFAULT_DECLINATION);
-    gr.drawString("HDG (corrected) :" + df3.format(hdg + hdgOffset) + "\272 (D=" + 
+    gr.drawString("HDG (corrected) :" + DF31.format(hdg + hdgOffset) + "\272 (Decl.= " + 
                   dec.toFormattedString() +
-                  ", d=" + 
+                  ", dev.= " + 
                   ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEVIATION)).toFormattedString() +
-                  ", W=" + df3.format(dec.getValue() + ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEVIATION)).getValue()) + "\272" +
+                  ", Var.= " + (dec.getValue() >=0 ? "E " : "W ") + DF31.format(Math.abs(dec.getValue() + ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEVIATION)).getValue())) + "\272" +
                   ")", 10, y);
-    y += 12;
-    gr.drawString("AWS (corrected) :" + df22.format(aws * awsCoeff) + " kts", 10, y);
-    y += 12;
-    gr.drawString("AWA (corrected) :" + df3.format(awa + awaOffset) + "\272", 10, y);
+    y += FONT_SIZE;
+    gr.drawString("AWS (corrected) :" + DF32.format(aws * awsCoeff) + " kts", 10, y);
+    y += FONT_SIZE;
+    gr.drawString("AWA (corrected) :" + DF3.format(awa + awaOffset) + "\272", 10, y);
     gr.setColor(Color.red);
-    y += 12;
-    gr.drawString("BSP Coeff       :" + df23.format(bspCoeff), 10, y);
-    y += 12;
-    gr.drawString("HDG Offset      :" + df3.format(hdgOffset) + "\272", 10, y);
-    y += 12;
-    gr.drawString("AWS Coeff       :" + df22.format(awsCoeff), 10, y);
-    y += 12;
-    gr.drawString("AWA Offset      :" + df3.format(awaOffset) + "\272", 10, y);
+    y += FONT_SIZE;
+    gr.drawString("BSP Coeff       :" + DF33.format(bspCoeff), 10, y);
+    y += FONT_SIZE;
+    gr.drawString("HDG Offset      :" + DF3.format(hdgOffset) + "\272", 10, y);
+    y += FONT_SIZE;
+    gr.drawString("AWS Coeff       :" + DF32.format(awsCoeff), 10, y);
+    y += FONT_SIZE;
+    gr.drawString("AWA Offset      :" + DF3.format(awaOffset) + "\272", 10, y);
     gr.setColor(Color.blue);
-    y += 12;
-    gr.drawString("TWS             :" + df22.format(tws) + " kts", 10, y);
-    y += 12;
-    gr.drawString("TWA             :" + df3.format(twa) + "\272", 10, y);
-    y += 12;
-    gr.drawString("TWD             :" + df3.format(twd) + "\272", 10, y);
-    y += 12;
-    gr.drawString("CDR             :" + df3.format(cdr) + "\272", 10, y);
-    y += 12;
-    gr.drawString("CSP             :" + df22.format(csp) + " kts", 10, y);
+    y += FONT_SIZE;
+    gr.drawString("TWS             :" + DF32.format(tws) + " kts", 10, y);
+    y += FONT_SIZE;
+    gr.drawString("TWA             :" + DF3.format(twa) + "\272", 10, y);
+    y += FONT_SIZE;
+    gr.drawString("TWD             :" + DF3.format(twd) + "\272", 10, y);
+    y += FONT_SIZE;
+    gr.drawString("CDR             :" + DF3.format(cdr) + "\272", 10, y);
+    y += FONT_SIZE;
+    gr.drawString("CSP             :" + DF32.format(csp) + " kts", 10, y);
+    y += (FONT_SIZE + 2);
+    gr.drawString("leeway          :" + DF31.format(leeway) + "\272 (on " + DF31.format(maxLeeway) + "\272)", 10, y); // was df3
+    y += FONT_SIZE;
+    gr.drawString("CMG             :" + DF32.format(hdg + hdgOffset + leeway) + "\272", 10, y);
+    
+    // Leeway indicator
+    if (Math.abs(leeway) > 0) // Indicator not show if no leeway
+    {
+      int leewayFrameHeight = 100;  
+      int leewayFrameWidth  =  50;  
+      Dimension dim = this.getSize();
+      // Draw recatngle
+      gr.setColor(Color.blue);
+      gr.drawRect(10, dim.height - leewayFrameHeight - 10, leewayFrameWidth, leewayFrameHeight);
+      // Fill it
+      Color startColor = Color.black; // new Color(255, 255, 255);
+      Color endColor   = Color.lightGray; // new Color(102, 102, 102);
+      Paint paint = ((Graphics2D)gr).getPaint();
+      GradientPaint grad = new GradientPaint(0, this.getHeight(), startColor, 0, 0, endColor); // vertical, upside down
+      ((Graphics2D)gr).setPaint(grad);
+      gr.fillRect(10, dim.height - leewayFrameHeight - 10, leewayFrameWidth, leewayFrameHeight);      
+      ((Graphics2D)gr).setPaint(paint); // reset
+      // Value
+      ((Graphics2D)gr).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.70f));
+      if (leeway > 0) // Starboard
+        gr.setColor(Color.green);
+      else            // Port
+        gr.setColor(Color.red);
+      gr.fillArc(10 - (leewayFrameWidth / 2), 
+                 dim.height - leewayFrameHeight, 
+                 Math.max(leewayFrameHeight, leewayFrameWidth), 
+                 Math.max(leewayFrameHeight, leewayFrameWidth), 
+                 90, 
+                 -(int)Math.round(leeway));
+      ((Graphics2D)gr).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+      // Label
+      gr.setColor(Color.cyan);
+      String str = "Leeway";
+      int l = gr.getFontMetrics(gr.getFont()).stringWidth(str);
+      gr.drawString(str, (10 + (leewayFrameWidth / 2)) - (l / 2), dim.height - 30);
+      str = DF31.format(leeway) + "\272";
+      l = gr.getFontMetrics(gr.getFont()).stringWidth(str);
+      gr.drawString(str, (10 + (leewayFrameWidth / 2)) - (l / 2), dim.height - 18);      
+    }
     
     if (showTemperature)
     {
@@ -364,18 +431,18 @@ public class DrawingBoard
                                      new Color(102, 0, 0)); // Vertical
         ((Graphics2D)gr).setPaint(gradient);
         // Value
-        gr.fillRect(midThermometer - (tubeWidth / 2),
+        gr.fillRect(midThermometer - (tubeWidth / 2) + 2,
                    getTemperatureYValue(wt),
-                   tubeWidth,
+                   tubeWidth - 4,
                    getTemperatureYValue(tubeBottom - 1) - getTemperatureYValue(wt));
         // Ampoule en bas
-        gr.fillOval(midThermometer - tubeWidth, 
-                   getTemperatureYValue(tubeBottom),
-                   tubeWidth * 2,
-                   tubeWidth * 2);
+        gr.fillOval(midThermometer - (tubeWidth - 2), 
+                   getTemperatureYValue(tubeBottom) + 2,
+                   (tubeWidth - 2) * 2,
+                   (tubeWidth - 2) * 2);
         ((Graphics2D)gr).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
         gr.setColor(Color.red);
-        String value = df21.format(wt) + "\272C";
+        String value = DF31.format(wt) + "\272C";
         Font f = gr.getFont();
         gr.setFont(f.deriveFont(Font.BOLD));
         int l = gr.getFontMetrics(gr.getFont()).stringWidth(value);
@@ -491,9 +558,9 @@ public class DrawingBoard
     this.wt = t;
   }
   
-  public void setWindScale(double windScale)
+  private void setSpeedScale(double windScale)
   {
-    this.windScale = windScale;
+    this.speedScale = windScale;
 //  repaint();
   }
 
