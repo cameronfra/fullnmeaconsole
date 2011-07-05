@@ -1,6 +1,6 @@
 package nmea.ui.widgets;
 
-import nmea.ctx.JTableFocusChangeListener;
+import utils.JTableFocusChangeListener;
 
 import nmea.local.LogisailResourceBundle;
 
