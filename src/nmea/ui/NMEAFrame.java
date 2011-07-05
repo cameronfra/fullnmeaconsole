@@ -1,8 +1,8 @@
 package nmea.ui;
 
-import nmea.ctx.NMEAContext;
+import nmea.server.ctx.NMEAContext;
 
-import nmea.ctx.Utils;
+import nmea.server.utils.Utils;
 
 import nmea.local.LogisailResourceBundle;
 
@@ -23,8 +23,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 
-import nmea.ui.widgets.BeaufortPanel;
+import nmea.server.datareader.CustomNMEAClient;
 
+import nmea.ui.widgets.BeaufortPanel;
 
 public class NMEAFrame 
      extends JFrame
@@ -36,11 +37,11 @@ public class NMEAFrame
   private JMenuItem menuFileExit         = new JMenuItem(LogisailResourceBundle.buildMessage("exit"));
   private JMenuItem menuFileSave         = new JMenuItem(LogisailResourceBundle.buildMessage("save"));
   private JMenuItem menuFileManageConfig = new JMenuItem(LogisailResourceBundle.buildMessage("manage"));
-  private JMenuItem menuFileSavePrms = new JMenuItem("Save Calibration Parameters"); // TODO Localize
+  private JMenuItem menuFileSavePrms = new JMenuItem("Save Calibration Parameters"); // LOCALIZE
 
-  private JMenu menuHelp = new JMenu("Help");
-  private JMenuItem menuHelpAbout = new JMenuItem("About");
-  private JMenuItem menuHelpBeaufort = new JMenuItem("Beaufort Scale");
+  private JMenu menuHelp = new JMenu("Help");                           // LOCALIZE
+  private JMenuItem menuHelpAbout = new JMenuItem("About");             // LOCALIZE
+  private JMenuItem menuHelpBeaufort = new JMenuItem("Beaufort Scale"); // LOCALIZE
 
   private NMEAMasterPanel nmeaTP = null;
   
@@ -53,12 +54,15 @@ public class NMEAFrame
   private boolean verbose = false;
   private String serial = null;
   private int br = 0;
+  private int option = -1;
   private String tcp = "";
+  private String udp = "";
   private String data = null;
 
   public NMEAFrame(boolean v,
                    String serial,
                    int br,
+                   int option,
                    String port,
                    String fName, // simulation file
                    String propertiesFile)
@@ -66,7 +70,11 @@ public class NMEAFrame
     this.verbose = v;
     this.serial = serial;
     this.br = br;
-    this.tcp = port;
+    this.option = option;
+    if (option == CustomNMEAClient.TCP_OPTION)
+      this.tcp = port;
+    if (option == CustomNMEAClient.UDP_OPTION)
+      this.udp = port;
     this.data = fName;
     pfile = propertiesFile;
     NMEAContext.getInstance().setFromFile(data != null && data.trim().length() > 0);
@@ -83,10 +91,16 @@ public class NMEAFrame
   private void jbInit()
     throws Exception
   {
+    String _port = "";
+    if (option == CustomNMEAClient.TCP_OPTION)
+      _port = tcp;
+    if (option == CustomNMEAClient.UDP_OPTION)
+      _port = udp;
     nmeaTP = new NMEAMasterPanel(verbose, 
                                  serial, 
                                  br, 
-                                 tcp, 
+                                 _port, 
+                                 option,
                                  data, 
                                  pfile,
                                  true); 

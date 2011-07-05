@@ -10,7 +10,7 @@ import java.util.Properties;
 
 import nmea.server.NMEAEventManager;
 
-import nmea.server.data.CustomClient;
+import nmea.server.datareader.CustomClient;
 
 import java.io.File;
 
