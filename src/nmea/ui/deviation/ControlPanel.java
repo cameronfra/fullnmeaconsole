@@ -2,9 +2,9 @@ package nmea.ui.deviation;
 
 import coreutilities.Utilities;
 
-import nmea.ctx.NMEAContext;
-import nmea.ctx.NMEADataCache;
-import nmea.ctx.Utils;
+import nmea.server.ctx.NMEAContext;
+import nmea.server.ctx.NMEADataCache;
+import nmea.server.utils.Utils;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
