@@ -1,8 +1,8 @@
 package nmea.ui.launcher.minimal;
 
-import nmea.server.HTTPServer;
+import nmea.server.utils.HTTPServer;
 
-import nmea.server.ServerStop;
+import nmea.server.utils.ServerStop;
 
 import java.awt.BorderLayout;
 
