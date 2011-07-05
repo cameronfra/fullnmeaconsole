@@ -15,6 +15,7 @@ public class Full2DPanel
   private CurrentSituationPanel    fp = new CurrentSituationPanel();
   private EvolutionPanel           ep = new EvolutionPanel();
   private ControlPanelHolder       cp = new ControlPanelHolder(fp);
+  private TwinDRPanel              dr = new TwinDRPanel(); 
 
   public Full2DPanel()
   {
@@ -35,8 +36,9 @@ public class Full2DPanel
     jtabbedPane2D.setTabPlacement(JTabbedPane.BOTTOM);
     this.add(jtabbedPane2D, BorderLayout.CENTER);
     
-    // TODO Localize
+    // LOCALIZE
     jtabbedPane2D.add("Live Data", fp);
+    jtabbedPane2D.add("Dead Reckoning", dr);
     jtabbedPane2D.add("Evolution", ep);
     
     this.add(cp, BorderLayout.SOUTH);
