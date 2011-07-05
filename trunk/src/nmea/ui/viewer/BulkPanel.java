@@ -1,6 +1,6 @@
 package nmea.ui.viewer;
 
-import nmea.ctx.NMEAContext;
+import nmea.server.ctx.NMEAContext;
 
 import nmea.event.NMEAListener;
 
