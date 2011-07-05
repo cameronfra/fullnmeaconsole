@@ -1,11 +1,11 @@
 package nmea.ui.logger;
 
-import nmea.ctx.NMEAContext;
+import nmea.server.ctx.NMEAContext;
 
 import nmea.local.LogisailResourceBundle;
 
-import nmea.server.HTTPServer;
-import nmea.server.ServerStop;
+import nmea.server.utils.HTTPServer;
+import nmea.server.utils.ServerStop;
 
 import nmea.ui.NMEAFrameInterface;
 
