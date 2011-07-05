@@ -7,6 +7,10 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import java.awt.event.FocusAdapter;
+
+import java.awt.event.FocusEvent;
+
 import java.text.DecimalFormat;
 
 import javax.swing.JComboBox;
@@ -19,8 +23,8 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import nmea.ctx.NMEAContext;
-import nmea.ctx.NMEADataCache;
+import nmea.server.ctx.NMEAContext;
+import nmea.server.ctx.NMEADataCache;
 
 import nmea.ui.viewer.CurrentSituationPanel;
 
@@ -92,6 +96,13 @@ public class ControlPanelForAll
           bspCoeffTextField_actionPerformed(e);
         }
       });
+    bspCoeffTextField.addFocusListener(new FocusAdapter()
+      {
+        public void focusLost(FocusEvent e)
+        {
+          bspCoeffTextField_focusLost(e);
+        }
+      });
     jLabel4.setText("HDG Offset:");
     hdgOffsetTextField.setPreferredSize(new Dimension(40, 20));
     hdgOffsetTextField.setHorizontalAlignment(JTextField.TRAILING);
@@ -108,6 +119,13 @@ public class ControlPanelForAll
           hdgOffsetTextField_actionPerformed(e);
         }
       });
+    hdgOffsetTextField.addFocusListener(new FocusAdapter()
+      {
+        public void focusLost(FocusEvent e)
+        {
+          hdgOffsetTextField_focusLost(e);
+        }
+      });
     jLabel5.setText("AWS Coeff:");
     awsCoeffTextField.setPreferredSize(new Dimension(40, 20));
     double awsCoeff = 1d;
@@ -121,6 +139,13 @@ public class ControlPanelForAll
         public void actionPerformed(ActionEvent e)
         {
           awsCoeffTextField_actionPerformed(e);
+        }
+      });
+    awsCoeffTextField.addFocusListener(new FocusAdapter()
+      {
+        public void focusLost(FocusEvent e)
+        {
+          awsCoeffTextField_focusLost(e);
         }
       });
     jLabel6.setText("AWA Offset:");
@@ -139,6 +164,13 @@ public class ControlPanelForAll
           awaOffsetTextField_actionPerformed(e);
         }
       });
+    awaOffsetTextField.addFocusListener(new FocusAdapter()
+      {
+        public void focusLost(FocusEvent e)
+        {
+          awaOffsetTextField_focusLost(e);
+        }
+      });
     jLabel9.setText("Max Leeway:");
     maxLeewayTextField.setPreferredSize(new Dimension(40, 20));
     double mlw = 0d;
@@ -155,8 +187,16 @@ public class ControlPanelForAll
           maxLeewayTextField_actionPerformed(e);
         }
       });
-    jLabel1.setText("Wind Scale:");
+    maxLeewayTextField.addFocusListener(new FocusAdapter()
+      {
+        public void focusLost(FocusEvent e)
+        {
+          maxLeewayTextField_focusLost(e);
+        }
+      });
+    jLabel1.setText("Speed Scale:");
     scaleComboBox.removeAllItems();
+    scaleComboBox.addItem(new ScaleForWind( 1.5f, "05 knots"));
     scaleComboBox.addItem(new ScaleForWind( 3,    "10 knots"));
     scaleComboBox.addItem(new ScaleForWind( 4.5f, "15 knots"));
     scaleComboBox.addItem(new ScaleForWind( 6,    "20 knots"));
@@ -173,8 +213,8 @@ public class ControlPanelForAll
       if (sfw.getScale() == f)
       {
         scaleComboBox.setSelectedIndex(i);
-        parent.setWindScale(sfw.getScale());
-        System.setProperty("wind.scale", Float.toString(sfw.getScale()));
+        NMEAContext.getInstance().fireWindScale(f);
+        System.setProperty("wind.scale", Float.toString(f));
         break;
       }
     }
@@ -203,6 +243,13 @@ public class ControlPanelForAll
     defaultDeclinationFormattedTextField.setMinimumSize(new Dimension(35, 20));
     defaultDeclinationFormattedTextField.setPreferredSize(new Dimension(40, 20));
     defaultDeclinationFormattedTextField.setSize(new Dimension(40, 20));
+    defaultDeclinationFormattedTextField.addFocusListener(new FocusAdapter()
+      {
+        public void focusLost(FocusEvent e)
+        {
+          defaultDeclinationFormattedTextField_focusLost(e);
+        }
+      });
     dampingLabel.setText("Damping:");    
     int dv = 1;
     try { dv = ((Integer) NMEAContext.getInstance().getDataCache(NMEADataCache.DAMPING)).intValue(); } catch (Exception ex) {}    
@@ -219,19 +266,19 @@ public class ControlPanelForAll
         JSpinner spinner = (JSpinner)evt.getSource();
         // Get the new value
         Object value = spinner.getValue();
-      //    System.out.println("Value is a " + value.getClass().getName());
+        System.out.println("DampingValue changed: Value is a " + value.getClass().getName());
         if (value instanceof Integer)
         {
           Integer i = (Integer)value;
           int val = i.intValue();
           if (val < 1)
             val = 1;
-            NMEAContext.getInstance().getCache().setDampingSize(val);
-            NMEAContext.getInstance().getCache().put(NMEADataCache.DAMPING, val);
+          NMEAContext.getInstance().getCache().setDampingSize(val);
+          NMEAContext.getInstance().getCache().put(NMEADataCache.DAMPING, val);
         }
       }
-    });    
-    
+    });
+
     this.add(jLabel2, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     this.add(bspCoeffTextField, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
     this.add(jLabel4, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
@@ -271,16 +318,32 @@ public class ControlPanelForAll
 
   private void bspCoeffTextField_actionPerformed(ActionEvent e)
   {
+    bspCoefChanged();
+  }  
+  private void bspCoeffTextField_focusLost(FocusEvent e)
+  {
+    bspCoefChanged();
+  }
+  private void bspCoefChanged()
+  {
     System.out.println("BSP Coeff changed");
     double d = Double.parseDouble(bspCoeffTextField.getText());
     NMEAContext.getInstance().putDataCache(NMEADataCache.BSP_FACTOR, d);
     if (NMEAContext.getInstance().getFrozenDataCache() != null)
       NMEAContext.getInstance().getFrozenDataCache().put(NMEADataCache.BSP_FACTOR, d);
     NMEAContext.getInstance().fireDataChanged();
-//  repaint();
+    //  repaint();
   }
 
   private void hdgOffsetTextField_actionPerformed(ActionEvent e)
+  {
+    hdgOffsetChanged();
+  }
+  private void hdgOffsetTextField_focusLost(FocusEvent e)
+  {
+    hdgOffsetChanged();
+  }
+  private void hdgOffsetChanged()
   {
     System.out.println("HDG Offset changed");
     double d = Double.parseDouble(hdgOffsetTextField.getText());
@@ -288,10 +351,18 @@ public class ControlPanelForAll
     if (NMEAContext.getInstance().getFrozenDataCache() != null)
       NMEAContext.getInstance().getFrozenDataCache().put(NMEADataCache.HDG_OFFSET, d);
     NMEAContext.getInstance().fireDataChanged();
-//  repaint();
+    //  repaint();
   }
 
   private void awsCoeffTextField_actionPerformed(ActionEvent e)
+  {
+    awsCoeffChanged();
+  }
+  private void awsCoeffTextField_focusLost(FocusEvent e)
+  {
+    awsCoeffChanged();
+  }
+  private void awsCoeffChanged()
   {
     System.out.println("AWS Coeff changed");
     double d = Double.parseDouble(awsCoeffTextField.getText());
@@ -299,10 +370,18 @@ public class ControlPanelForAll
     if (NMEAContext.getInstance().getFrozenDataCache() != null)
       NMEAContext.getInstance().getFrozenDataCache().put(NMEADataCache.AWS_FACTOR, d);
     NMEAContext.getInstance().fireDataChanged();
-//  repaint();
+    //  repaint();
   }
 
   private void awaOffsetTextField_actionPerformed(ActionEvent e)
+  {
+    awaOffsetChanged();
+  }
+  private void awaOffsetTextField_focusLost(FocusEvent e)
+  {
+    awaOffsetChanged();
+  }
+  private void awaOffsetChanged()
   {
     System.out.println("AWA Offset changed");
     double d = Double.parseDouble(awaOffsetTextField.getText());
@@ -310,10 +389,18 @@ public class ControlPanelForAll
     if (NMEAContext.getInstance().getFrozenDataCache() != null)
       NMEAContext.getInstance().getFrozenDataCache().put(NMEADataCache.AWA_OFFSET, d);
     NMEAContext.getInstance().fireDataChanged();
-//  repaint();
+    //  repaint();
   }
 
   private void maxLeewayTextField_actionPerformed(ActionEvent e)
+  {
+    maxLeewayChanged();
+  }
+  private void maxLeewayTextField_focusLost(FocusEvent e)
+  {
+    maxLeewayChanged();
+  }
+  private void maxLeewayChanged()
   {
     System.out.println("Max Leeway changed");
     double d = Double.parseDouble(maxLeewayTextField.getText());
@@ -321,10 +408,18 @@ public class ControlPanelForAll
     if (NMEAContext.getInstance().getFrozenDataCache() != null)
       NMEAContext.getInstance().getFrozenDataCache().put(NMEADataCache.MAX_LEEWAY, d);
     NMEAContext.getInstance().fireDataChanged();
-//  repaint();
+    //  repaint();
   }
 
   private void defaultDeclination_Changed(ActionEvent e)
+  {
+    ddChanged();
+  }
+  private void defaultDeclinationFormattedTextField_focusLost(FocusEvent e)
+  {
+    ddChanged();
+  }
+  private void ddChanged()
   {
     System.out.println("Default Declination changed");
     double d = Double.parseDouble(defaultDeclinationFormattedTextField.getText());
@@ -332,13 +427,14 @@ public class ControlPanelForAll
     if (NMEAContext.getInstance().getFrozenDataCache() != null)
       NMEAContext.getInstance().getFrozenDataCache().put(NMEADataCache.DEFAULT_DECLINATION, new Angle180EW(d));
     NMEAContext.getInstance().fireDataChanged();
-  //  repaint();
+//  repaint();
   }
 
   private void scaleComboBox_actionPerformed(ActionEvent e)
   {
     float f = ((ScaleForWind)scaleComboBox.getSelectedItem()).getScale();
-    parent.setWindScale(f);
+//  parent.setWindScale(f);
+    NMEAContext.getInstance().fireWindScale(f);
     System.setProperty("wind.scale", Float.toString(f));
   }
 
