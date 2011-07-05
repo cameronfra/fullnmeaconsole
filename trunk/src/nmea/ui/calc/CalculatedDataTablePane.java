@@ -1,9 +1,9 @@
 package nmea.ui.calc;
 
-import nmea.ctx.NMEAContext;
-import nmea.ctx.NMEADataCache;
+import nmea.server.ctx.NMEAContext;
+import nmea.server.ctx.NMEADataCache;
 
-import nmea.ctx.Utils;
+import nmea.server.utils.Utils;
 
 import nmea.event.NMEAListener;
 
@@ -17,8 +17,6 @@ import java.awt.Color;
 import java.awt.Component;
 
 import java.awt.Font;
-
-import java.util.Date;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -39,25 +37,23 @@ import ocss.nmea.parser.Angle360;
 import ocss.nmea.parser.Depth;
 import ocss.nmea.parser.Distance;
 import ocss.nmea.parser.GeoPos;
-import ocss.nmea.parser.SolarDate;
 import ocss.nmea.parser.Speed;
 import ocss.nmea.parser.Temperature;
-import ocss.nmea.parser.UTCDate;
-import ocss.nmea.parser.UTCTime;
-
+import ocss.nmea.parser.TrueWindDirection;
+import ocss.nmea.parser.TrueWindSpeed;
 
 public class CalculatedDataTablePane
   extends JPanel
 {
-  Object[][] defaultTable = 
+  private transient Object[][] defaultTable = 
     {
       // GPS
       { NMEADataCache.COG,         new Angle360() },           // 0
       { NMEADataCache.SOG,         new Speed(0d) },
       { NMEADataCache.POSITION ,   GeoPos.init() },
-      { NMEADataCache.GPS_DATE_TIME, new UTCDate(new Date()) },
-      { NMEADataCache.GPS_TIME,    new UTCTime(new Date()) },
-      { NMEADataCache.GPS_SOLAR_TIME, new SolarDate(new Date()) },
+      { NMEADataCache.GPS_DATE_TIME, null /* new UTCDate(new Date()) */ },
+      { NMEADataCache.GPS_TIME,    null /* new UTCTime(new Date()) */ },
+      { NMEADataCache.GPS_SOLAR_TIME, null /* new SolarDate(new Date()) */ },
       // Boat
       { NMEADataCache.HDG_COMPASS, new Angle360() },           // 6
       { NMEADataCache.DECLINATION, new Angle180EW(-Double.MAX_VALUE) },
@@ -76,8 +72,8 @@ public class CalculatedDataTablePane
       { NMEADataCache.AWA,         new Angle180() },          // 18
       { NMEADataCache.AWS,         new Speed() },
       { NMEADataCache.TWA,         new Angle180() },
-      { NMEADataCache.TWS,         new Speed() },
-      { NMEADataCache.TWD,         new Angle360() },
+      { NMEADataCache.TWS,         new TrueWindSpeed() },
+      { NMEADataCache.TWD,         new TrueWindDirection() },
       // Others
       { NMEADataCache.CSP,         new Speed() },             // 24
       { NMEADataCache.CDR,         new Angle360() },
@@ -105,16 +101,16 @@ public class CalculatedDataTablePane
   static final String KEY   = "Key"; // LogisailResourceBundle.buildMessage("key");
   static final String VALUE = LogisailResourceBundle.buildMessage("value");
 
-  final String names[] = new String[] { KEY, VALUE };
-  Object data[][] = new Object[0][names.length];
-  TableModel dataModel;
-  JTable table;
-  BorderLayout borderLayout1 = new BorderLayout();
-  JPanel centerPanel = new JPanel();
-  BorderLayout borderLayout2 = new BorderLayout();
-  JScrollPane centerScrollPane = null;
-  JPanel topPanel = new JPanel();
-  JLabel topLabel = new JLabel();
+  private final String names[] = new String[] { KEY, VALUE };
+  private transient Object data[][] = new Object[0][names.length];
+  private transient TableModel dataModel;
+  private JTable table;
+  private BorderLayout borderLayout1 = new BorderLayout();
+  private JPanel centerPanel = new JPanel();
+  private BorderLayout borderLayout2 = new BorderLayout();
+  private JScrollPane centerScrollPane = null;
+  private JPanel topPanel = new JPanel();
+  private JLabel topLabel = new JLabel();
   private JButton logButton = new JButton();
 //private NMEAFrameInterface parent;
   private BorderLayout borderLayout3 = new BorderLayout();
@@ -257,7 +253,9 @@ public class CalculatedDataTablePane
                                                    int row, 
                                                    int column)
     {
-      this.setText(value.toString());
+      if (value != null)
+        this.setText(value.toString());
+      
       this.setForeground(Color.black);
       if (row < 6)
         this.setBackground(Color.pink);
