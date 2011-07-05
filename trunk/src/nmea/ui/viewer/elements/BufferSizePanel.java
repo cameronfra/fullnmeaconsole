@@ -16,7 +16,7 @@ import javax.swing.JSpinner;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import nmea.ctx.NMEAContext;
+import nmea.server.ctx.NMEAContext;
 
 public class BufferSizePanel
   extends JPanel
