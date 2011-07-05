@@ -1,7 +1,7 @@
 package nmea.ui.viewer.minimaxi.boatspeed;
 
-import nmea.ctx.NMEAContext;
-import nmea.ctx.NMEADataCache;
+import nmea.server.ctx.NMEAContext;
+import nmea.server.ctx.NMEADataCache;
 
 import nmea.event.NMEAListener;
 
