@@ -127,6 +127,8 @@ public class HeadingPanel
     }    
     gr.setColor(Color.red);
     gr.drawLine(w/2, 0, w/2, h);
+    //
+    this.setToolTipText(Integer.toString(hdg) + "\272");
   }
 
   private String getRoseStr(int rtd)
