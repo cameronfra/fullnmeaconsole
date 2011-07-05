@@ -28,10 +28,12 @@ import javax.swing.JPanel;
 
 import javax.swing.ToolTipManager;
 
-import nmea.ctx.NMEAContext;
-import nmea.ctx.Utils;
+import nmea.server.ctx.NMEAContext;
+import nmea.server.utils.Utils;
 
 import nmea.event.NMEAListener;
+
+import nmea.server.constants.Constants;
 
 
 public class SpeedEvolutionDisplay
@@ -48,7 +50,7 @@ public class SpeedEvolutionDisplay
   private transient ArrayList<DatedData> alnddd = null; // Not Damped
   private transient DatedData mini = null, maxi = null; // Extrema
   
-  private long maxDataLength = 2500L;
+  private long maxDataLength = NMEAContext.DEFAULT_BUFFER_SIZE;
   
   private transient  double min = 0d, max = 0d; // Boundaries
   private double step = 1d;
@@ -58,6 +60,8 @@ public class SpeedEvolutionDisplay
   
   private DataPanel dataPanel   = new DataPanel();
   private RangePanel rangePanel = new RangePanel();
+  
+  private boolean showRawData = true;
 
   public SpeedEvolutionDisplay(String name)
   {
@@ -121,11 +125,16 @@ public class SpeedEvolutionDisplay
     this.add(dataPanel, BorderLayout.CENTER);
     this.add(rangePanel, BorderLayout.EAST);
 
-    NMEAContext.getInstance().addNMEAListener(new NMEAListener()
+    NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
     {
       public void dataBufferSizeChanged(int size) 
       {
         maxDataLength = size;
+      }
+      
+      public void showRawData(boolean b) 
+      {
+        showRawData = b;
       }
     });
     
@@ -392,7 +401,8 @@ public class SpeedEvolutionDisplay
           if (dd.getValue() < mini.getValue()) mini = dd;
           if (dd.getValue() > maxi.getValue()) maxi = dd;
         }
-        max = (1 + (int)(maxi.getValue() / 10)) * 10; // Setting the scale there
+        if (maxi != null) 
+          max = (1 + (int)(maxi.getValue() / 10)) * 10; // Setting the scale there
         // 2 - Grid and data
         long length = (end - begin);
         if (length > 0)
@@ -411,16 +421,19 @@ public class SpeedEvolutionDisplay
           // Not Damped Data
           gr.setColor(Color.yellow);
           Point previous = null;
-          for (DatedData dd : alnddd)
+          
+          if (showRawData)
           {
-            int x = (int)((dd.getDate().getTime() - begin) * stepH);
-            int y = h - (int)((dd.getValue() - min) * stepV);
-            Point p = new Point(x, y);
-            if (previous != null)
-              gr.drawLine(previous.x, previous.y, p.x, p.y);
-            previous = p;
-          }
-                    
+            for (DatedData dd : alnddd)
+            {
+              int x = (int)((dd.getDate().getTime() - begin) * stepH);
+              int y = h - (int)((dd.getValue() - min) * stepV);
+              Point p = new Point(x, y);
+              if (previous != null)
+                gr.drawLine(previous.x, previous.y, p.x, p.y);
+              previous = p;
+            }
+          }          
           // Data
           gr.setColor(Color.red);
           Stroke origStroke = ((Graphics2D)gr).getStroke();
