@@ -8,10 +8,12 @@ import java.util.Date;
 
 import javax.swing.JPanel;
 
-import nmea.ctx.NMEAContext;
-import nmea.ctx.NMEADataCache;
+import nmea.server.ctx.NMEAContext;
+import nmea.server.ctx.NMEADataCache;
 
 import nmea.event.NMEAListener;
+
+import nmea.server.constants.Constants;
 
 import nmea.ui.viewer.elements.DirectionEvolutionDisplay;
 
@@ -19,6 +21,7 @@ import nmea.ui.viewer.elements.HeadingPanel;
 
 import ocss.nmea.parser.Angle180;
 import ocss.nmea.parser.Angle360;
+import ocss.nmea.parser.TrueWindDirection;
 
 public class DirectionEvolutionPanel
      extends JPanel  
@@ -27,7 +30,7 @@ public class DirectionEvolutionPanel
   private DirectionEvolutionDisplay hdgLoggingDisplay = new DirectionEvolutionDisplay("HDG", "Heading", 36);
   private DirectionEvolutionDisplay cogLoggingDisplay = new DirectionEvolutionDisplay("COG", "Course Over Ground", 36);
   private DirectionEvolutionDisplay awaLoggingDisplay = new DirectionEvolutionDisplay("AWA", "Apparent Wind Angle", 36, HeadingPanel.MINUS_180_TO_PLUS_180);
-  private DirectionEvolutionDisplay twdLoggingDisplay = new DirectionEvolutionDisplay("TWD", "True Wind Direction", 36);
+  private DirectionEvolutionDisplay twdLoggingDisplay = new DirectionEvolutionDisplay("WINDIR", "True Wind Direction", 36); // "TWD"
   private DirectionEvolutionDisplay cdrLoggingDisplay = new DirectionEvolutionDisplay("CDR", "Current Direction", 36);
   
   private FlowLayout flowLayout1 = new FlowLayout();
@@ -62,7 +65,7 @@ public class DirectionEvolutionPanel
     twdLoggingDisplay.setPreferredSize(dim);
     cdrLoggingDisplay.setPreferredSize(dim);
 
-    NMEAContext.getInstance().addNMEAListener(new NMEAListener()
+    NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
         public void dataUpdate()
         {
@@ -102,8 +105,8 @@ public class DirectionEvolutionPanel
             }
             try
             {
-              twdLoggingDisplay.addValue(d, ((Angle360) cache.get(NMEADataCache.TWD)).getValue());
-              twdLoggingDisplay.addNDValue(d, ((Angle360) cache.get(NMEADataCache.TWD, false)).getValue());
+              twdLoggingDisplay.addValue(d, ((TrueWindDirection) cache.get(NMEADataCache.TWD)).getValue());
+              twdLoggingDisplay.addNDValue(d, ((TrueWindDirection) cache.get(NMEADataCache.TWD, false)).getValue());
               twdLoggingDisplay.repaint();
             }
             catch (Exception ex)
