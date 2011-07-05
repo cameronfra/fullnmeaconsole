@@ -43,10 +43,10 @@ import javax.swing.JTextField;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
-import nmea.ctx.NMEAContext;
-import nmea.ctx.NMEADataCache;
+import nmea.server.ctx.NMEAContext;
+import nmea.server.ctx.NMEADataCache;
 
-import nmea.ctx.Utils;
+import nmea.server.utils.Utils;
 
 import ocss.nmea.parser.Angle180;
 import ocss.nmea.parser.Angle360;
@@ -55,6 +55,9 @@ import ocss.nmea.parser.Distance;
 import ocss.nmea.parser.GeoPos;
 import ocss.nmea.parser.Speed;
 import ocss.nmea.parser.Temperature;
+
+import ocss.nmea.parser.TrueWindDirection;
+import ocss.nmea.parser.TrueWindSpeed;
 
 import oracle.xml.parser.v2.DOMParser;
 import oracle.xml.parser.v2.XMLDocument;
@@ -70,14 +73,14 @@ public class JournalSetupPanel
   private final static String INSERT_LOG_HEADER    = "insert into datalog values (?, ?)";
   private final static String INSERT_LOG_DETAIL    = "insert into datacell values (?, ?, ?)";
   
-  private transient LoggingThread lt = null;
+  private LoggingThread lt = null;
   
   private static final String KEY   = "Data";
   private static final String VALUE = "Write";
 
   private final String configNames[] = new String[] { KEY, VALUE };
-  private transient Object configData[][] = new Object[0][configNames.length];
-  private transient TableModel configDataModel;
+  private Object configData[][] = new Object[0][configNames.length];
+  private TableModel configDataModel;
   private JTable configTable;
   
   private JScrollPane centerScrollPane = null;
@@ -345,9 +348,9 @@ public class JournalSetupPanel
         else if (key.equals("SOG"))   
           value2log = ((Speed)cache.get(NMEADataCache.SOG)).getValue();
         else if (key.equals("TWS"))   
-          value2log = ((Speed)cache.get(NMEADataCache.TWS)).getValue();
-        else if (key.equals("TWD"))   
-          value2log = ((Angle360)cache.get(NMEADataCache.TWD)).getValue();
+          value2log = ((TrueWindSpeed)cache.get(NMEADataCache.TWS)).getValue();
+        else if (key.equals("TWD"))
+          value2log = ((TrueWindDirection)cache.get(NMEADataCache.TWD)).getValue();
         else if (key.equals("LAT"))   
           value2log = ((GeoPos)cache.get(NMEADataCache.POSITION)).lat;
         else if (key.equals("LNG"))   

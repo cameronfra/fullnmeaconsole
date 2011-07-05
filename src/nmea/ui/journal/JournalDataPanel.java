@@ -36,11 +36,15 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
-import nmea.ctx.NMEAContext;
+import nmea.server.ctx.NMEAContext;
 
-import nmea.ctx.Utils;
+import nmea.server.utils.Utils;
 
 import nmea.event.NMEAListener;
+
+import nmea.server.constants.Constants;
+
+import ocss.nmea.utils.WindUtils;
 
 import user.util.GeomUtil;
 
@@ -195,8 +199,8 @@ public class JournalDataPanel
       col.setCellRenderer(new AlignedCellRenderer(align));      
     }    
     refreshJournal();
-    
-    NMEAContext.getInstance().addNMEAListener(new NMEAListener()
+
+    NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
         public void refreshLogJournal() 
         {
@@ -314,7 +318,7 @@ public class JournalDataPanel
               data = SPEED_DIST_FMT.format(d) + " kts";
               if (journalNames[i].equals("TWS"))
               {
-                int beaufort = Utils.getBeaufort(d);
+                int beaufort = WindUtils.getBeaufort(d);
                 data += (" - F " + Integer.toString(beaufort));
               }
             }
@@ -327,7 +331,7 @@ public class JournalDataPanel
             {
               data = DIRECTION_FMT.format(d);
               if (journalNames[i].equals("TWD"))
-                data += (" - " + Utils.getRoseDir(d));
+                data += (" - " + WindUtils.getRoseDir(d));
             }
             else if (journalNames[i].equals("LAT"))
               data = GeomUtil.decToSex(d, GeomUtil.SWING, GeomUtil.NS, GeomUtil.LEADING_SIGN);
@@ -456,7 +460,6 @@ public class JournalDataPanel
       {
         e.printStackTrace();
       }
-      
     }
     catch (Exception ex)
     {
