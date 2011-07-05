@@ -26,11 +26,13 @@ import java.util.Date;
 
 import javax.swing.JPanel;
 
-import nmea.ctx.NMEAContext;
+import nmea.server.ctx.NMEAContext;
 
-import nmea.ctx.Utils;
+import nmea.server.utils.Utils;
 
 import nmea.event.NMEAListener;
+
+import nmea.server.constants.Constants;
 
 public class DirectionEvolutionDisplay
      extends JPanel
@@ -130,8 +132,8 @@ public class DirectionEvolutionDisplay
     headingPanel.setDraggable(false);
     headingPanel.setRoseWidth(180f);
     headingPanel.setWithNumber(false);
-    
-    NMEAContext.getInstance().addNMEAListener(new NMEAListener()
+
+    NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
     {
       public void dataBufferSizeChanged(int size) 
       {
