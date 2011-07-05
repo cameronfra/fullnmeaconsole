@@ -1,8 +1,11 @@
 package nmea.ui.deviation;
 
-import nmea.ctx.NMEAContext;
-import nmea.ctx.NMEADataCache;
-import nmea.ctx.Utils;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+
+import nmea.server.ctx.NMEAContext;
+import nmea.server.ctx.NMEADataCache;
+import nmea.server.utils.Utils;
 
 import nmea.event.NMEAListener;
 
@@ -31,12 +34,19 @@ public class DeviationPanelHolder
   private DeviationPanel deviationPanel = new DeviationPanel();
   private JPanel bottomPanel = new JPanel();
   private JButton suggestButton = new JButton();
+  private JCheckBox sprayCheckBox = new JCheckBox();
+  private JCheckBox deleteCheckBox = new JCheckBox();
   private JButton resetButton = new JButton();
   private JButton zoomInButton = new JButton();
   private JButton zoomOutButton = new JButton();
   private JCheckBox showHideDataPoints = new JCheckBox();
+  private JCheckBox showHideCurvePoints = new JCheckBox();
+  private JButton movePointsButton = new JButton();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  private JCheckBox printCheckBox = new JCheckBox();
   
+  private boolean printVersion = false;
+
   public DeviationPanelHolder()
   {
     try
@@ -53,12 +63,15 @@ public class DeviationPanelHolder
     throws Exception
   {
     this.setLayout(borderLayout1);
+    this.setBounds(new Rectangle(10, 10, 600, 600));
+    this.setSize(new Dimension(733, 599));
     bottomPanel.setLayout(gridBagLayout1);
     this.add(deviationPanel, BorderLayout.CENTER);
     this.add(bottomPanel, BorderLayout.SOUTH);
     suggestButton.setText("Suggest");
     suggestButton.setToolTipText("From logged data");
-    bottomPanel.add(suggestButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 3, 0, 3), 0, 0));
+    bottomPanel.add(suggestButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+          new Insets(2, 3, 0, 3), 0, 0));
     suggestButton.setEnabled(false);
     suggestButton.setVisible(false);
     suggestButton.addActionListener(new ActionListener()
@@ -68,9 +81,41 @@ public class DeviationPanelHolder
           suggestButton_actionPerformed(e);
         }
       });
+    sprayCheckBox.setText("Spray");
+    sprayCheckBox.setToolTipText("Spray more points...");
+    bottomPanel.add(sprayCheckBox, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+          new Insets(2, 3, 0, 3), 0, 0));
+    sprayCheckBox.setSelected(false);
+    sprayCheckBox.setEnabled(false);
+    sprayCheckBox.setVisible(false);
+    sprayCheckBox.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          deviationPanel.setSprayPoints(sprayCheckBox.isSelected());
+        }
+      });
+        
+    deleteCheckBox.setText("Del.");
+    deleteCheckBox.setToolTipText("Delete points...");
+    bottomPanel.add(deleteCheckBox, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+          new Insets(2, 3, 0, 3), 0, 0));
+    deleteCheckBox.setSelected(false);
+    deleteCheckBox.setEnabled(false);
+    deleteCheckBox.setVisible(false);
+    deleteCheckBox.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          sprayCheckBox.setEnabled(!deleteCheckBox.isSelected());
+          deviationPanel.setDeletePoints(deleteCheckBox.isSelected());
+        }
+      });
+            
     resetButton.setText("Reset");
     resetButton.setToolTipText("From the file");
-    bottomPanel.add(resetButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 3, 0, 3), 0, 0));
+    bottomPanel.add(resetButton, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+          new Insets(2, 3, 0, 3), 0, 0));
     resetButton.setEnabled(true);
     resetButton.setVisible(true);
     resetButton.addActionListener(new ActionListener()
@@ -82,7 +127,8 @@ public class DeviationPanelHolder
       });
     zoomInButton.setText("Zoom in");
     zoomInButton.setToolTipText("Narrow width");
-    bottomPanel.add(zoomInButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 3, 0, 3), 0, 0));
+    bottomPanel.add(zoomInButton, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+          new Insets(2, 3, 0, 3), 0, 0));
     zoomInButton.setEnabled(true);
     zoomInButton.setVisible(true);
     zoomInButton.addActionListener(new ActionListener()
@@ -95,7 +141,8 @@ public class DeviationPanelHolder
       });
     zoomOutButton.setText("Zoom out"); 
     zoomOutButton.setToolTipText("Widen width");
-    bottomPanel.add(zoomOutButton, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 3, 0, 3), 0, 0));
+    bottomPanel.add(zoomOutButton, new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+          new Insets(2, 3, 0, 3), 0, 0));
     zoomOutButton.setEnabled(true);
     zoomOutButton.setVisible(true);
     zoomOutButton.addActionListener(new ActionListener()
@@ -108,7 +155,9 @@ public class DeviationPanelHolder
       });
     
     showHideDataPoints.setText("Show data points");
-    bottomPanel.add(showHideDataPoints, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 3, 0, 3), 0, 0));
+    showHideDataPoints.setSelected(true);
+    bottomPanel.add(showHideDataPoints, new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+          new Insets(2, 3, 0, 3), 0, 0));
     showHideDataPoints.setEnabled(false);
     showHideDataPoints.setVisible(false);
     showHideDataPoints.setSelected(true);
@@ -122,6 +171,47 @@ public class DeviationPanelHolder
         }
       });
 
+    showHideCurvePoints.setText("Show curve points");
+    bottomPanel.add(showHideCurvePoints, new GridBagConstraints(7, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+          new Insets(2, 3, 0, 3), 0, 0));
+    showHideCurvePoints.setEnabled(true);
+    showHideCurvePoints.setVisible(true);
+    showHideCurvePoints.setSelected(true);
+    showHideCurvePoints.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          deviationPanel.setShowCurveData(showHideCurvePoints.isSelected());
+          movePointsButton.setEnabled(showHideCurvePoints.isSelected());
+          deviationPanel.repaint();
+        }
+      });
+
+    movePointsButton.setText("Move Points");
+    movePointsButton.setToolTipText("<html>Move the points of the deviation curve (red)<br>on the calculated one (yellow)</html>");
+    bottomPanel.add(movePointsButton, new GridBagConstraints(9, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+          new Insets(2, 3, 0, 3), 0, 0));
+    bottomPanel.add(printCheckBox, new GridBagConstraints(8, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+          new Insets(0, 0, 0, 0), 0, 0));
+    movePointsButton.setEnabled(true);
+    movePointsButton.setVisible(true);
+    movePointsButton.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          deviationPanel.stickPointsToCurve();
+          deviationPanel.repaint();
+        }
+      });
+
+    printCheckBox.setText("Print");
+    printCheckBox.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          printCheckBox_actionPerformed(e);
+        }
+      });
     NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
         public void loadDataPointsForDeviation(ArrayList<double[]> dp) 
@@ -143,7 +233,12 @@ public class DeviationPanelHolder
     {
       suggestButton.setEnabled(true);
       suggestButton.setVisible(true);
+//    sprayCheckBox.setEnabled(true);      
+//    sprayCheckBox.setVisible(true);
+//    deleteCheckBox.setEnabled(true);
+//    deleteCheckBox.setVisible(true);
     }
+    
     else
     {
       resetButton.setEnabled(true);
@@ -170,20 +265,12 @@ public class DeviationPanelHolder
   public void setDataPoint(ArrayList<double[]> dataPoint)
   {
     deviationPanel.setDataPoint(dataPoint);
-    if (dataPoint != null)
-    {
-      suggestButton.setEnabled(true);
-      suggestButton.setVisible(true);
-//    resetButton.setEnabled(false);
-//    resetButton.setVisible(false);
-    }
-    else
-    {
-      suggestButton.setEnabled(false);
-      suggestButton.setVisible(false);
-//    resetButton.setEnabled(true);
-//    resetButton.setVisible(true);
-    }
+    suggestButton.setEnabled(dataPoint != null);
+    suggestButton.setVisible(dataPoint != null);
+    sprayCheckBox.setEnabled(dataPoint != null);
+    sprayCheckBox.setVisible(dataPoint != null);
+    deleteCheckBox.setEnabled(dataPoint != null);
+    deleteCheckBox.setVisible(dataPoint != null);
   }
 
   private void suggestButton_actionPerformed(ActionEvent e)
@@ -197,6 +284,14 @@ public class DeviationPanelHolder
     NMEAContext.getInstance().setDeviation(Utils.loadDeviationCurve(deviationFileName));
     Hashtable<Double, Double> data = Utils.loadDeviationHashtable(deviationFileName); // Load from file
     deviationPanel.setHtDeviationCurve(data);
+    deviationPanel.resetSprayedPoints();
+    deviationPanel.repaint();
+  }
+
+  private void printCheckBox_actionPerformed(ActionEvent e)
+  {
+    printVersion = printCheckBox.isSelected();
+    deviationPanel.setPrintVersion(printVersion);
     deviationPanel.repaint();
   }
 }
