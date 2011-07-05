@@ -20,20 +20,22 @@ import javax.swing.JSeparator;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 
-import nmea.ctx.NMEAContext;
-import nmea.ctx.NMEADataCache;
-import nmea.ctx.Utils;
+import nmea.server.ctx.NMEAContext;
+import nmea.server.ctx.NMEADataCache;
+import nmea.server.utils.Utils;
 
 import nmea.local.LogisailResourceBundle;
 
 import nmea.server.constants.Constants;
 
+import nmea.server.datareader.CustomNMEAClient;
+
 import nmea.ui.widgets.BeaufortPanel;
 import nmea.ui.widgets.ConfigTablePanel;
 
-import ocss.nmea.parser.Angle360;
-import ocss.nmea.parser.Speed;
-
+import ocss.nmea.parser.TrueWindDirection;
+import ocss.nmea.parser.TrueWindSpeed;
+import ocss.nmea.utils.WindUtils;
 
 public class NMEAInternalFrame
   extends JInternalFrame
@@ -67,6 +69,7 @@ public class NMEAInternalFrame
   private String tcp = "";
   private String data = null;
 
+  // TODO TCP/UDP Option
   public NMEAInternalFrame(boolean v, 
                            String serial, 
                            int br, 
@@ -74,13 +77,14 @@ public class NMEAInternalFrame
                            String fName, // simulation file
                            String propertiesFile)
   {
-    this.verbose = v;
+    this(v, propertiesFile);
+
     this.serial = serial;
     this.br = br;
     this.tcp = port;
     this.data = fName;
-    pfile = propertiesFile;
     NMEAContext.getInstance().setFromFile(data != null && data.trim().length() > 0);
+    
     try
     {
       jbInit();
@@ -90,11 +94,18 @@ public class NMEAInternalFrame
       e.printStackTrace();
     }
   }
+  
+  private NMEAInternalFrame(boolean v,
+                            String propertiesFile)
+  {
+    this.verbose = v;
+    this.pfile = propertiesFile;    
+  }
 
   private void jbInit()
     throws Exception
   {
-    nmeaTP = new NMEAMasterPanel(verbose, serial, br, tcp, data, pfile, false);
+    nmeaTP = new NMEAMasterPanel(verbose, serial, br, tcp, CustomNMEAClient.TCP_OPTION, data, pfile, false);
     this.setJMenuBar(menuBar);
     menuBar.add(menuFile);
     menuFile.add(menuFileSave);
@@ -204,10 +215,10 @@ public class NMEAInternalFrame
             {
               double tws = 0d, twd = 0d;
               boolean ok = true;
-              try { tws = ((Speed)cache.get(NMEADataCache.TWS)).getValue(); } catch (Exception ex) { ok = false; }
-              try { twd = ((Angle360)cache.get(NMEADataCache.TWD)).getValue(); } catch (Exception ex) { ok = false; }
+              try { tws = ((TrueWindSpeed)cache.get(NMEADataCache.TWS)).getValue(); } catch (Exception ex) { ok = false; }
+              try { twd = ((TrueWindDirection)cache.get(NMEADataCache.TWD)).getValue(); } catch (Exception ex) { ok = false; }
               if (ok)
-                title += (" - Wind: " + Utils.getRoseSpeedAndDirection(tws, twd) + " - ");
+                title += (" - Wind: " + WindUtils.getRoseSpeedAndDirection(tws, twd) + " - ");
             }            
             setTitle(title + " " + LogisailResourceBundle.buildMessage("frame-title"));
             try { Thread.sleep(1000L); } catch (Exception ex) {}
