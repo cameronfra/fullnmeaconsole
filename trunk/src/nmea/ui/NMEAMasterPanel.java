@@ -27,8 +27,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import nmea.ctx.NMEAContext;
-import nmea.ctx.Utils;
+import nmea.server.ctx.NMEAContext;
+import nmea.server.utils.Utils;
 
 import nmea.event.NMEAListener;
 
@@ -36,7 +36,7 @@ import nmea.local.LogisailResourceBundle;
 
 import nmea.server.NMEAEventManager;
 import nmea.server.constants.Constants;
-import nmea.server.data.CustomNMEAClient;
+import nmea.server.datareader.CustomNMEAClient;
 
 import nmea.ui.calc.CalculatedDataTablePane;
 import nmea.ui.deviation.ControlPanel;
@@ -87,12 +87,14 @@ public class NMEAMasterPanel
   private String serial = null;
   private int br = 0;
   private String tcp = "";
+  private String udp = "";
   private String data = null;
   
   public NMEAMasterPanel(boolean v,
                          String serial,
                          int br,
                          String port,
+                         int option,
                          String fName, // simulation file
                          String propertiesFile,
                          boolean openSerial)
@@ -100,7 +102,10 @@ public class NMEAMasterPanel
     this.verbose = v;
     this.serial = serial;
     this.br = br;
-    this.tcp = port;
+    if (option == CustomNMEAClient.TCP_OPTION)
+      this.tcp = port;
+    if (option == CustomNMEAClient.UDP_OPTION)
+      this.udp = port;
     this.data = fName;
     this.pfile = propertiesFile;
     if (data != null && data.trim().length() > 0)
@@ -252,7 +257,12 @@ public class NMEAMasterPanel
         if (tcp != null && tcp.trim().length() > 0)
         {
           int tcpport = Integer.parseInt(tcp);
-          read(tcpport);
+          read(tcpport, CustomNMEAClient.TCP_OPTION);
+        } 
+        else if (udp != null && udp.trim().length() > 0)
+        {
+          int udpport = Integer.parseInt(udp);
+          read(udpport, CustomNMEAClient.UDP_OPTION);
         } 
         else if (data != null && data.trim().length() > 0)
         {
@@ -287,7 +297,7 @@ public class NMEAMasterPanel
   }
 
   /**
-   * REad serial port
+   * Read serial port
    * @param port
    * @param br
    */
@@ -296,19 +306,32 @@ public class NMEAMasterPanel
     System.out.println(this.getClass().getName()+ ":Reading...");
     setLogMessage(LogisailResourceBundle.buildMessage("reading", new String[] { port, Integer.toString(br)}));
     CustomNMEAClient nmeaClient = null;
-    nmeaClient = new CustomNMEAClient(this, port, br);
+    nmeaClient = new CustomNMEAClient(this, port, br)
+      {
+        public void manageNMEAError(Throwable t)
+        {
+          throw new RuntimeException(t);
+        }
+      };
   }
 
   /**
-   * Read with TCP
+   * Read with TCP or UDP
    * @param port
    */
-  private void read(int port)
+  private void read(int port, int option)
   {
-    System.out.println("Reading TCP...");
-    setLogMessage(LogisailResourceBundle.buildMessage("reading", new String[] { "TCP", Integer.toString(port)}));
+    System.out.println("Reading " + ((option == CustomNMEAClient.TCP_OPTION)?"TCP":"UDP") + "...");
+    setLogMessage(LogisailResourceBundle.buildMessage("reading", new String[] { ((option == CustomNMEAClient.TCP_OPTION)?"TCP":"UDP"), 
+                                                                                Integer.toString(port)}));
     CustomNMEAClient nmeaClient = null;
-    nmeaClient = new CustomNMEAClient(this, port);
+    nmeaClient = new CustomNMEAClient(this, option, port)
+      {
+        public void manageNMEAError(Throwable t)
+        {
+          throw new RuntimeException(t);
+        }
+      };
   }
 
   /**
@@ -319,7 +342,13 @@ public class NMEAMasterPanel
   {
     System.out.println("Reading Data File...");
     CustomNMEAClient nmeaClient = null;
-    nmeaClient = new CustomNMEAClient(this, f);
+    nmeaClient = new CustomNMEAClient(this, f)
+      {
+        public void manageNMEAError(Throwable t)
+        {
+          throw new RuntimeException(t);
+        }
+      };
   }
   
   public boolean verbose()
