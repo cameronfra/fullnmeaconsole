@@ -3,6 +3,7 @@ package nmea.ui.viewer;
 import java.awt.BorderLayout;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
 import nmea.ui.viewer.elements.BufferSizePanel;
@@ -42,8 +43,8 @@ public class EvolutionPanel
     bottomPlaceHolder.add(bsp, BorderLayout.WEST);
     this.add(bottomPlaceHolder, BorderLayout.SOUTH);
     
-    jTabbedPane.add("Speeds",     sep);
-    jTabbedPane.add("Directions", dep);
+    jTabbedPane.add("Speeds",     new JScrollPane(sep));
+    jTabbedPane.add("Directions", dep); // new JScrollPane(dep));
     jTabbedPane.add("Depth",      ded);
   }
 }
