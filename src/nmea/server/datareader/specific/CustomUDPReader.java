@@ -99,7 +99,7 @@ public class CustomUDPReader extends NMEAReader implements DataReader
             if (verbose) System.out.println("Waiter Interrupted! (before end of wait, good)");              
           }
         }    
-        s = new String(buffer, 0, packet.getLength()) + NMEAParser.NMEA_EOS;
+        s = new String(buffer, 0, packet.getLength()) + NMEAParser.getEOS();
 //      System.out.println("UDP:" + s);
         super.fireDataRead(new NMEAEvent(this, s));
       }

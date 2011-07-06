@@ -43,7 +43,7 @@ import ocss.nmea.parser.GeoPos;
 import ocss.nmea.parser.Speed;
 import ocss.nmea.parser.UTCDate;
 
-import user.util.GeomUtil;
+// import user.util.GeomUtil;
 
 
 public class DeadReckoningPlottingSheet

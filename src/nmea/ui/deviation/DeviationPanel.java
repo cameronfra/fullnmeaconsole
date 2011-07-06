@@ -1,6 +1,6 @@
 package nmea.ui.deviation;
 
-import chartlib.ui.components.CommandPanel;
+//import chartlib.ui.components.CommandPanel;
 
 import nmea.server.ctx.NMEAContext;
 import nmea.server.ctx.NMEADataCache;

@@ -101,7 +101,7 @@ public class CustomTCPReader extends NMEAReader implements DataReader
         for(int i = 0; i < nn; i++)
           toPrint[i] = buffer[i];
 
-        s = new String(toPrint) + NMEAParser.NMEA_EOS;
+        s = new String(toPrint) + NMEAParser.getEOS();
 //      System.out.println("TCP:" + s);
         super.fireDataRead(new NMEAEvent(this, s));
       }
