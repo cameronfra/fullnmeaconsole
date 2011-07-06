@@ -1,25 +1,23 @@
 package nmea.server.ctx;
 
-import chartlib.sql.SQLUtil;
+
+import coreutilities.sql.SQLUtil;
 
 import java.io.File;
 import java.io.Serializable;
 
 import java.sql.Connection;
 
-import nmea.event.NMEAListener;
-
 import java.text.DecimalFormat;
 
 import java.util.ArrayList;
-
 import java.util.HashMap;
-
 import java.util.Hashtable;
 
-import nmea.ui.viewer.elements.DrawingBoard;
+import nmea.event.NMEAListener;
 
 import oracle.xml.parser.v2.DOMParser;
+
 
 /**
  * A singleton
