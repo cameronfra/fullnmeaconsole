@@ -307,12 +307,17 @@ public class DrawingBoard
     Angle180EW dec = (Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DECLINATION);
     if (dec.getValue() == -Double.MAX_VALUE)
       dec = (Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEFAULT_DECLINATION);
-    gr.drawString("HDG (corrected) :" + DF31.format(hdg + hdgOffset) + "\272 (Decl.= " + 
+    String hdgMess = "";
+    if (Utils.isHdtPresent())
+      hdgMess = "HDG (corrected) :" + DF31.format(hdg + hdgOffset) + "\272 (Using HDT)";
+    else
+      hdgMess = "HDG (corrected) :" + DF31.format(hdg + hdgOffset) + "\272 (Decl.= " + 
                   dec.toFormattedString() +
                   ", dev.= " + 
                   ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEVIATION)).toFormattedString() +
                   ", Var.= " + (dec.getValue() >=0 ? "E " : "W ") + DF31.format(Math.abs(dec.getValue() + ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEVIATION)).getValue())) + "\272" +
-                  ")", 10, y);
+                  ")";
+    gr.drawString(hdgMess, 10, y);
     y += FONT_SIZE;
     gr.drawString("AWS (corrected) :" + DF32.format(aws * awsCoeff) + " kts", 10, y);
     y += FONT_SIZE;
