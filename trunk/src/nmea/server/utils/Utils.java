@@ -241,6 +241,7 @@ public class Utils
   }
   
   private static boolean rmcPresent = false;
+  private static boolean hdtPresent = false;
   
   public static void parseAndCalculate(String key, String value, NMEADataCache ndc)
   {
@@ -396,13 +397,24 @@ public class Utils
         }
       }
     }
-    else if ("HDM".equals(sentenceId)) // Heading
+    else if ("HDM".equals(sentenceId)) // Heading, magnetic
     {
       int hdg = StringParsers.parseHDM(value);
       if (ndc == null)
         NMEAContext.getInstance().putDataCache(NMEADataCache.HDG_COMPASS, new Angle360(hdg));
       else
         ndc.put(NMEADataCache.HDG_COMPASS, new Angle360(hdg));
+    }
+    else if ("HDT".equals(sentenceId)) // Heading, true
+    {
+      int hdg = StringParsers.parseHDT(value);
+      if (ndc == null)
+        NMEAContext.getInstance().putDataCache(NMEADataCache.HDG_TRUE, new Angle360(hdg));
+      else
+        ndc.put(NMEADataCache.HDG_TRUE, new Angle360(hdg));
+      if (!hdtPresent)
+        System.out.println("HDT is present.");
+      hdtPresent = true;
     }
     else if ("HDG".equals(sentenceId)) // Heading
     {
@@ -478,7 +490,7 @@ public class Utils
       NMEAContext.getInstance().fireDataChanged();
     }
     else
-      computeAndSendValuesToCache(ndc);
+      computeAndSendValuesToCache(ndc, hdtPresent);
   }
 
   /**
@@ -491,28 +503,38 @@ public class Utils
    */
   public static void computeAndSendValuesToCache(NMEADataCache cache)
   {
+    computeAndSendValuesToCache(cache, false);
+  }
+  public static void computeAndSendValuesToCache(NMEADataCache cache, boolean isHDTPresent)
+  {
     double heading = 0d;
-    double hdc = 0d;
-    double dec = 0d;
-//  System.out.println("========================");
-    try { hdc = ((Angle360)cache.get(NMEADataCache.HDG_COMPASS)).getValue() + ((Double)cache.get(NMEADataCache.HDG_OFFSET)).doubleValue(); } catch (Exception ex) {}
-//  System.out.println("HDG Compass:" + hdc);
-    try { dec = ((Angle180EW)cache.get(NMEADataCache.DECLINATION)).getValue(); } catch (Exception ex) {}
-    if (dec == -Double.MAX_VALUE)
-      dec = ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEFAULT_DECLINATION)).getValue();
-//  System.out.println("Declination:" + dec);
-    heading = hdc + dec; // Magnetic
-    cache.put(NMEADataCache.HDG_MAG, new Angle360(heading));
-//  System.out.println("HDG Mag: " + heading);
-    double dev = Utils.getDeviation(heading);
-    cache.put(NMEADataCache.DEVIATION, new Angle180EW(dev));
-    
-    double w = dec + dev;
-    cache.put(NMEADataCache.VARIATION, new Angle180EW(w));    
-    heading = hdc + w; // true    
-    cache.put(NMEADataCache.HDG_TRUE, new Angle360(heading));
-//  System.out.println("HDG True:" + heading);
-//  System.out.println("==========================");
+    if (!isHDTPresent)
+    {
+      double hdc = 0d;
+      double dec = 0d;
+  //  System.out.println("========================");
+      try { hdc = ((Angle360)cache.get(NMEADataCache.HDG_COMPASS)).getValue() + ((Double)cache.get(NMEADataCache.HDG_OFFSET)).doubleValue(); } catch (Exception ex) {}
+  //  System.out.println("HDG Compass:" + hdc);
+      try { dec = ((Angle180EW)cache.get(NMEADataCache.DECLINATION)).getValue(); } catch (Exception ex) {}
+      if (dec == -Double.MAX_VALUE)
+        dec = ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEFAULT_DECLINATION)).getValue();
+  //  System.out.println("Declination:" + dec);
+      heading = hdc + dec; // Magnetic
+      cache.put(NMEADataCache.HDG_MAG, new Angle360(heading));
+  //  System.out.println("HDG Mag: " + heading);
+      double dev = Utils.getDeviation(heading);
+      cache.put(NMEADataCache.DEVIATION, new Angle180EW(dev));
+      
+      double w = dec + dev;
+      cache.put(NMEADataCache.VARIATION, new Angle180EW(w));    
+      heading = hdc + w; // true    
+      cache.put(NMEADataCache.HDG_TRUE, new Angle360(heading));
+  //  System.out.println("HDG True:" + heading);
+  //  System.out.println("==========================");
+    }
+    else
+      try { heading = ((Angle360)cache.get(NMEADataCache.HDG_TRUE)).getValue() + ((Double)cache.get(NMEADataCache.HDG_OFFSET)).doubleValue(); } catch (Exception ex) {}
+      
     double twa = 0d, 
            tws = 0d; 
     int twd = 0;
@@ -1153,7 +1175,7 @@ public class Utils
       counter.put("VHW", 0);
       counter.put("RMC", 0);
       counter.put("GLL", 0);
-      counter.put("VTG", 0);
+      counter.put("VTG", 0);      
       
       String line = "";
       boolean keepLooping = true;
@@ -1189,7 +1211,7 @@ public class Utils
       else if (counter.get("HDG").intValue() == 0 &&
                counter.get("HDM").intValue() == 0 &&
                counter.get("VHW").intValue() == 0)
-        JOptionPane.showMessageDialog(null, "No HDM, HDG, or VHW!", "Logged Data", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, "No HDM, HDG or VHW!", "Logged Data", JOptionPane.ERROR_MESSAGE);
       else // Proceed
       {
         System.out.println("Proceeding...");
@@ -1612,5 +1634,10 @@ public class Utils
   {
     for (int i=0; i<360; i++)
       System.out.println(Integer.toString(i) + ":" + WindUtils.getRoseDir((double)i));
+  }
+
+  public static boolean isHdtPresent()
+  {
+    return hdtPresent;
   }
 }
