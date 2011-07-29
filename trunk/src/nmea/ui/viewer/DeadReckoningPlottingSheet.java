@@ -43,7 +43,10 @@ import ocss.nmea.parser.GeoPos;
 import ocss.nmea.parser.Speed;
 import ocss.nmea.parser.UTCDate;
 
-// import user.util.GeomUtil;
+import ocss.nmea.parser.UTCHolder;
+import ocss.nmea.parser.UTCTime;
+
+import user.util.GeomUtil;
 
 
 public class DeadReckoningPlottingSheet
@@ -70,7 +73,7 @@ public class DeadReckoningPlottingSheet
   private long bufferLength = 60000L;
   
   // Time, Position, CMG, BSP.
-  private ArrayList<UTCDate> timeBuffer    = new ArrayList<UTCDate>();
+  private ArrayList<UTCHolder> timeBuffer    = new ArrayList<UTCHolder>();
   private ArrayList<GeoPos> positionBuffer = new ArrayList<GeoPos>();
   private ArrayList<Angle360> cmgBuffer    = new ArrayList<Angle360>();
   private ArrayList<Angle360> hdgBuffer    = new ArrayList<Angle360>();
@@ -131,7 +134,7 @@ public class DeadReckoningPlottingSheet
      {
         public void actionPerformed(ActionEvent e)
         {
-          timeBuffer     = new ArrayList<UTCDate>();
+          timeBuffer     = new ArrayList<UTCHolder>();
           positionBuffer = new ArrayList<GeoPos>();
           cmgBuffer      = new ArrayList<Angle360>();
           hdgBuffer    = new ArrayList<Angle360>();
@@ -157,19 +160,27 @@ public class DeadReckoningPlottingSheet
             try 
             { 
 //            long time       = new Date().getTime();
-              UTCDate utcDate = (UTCDate)cache.get(NMEADataCache.GPS_DATE_TIME);
+              Object ot = (UTCDate)cache.get(NMEADataCache.GPS_DATE_TIME);
+              if (ot == null)
+                ot = (UTCTime)cache.get(NMEADataCache.GPS_TIME);
+              UTCHolder utcDate = null;
+              if (ot instanceof UTCDate)
+                utcDate = new UTCHolder((UTCDate)ot);
+              else
+                utcDate = new UTCHolder((UTCTime)ot);
               Angle360 cmg    = (Angle360)cache.get(NMEADataCache.CMG); 
               GeoPos position = (GeoPos)cache.get(NMEADataCache.POSITION);
               Speed bsp       = (Speed)cache.get(NMEADataCache.BSP); 
               Angle360 hdg    = (Angle360)cache.get(NMEADataCache.HDG_TRUE); 
-              if (timeBuffer.size() == 0 || (timeBuffer.size() > 0 && (timeBuffer.get(timeBuffer.size() - 1).getValue().getTime() < utcDate.getValue().getTime())))
+              if (!utcDate.isNull() && (timeBuffer.size() == 0 || (timeBuffer.size() > 0 && (timeBuffer.get(timeBuffer.size() - 1).getValue().getTime() < utcDate.getValue().getTime()))))
               {
                 if (utcDate != null && cmg != null && position != null && bsp != null && hdg != null)
                 {
                   if (timeBuffer.size() > 0)
                   {
-                    UTCDate oldest = timeBuffer.get(0);
+                    UTCHolder oldest = timeBuffer.get(0);
                     boolean keepGoing = true;
+                    
                     while (keepGoing && oldest.getValue().getTime() < (utcDate.getValue().getTime() - bufferLength))
                     {
                       timeBuffer.remove(0);
