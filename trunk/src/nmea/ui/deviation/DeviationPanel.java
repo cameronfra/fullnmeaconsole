@@ -1,7 +1,5 @@
 package nmea.ui.deviation;
 
-//import chartlib.ui.components.CommandPanel;
-
 import nmea.server.ctx.NMEAContext;
 import nmea.server.ctx.NMEADataCache;
 import nmea.server.utils.Utils;
@@ -166,8 +164,10 @@ public class DeviationPanel
     for (Double d : htDeviationCurve.keySet())
     {
       double val = htDeviationCurve.get(d);
-      if (val > max) max = val;
-      if (val < min) min = val;
+//    if (val > max) max = val;
+//    if (val < min) min = val;
+      max = Math.max(max, val);
+      min = Math.min(min, val);
     }
     double hdgOffset = ((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.HDG_OFFSET)).doubleValue();
 //  System.out.println("Applying HDG Offset:" + hdgOffset);
@@ -184,8 +184,10 @@ public class DeviationPanel
         while (val < -180) val += 360;
         if (Math.abs(val) < 90)
         {
-          if (val > max) max = val;
-          if (val < min) min = val;
+    //    if (val > max) max = val;
+    //    if (val < min) min = val;
+          max = Math.max(max, val);
+          min = Math.min(min, val);
         }
       }
     }
