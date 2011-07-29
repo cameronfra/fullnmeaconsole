@@ -158,11 +158,12 @@ public class NMEAConsole
     if (udp.trim().length() > 0)
       option = CustomNMEAClient.UDP_OPTION;
     new NMEAConsole(verb, 
-                      System.getProperty("nmea.serial.port", serial), 
-                      Integer.parseInt(System.getProperty("nmea.baud.rate", Integer.toString(baudrate))), 
-                      option,
-                      (option == CustomNMEAClient.TCP_OPTION)?System.getProperty("nmea.tcp.port", tcp):System.getProperty("nmea.udp.port", udp), // TCP/UDP Port
-                      fName, 
-                      System.getProperty("nmea.config.file", pfile));
+                    System.getProperty("nmea.serial.port", serial), 
+                    Integer.parseInt(System.getProperty("nmea.baud.rate", Integer.toString(baudrate))), 
+                    option,
+                    (option == CustomNMEAClient.TCP_OPTION)?System.getProperty("nmea.tcp.port", tcp):
+                                                            System.getProperty("nmea.udp.port", udp), // TCP/UDP Port
+                    fName, 
+                    System.getProperty("nmea.config.file", pfile));
   }
 }
