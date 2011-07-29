@@ -53,6 +53,8 @@ public class CustomUDPReader extends NMEAReader implements DataReader
   private MulticastSocket skt   = null;
   private InetAddress     group = null;
   
+  private boolean verbose = System.getProperty("verbose", "false").equals("true");
+
   public void read()
   {
     System.out.println("From " + getClass().getName() + " Reading UDP Port " + udpport);
@@ -66,7 +68,6 @@ public class CustomUDPReader extends NMEAReader implements DataReader
 
       byte buffer[] = new byte[4096];
       String s;
-      boolean verbose = true;
       while (canRead())
       {
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
@@ -90,7 +91,7 @@ public class CustomUDPReader extends NMEAReader implements DataReader
             {
 //            System.out.println("Interrupting the DatagramReceiveThread");
               drt.interrupt(); 
-              if (after - before >= timeout)
+              if (timeout != -1 && (after - before) >= timeout)
                 throw new RuntimeException("UDP took too long.");
             }
           }
@@ -99,9 +100,11 @@ public class CustomUDPReader extends NMEAReader implements DataReader
             if (verbose) System.out.println("Waiter Interrupted! (before end of wait, good)");              
           }
         }    
-        s = new String(buffer, 0, packet.getLength()) + NMEAParser.getEOS();
-//      System.out.println("UDP:" + s);
-        super.fireDataRead(new NMEAEvent(this, s));
+        s = new String(buffer, 0, packet.getLength());
+        if (!s.endsWith(NMEAParser.getEOS()))
+          s += NMEAParser.getEOS();
+        if (verbose) System.out.println("UDP:" + s);
+        super.fireDataRead(new NMEAEvent(this, s));        
       }
     }
     catch(Exception e)
@@ -114,12 +117,19 @@ public class CustomUDPReader extends NMEAReader implements DataReader
     {
       try
       {
-        skt.leaveGroup(group);
-        skt.close();
+        if (skt != null)
+        {
+          if (verbose) System.out.println(">> From " + this.getClass().getName() + ": 1 - Leaving group " + group.toString());
+          skt.leaveGroup(group);
+          if (verbose) System.out.println(">> From " + this.getClass().getName() + ": 2 - Closing MulticastSocket");
+          skt.close();
+        }
+        else
+          if (verbose) System.out.println("Multicast socket already null (closed)...");
       }
       catch (Exception ex)
       {
-        System.err.println("Closing Multicast Socket...");
+        System.err.println(">> Error when Closing Multicast Socket...");
         ex.printStackTrace();
       }
 //    closeReader();
@@ -134,6 +144,9 @@ public class CustomUDPReader extends NMEAReader implements DataReader
       if (skt != null)
       {
         this.goRead = false;
+        if (verbose) System.out.println(">> From " + this.getClass().getName() + ": 1 - Leaving group " + group.toString());
+        skt.leaveGroup(group);
+        if (verbose) System.out.println(">> From " + this.getClass().getName() + ": 2 - Closing MulticastSocket");
         skt.close();
         skt = null;
       }
