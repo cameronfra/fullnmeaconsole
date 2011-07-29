@@ -36,8 +36,10 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 
 import java.util.Hashtable;
@@ -74,6 +76,7 @@ import ocss.nmea.parser.StringParsers;
 import ocss.nmea.parser.Temperature;
 import ocss.nmea.parser.TrueWindDirection;
 import ocss.nmea.parser.TrueWindSpeed;
+import ocss.nmea.parser.UTC;
 import ocss.nmea.parser.UTCDate;
 import ocss.nmea.parser.UTCTime;
 import ocss.nmea.parser.Wind;
@@ -280,6 +283,23 @@ public class Utils
         else
           ndc.putAll(rmcMap);
         rmcPresent = true;
+      }
+    }
+    else if ("ZDA".equals(sentenceId))
+    {
+      UTC utc = StringParsers.parseZDA(value);
+      if (utc != null)
+      {
+        NMEAContext.getInstance().putDataCache(NMEADataCache.GPS_DATE_TIME, new UTCDate(utc.getDate()));
+        NMEAContext.getInstance().putDataCache(NMEADataCache.GPS_TIME, new UTCTime(utc.getDate()));
+        
+        GeoPos pos = (GeoPos)NMEAContext.getInstance().getDataCache(NMEADataCache.POSITION);
+        if (pos != null)
+        {
+          long solarTime = utc.getDate().getTime() + longitudeToTime(pos.lng);        
+          Date solarDate = new Date(solarTime);
+          NMEAContext.getInstance().putDataCache(NMEADataCache.GPS_SOLAR_TIME, new SolarDate(solarDate));
+        }
       }
     }
     else if ("VHW".equals(sentenceId)) // Water Speed and Heading
