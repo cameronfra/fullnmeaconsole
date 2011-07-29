@@ -32,6 +32,12 @@ public abstract class CustomNMEAClient extends NMEAClient
   
   private int option = TCP_OPTION;
 
+  /**
+   * Read Serial Port
+   * @param parent
+   * @param p
+   * @param br
+   */
   public CustomNMEAClient(NMEAEventManager parent, String p, int br)
   {
     this(parent, p, br, DEFAULT_TIMEOUT);
@@ -39,8 +45,9 @@ public abstract class CustomNMEAClient extends NMEAClient
   /**
    * Read Serial Port
    * @param parent
-   * @param p
-   * @param br
+   * @param p    Serial port name, like COM10
+   * @param br   Baud rate, like 4800
+   * @param tout Timeout in milliseconds
    */
   public CustomNMEAClient(NMEAEventManager parent, String p, int br, long tout)
   {
@@ -52,6 +59,11 @@ public abstract class CustomNMEAClient extends NMEAClient
     init();
   }
 
+  /**
+   * Read TCP/UDP Port
+   * @param parent
+   * @param port
+   */
   public CustomNMEAClient(NMEAEventManager parent, int option, int port)
   {
     this(parent, option, port, DEFAULT_TIMEOUT);
@@ -59,7 +71,8 @@ public abstract class CustomNMEAClient extends NMEAClient
   /**
    * Read TCP/UDP Port
    * @param parent
-   * @param port
+   * @param port TCP or UDP port number, like 8001
+   * @param tout Timeout in milliseconds
    */
   public CustomNMEAClient(NMEAEventManager parent, int option, int port, long tout)
   {
