@@ -67,13 +67,14 @@ public class NMEAInternalFrame
   private String serial = null;
   private int br = 0;
   private String tcp = "";
+  private String udp = "";
   private String data = null;
 
-  // TODO TCP/UDP Option
   public NMEAInternalFrame(boolean v, 
                            String serial, 
                            int br, 
-                           String port, 
+                           String tcpPort, 
+                           String udpPort,
                            String fName, // simulation file
                            String propertiesFile)
   {
@@ -81,7 +82,8 @@ public class NMEAInternalFrame
 
     this.serial = serial;
     this.br = br;
-    this.tcp = port;
+    this.tcp = tcpPort;
+    this.udp = udpPort;
     this.data = fName;
     NMEAContext.getInstance().setFromFile(data != null && data.trim().length() > 0);
     
@@ -105,7 +107,10 @@ public class NMEAInternalFrame
   private void jbInit()
     throws Exception
   {
-    nmeaTP = new NMEAMasterPanel(verbose, serial, br, tcp, CustomNMEAClient.TCP_OPTION, data, pfile, false);
+    if (tcp != null)
+      nmeaTP = new NMEAMasterPanel(verbose, serial, br, tcp, CustomNMEAClient.TCP_OPTION, data, pfile, false);
+    else
+      nmeaTP = new NMEAMasterPanel(verbose, serial, br, udp, CustomNMEAClient.UDP_OPTION, data, pfile, false);
     this.setJMenuBar(menuBar);
     menuBar.add(menuFile);
     menuFile.add(menuFileSave);
