@@ -194,7 +194,7 @@ public class CustomSerialReader
               {
   //            System.out.println("Interrupting the DatagramReceiveThread");
                 drt.interrupt(); 
-                if (after - before >= timeout)
+                if (timeout != -1 && (after - before) >= timeout)
                   throw new RuntimeException("Serial reader took too long.");
               }
             }
