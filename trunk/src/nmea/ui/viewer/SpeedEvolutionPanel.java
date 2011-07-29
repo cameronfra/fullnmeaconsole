@@ -20,6 +20,7 @@ import nmea.server.constants.Constants;
 
 import nmea.ui.viewer.elements.SpeedEvolutionDisplay;
 
+import ocss.nmea.parser.Distance;
 import ocss.nmea.parser.Speed;
 
 import ocss.nmea.parser.TrueWindSpeed;
@@ -37,6 +38,7 @@ public class SpeedEvolutionPanel
   private SpeedEvolutionDisplay twsLoggingDisplay = new SpeedEvolutionDisplay("TWS", "True Wind Speed", 36);
   private SpeedEvolutionDisplay sogLoggingDisplay = new SpeedEvolutionDisplay("SOG", "Speed Over Ground", 36);
   private SpeedEvolutionDisplay cspLoggingDisplay = new SpeedEvolutionDisplay("CSP", "Current Speed", 36);
+  private SpeedEvolutionDisplay xteLoggingDisplay = new SpeedEvolutionDisplay("XTE", "Cross Track Error", 36);
   
   public SpeedEvolutionPanel()
   {
@@ -61,8 +63,10 @@ public class SpeedEvolutionPanel
     this.add(awsLoggingDisplay, new GridBagConstraints(0, i++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 0, 0, 0), 0, 0));
     this.add(twsLoggingDisplay, new GridBagConstraints(0, i++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 0, 0, 0), 0, 0));
     this.add(sogLoggingDisplay, new GridBagConstraints(0, i++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 0, 0, 0), 0, 0));
-    this.add(cspLoggingDisplay, new GridBagConstraints(0, i++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 0, 0, 0), 0, 0));
-    
+    this.add(cspLoggingDisplay, new GridBagConstraints(0, i++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 0, 0, 0), 0, 0));        
+    this.add(xteLoggingDisplay, new GridBagConstraints(0, i++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 0, 0, 0), 0, 0));
+    xteLoggingDisplay.setUnit("nm");
+
     bspLoggingDisplay.setMax(10d);
     
     awsLoggingDisplay.setMax(70d);
@@ -73,6 +77,7 @@ public class SpeedEvolutionPanel
     
     sogLoggingDisplay.setMax(10d);
     cspLoggingDisplay.setMax(5d);
+    xteLoggingDisplay.setMax(10d);
 
     NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
     {
@@ -115,6 +120,13 @@ public class SpeedEvolutionPanel
             cspLoggingDisplay.addValue(d, ((Speed)cache.get(NMEADataCache.CSP)).getValue()); 
             cspLoggingDisplay.addNDValue(d, ((Speed)cache.get(NMEADataCache.CSP, false)).getValue()); 
             cspLoggingDisplay.repaint();
+          } 
+          catch (Exception ex) {}
+          try 
+          { 
+            xteLoggingDisplay.addValue(d, ((Distance)cache.get(NMEADataCache.XTE)).getValue()); 
+            xteLoggingDisplay.addNDValue(d, ((Distance)cache.get(NMEADataCache.XTE, false)).getValue()); 
+            xteLoggingDisplay.repaint();
           } 
           catch (Exception ex) {}
         }
