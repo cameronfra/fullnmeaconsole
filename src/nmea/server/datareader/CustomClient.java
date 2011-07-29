@@ -31,6 +31,7 @@ public class CustomClient extends NMEAClient
     init();
   }
 
+  // TODO Add option for UDP
   public CustomClient(NMEAEventManager parent, int tcp, String prefix, String array[])
   {
     tcpport = tcp;
