@@ -298,8 +298,9 @@ public class DrawingBoard
                    0.75f);
 
     // Display All Data Values:
-    final int FONT_SIZE = 12;  // TODO 12 as a parameter
+    final int FONT_SIZE = 11;  // TODO 12 as a parameter
     gr.setFont(new Font("Courier New", Font.PLAIN, FONT_SIZE));
+//  gr.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE)); // TODO Table... ArrayList<String[]> ?
     gr.setColor(new Color(0, 142, 0));
     int y = FONT_SIZE;
     gr.drawString("BSP (corrected) :" + DF32.format(bsp * bspCoeff) + " kts", 10, y);
