@@ -246,6 +246,13 @@ public class Utils
   private static boolean rmcPresent = false;
   private static boolean hdtPresent = false;
   
+  /**
+   * Parse the NMEA String, calculate related data, and feed the cache
+   * 
+   * @param key NMEA Sentence ID
+   * @param value NMEA Sentence
+   * @param ndc The data cache
+   */
   public static void parseAndCalculate(String key, String value, NMEADataCache ndc)
   {
     String sentenceId = key.substring(2);

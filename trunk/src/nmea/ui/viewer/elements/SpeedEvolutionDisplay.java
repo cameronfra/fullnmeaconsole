@@ -469,7 +469,7 @@ public class SpeedEvolutionDisplay
           gr.drawString(str, this.getWidth() - strWidth - 2,  jumboFontSize + 2);
         }
         else
-          gr.drawString("No Data", 10, 20);
+          gr.drawString("No Data...", 10, this.getHeight() - 20);
       }
     }
   }
