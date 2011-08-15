@@ -15,6 +15,9 @@ import nmea.server.datareader.specific.CustomUDPReader;
 import ocss.nmea.api.NMEAClient;
 import ocss.nmea.api.NMEAEvent;
 
+/**
+ * Used byt the NMEAConsole
+ */
 public abstract class CustomNMEAClient extends NMEAClient
 {
   private NMEAEventManager parent;

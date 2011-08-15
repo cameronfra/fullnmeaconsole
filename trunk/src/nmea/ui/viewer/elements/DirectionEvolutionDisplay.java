@@ -447,7 +447,7 @@ public class DirectionEvolutionDisplay
           headingPanel.setHdg((int)Math.round(aldd.get(aldd.size() - 1).getValue()));
         }
         else
-          gr.drawString("No Data", 10, 20);
+          gr.drawString("No Data...", 10, this.getHeight() - 20);
       }
     }
   }

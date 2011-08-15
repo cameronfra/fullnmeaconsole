@@ -21,6 +21,7 @@ import java.sql.Connection;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 import java.sql.Timestamp;
@@ -378,9 +379,15 @@ public class JournalSetupPanel
         
         pDetailStmt.setTimestamp(1, ts);
         pDetailStmt.setString(2, key);
-        pDetailStmt.setDouble(3, value2log);
-        
-        nbLines = pDetailStmt.executeUpdate();
+        boolean log = true;
+        try { pDetailStmt.setDouble(3, value2log); }
+        catch (SQLException nfe)
+        {
+          System.out.println(" - Exception for " + key + ":" + value2log);
+          log = false;
+        }
+        if (log)
+          nbLines = pDetailStmt.executeUpdate();
       }
       pHeaderStmt.close();
       pDetailStmt.close();

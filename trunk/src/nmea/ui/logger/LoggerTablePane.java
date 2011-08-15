@@ -258,11 +258,14 @@ public class LoggerTablePane extends JPanel
         previous = (timemap.get(key)).longValue();
       }
       catch (Exception ignore) { }
-      long current = System.currentTimeMillis();
-      timemap.put(key, new Long(current));
-      data[i][3] = dateFormat.format(new Date(current));
-      if(previous != 0L)
-        data[i][4] = Long.toString(current - previous);
+      if (!key.substring(2).equals("GSV") || (key.substring(2).equals("GSV") && StringParsers.getMessNum(val)[StringParsers.MESS_NUM] == 1))
+      {      
+        long current = System.currentTimeMillis();
+        timemap.put(key, new Long(current));
+        data[i][3] = dateFormat.format(new Date(current));
+        if(previous != 0L)
+          data[i][4] = Long.toString(current - previous);
+      }
       break;
     }
 
