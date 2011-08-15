@@ -498,11 +498,14 @@ public class ViewerTablePane
         System.err.println("Oops!");
         ignore.printStackTrace();
       }
-      long current = System.currentTimeMillis();
-      timemap.put(key, new Long(current));
-      data[i][DATE_POS] = dateFormat.format(new Date(current));
-      if (previous != 0L)
-        data[i][DELTA_POS] = Long.toString(current - previous);
+      if (!key.substring(2).equals("GSV") || (key.substring(2).equals("GSV") && StringParsers.getMessNum(val)[StringParsers.MESS_NUM] == 1))
+      {      
+        long current = System.currentTimeMillis();
+        timemap.put(key, new Long(current));
+        data[i][DATE_POS] = dateFormat.format(new Date(current));
+        if (previous != 0L)
+          data[i][DELTA_POS] = Long.toString(current - previous);
+      }
       break;
     }
     if (!found) // && StringParsers.validCheckSum(val)) // Added. Add to table only if checksum ok
@@ -512,9 +515,12 @@ public class ViewerTablePane
 
       // Validation
       data[getKeys().length - 1][VALID_POS] = Boolean.valueOf(StringParsers.validCheckSum(val));
-      long current = System.currentTimeMillis();
-      timemap.put(key, new Long(current));
-      data[getKeys().length - 1][DATE_POS] = dateFormat.format(new Date(current));
+      if (!key.substring(2).equals("GSV") || (key.substring(2).equals("GSV") && StringParsers.getMessNum(val)[StringParsers.MESS_NUM] == 1))
+      {      
+        long current = System.currentTimeMillis();
+        timemap.put(key, new Long(current));
+        data[getKeys().length - 1][DATE_POS] = dateFormat.format(new Date(current));
+      }
     }
     ((AbstractTableModel) dataModel).fireTableDataChanged();
     table.repaint();

@@ -360,7 +360,7 @@ public class NMEAMasterPanel
   {
     if (verbose)
       System.out.println("Read from NMEA :[" + payload + "]");
-    NMEAContext.getInstance().fireNMEAString(payload);    // TODO Only id you own the serial port
+    NMEAContext.getInstance().fireNMEAString(payload);    // TODO Only id you own the NMEA port
   }
 
   private void dispatchData(String payload)
@@ -377,7 +377,7 @@ public class NMEAMasterPanel
       if (key.length() > 5)
         key = key.substring(0, 5);
       if (key.length() == 5)
-        vp.setValue(key, payload, null); // Feed the viewer here
+        vp.setValue(key, payload, null); // Feed the viewer here. And the cache (last parameter)
     }
     catch (Exception ex)
     {
@@ -394,9 +394,9 @@ public class NMEAMasterPanel
     // If key in list, display in logger pane, and log if necessary
     if (Utils.isInArray(key, currentSentencesToLog))
     {
-      lp.setValue(key, payload);
+      lp.setValue(key, payload); // Send to the logging panel
 
-      if (goLog)
+      if (goLog) // Logging?
       {
         nbRec++;
         if (fw == null)
@@ -438,8 +438,7 @@ public class NMEAMasterPanel
         // Actual data logging is here
         try
         {
-          setLogMessage(LogisailResourceBundle.buildMessage("record", 
-                                                            new String[] { Long.toString(nbRec - 1L) }));
+          setLogMessage(LogisailResourceBundle.buildMessage("record", new String[] { Long.toString(nbRec - 1L) }));
           if (false)
           {
             if (nbRecToCommit < Long.MAX_VALUE) // Old version
