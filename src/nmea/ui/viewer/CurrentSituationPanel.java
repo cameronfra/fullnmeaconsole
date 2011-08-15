@@ -407,7 +407,8 @@ public class CurrentSituationPanel
 
   private void setBSP(double d)
   {
-    bspDisplay.setValue(df22.format(d));
+    if (d != -Double.MAX_VALUE)
+      bspDisplay.setValue(df22.format(d));
   }
 
   private void setHDG(double d)
@@ -426,8 +427,11 @@ public class CurrentSituationPanel
 
   private void setAWS(double d)
   {
-    awsDisplay.setValue(df22.format(d));
-    awDisplay.setAWS(d);
+    if (d != -Double.MAX_VALUE)
+    {
+      awsDisplay.setValue(df22.format(d));
+      awDisplay.setAWS(d);
+    }
   }
 
   private void setTWA(double d)
@@ -445,20 +449,29 @@ public class CurrentSituationPanel
 
   private void setTWS(double d)
   {
-    twsDisplay.setValue(df22.format(d));
-    beaufortDisplay.setValue("F " + df2.format(WindUtils.getBeaufort(d)));
+    if (d != -Double.MAX_VALUE && !Double.isInfinite(d) && !Double.isNaN(d))
+    {
+      twsDisplay.setValue(df22.format(d));
+      beaufortDisplay.setValue("F " + df2.format(WindUtils.getBeaufort(d)));
+    }
   }
 
   private void setCSP(double d)
   {
-    cspDisplay.setValue(df22.format(d));
-    currentDisplay.setSpeed(d);
+    if (d != -Double.MAX_VALUE && !Double.isInfinite(d) && !Double.isNaN(d))
+    {
+      cspDisplay.setValue(df22.format(d));
+      currentDisplay.setSpeed(d);
+    }
   }
 
   private void setCDR(double d)
   {
-    cdrDisplay.setValue(df3.format(d));
-    currentDisplay.setDirection(d);
+    if (d != -Double.MAX_VALUE && !Double.isInfinite(d) && !Double.isNaN(d))
+    {
+      cdrDisplay.setValue(df3.format(d));
+      currentDisplay.setDirection(d);
+    }
   }
 
   private void setLWY(double d)

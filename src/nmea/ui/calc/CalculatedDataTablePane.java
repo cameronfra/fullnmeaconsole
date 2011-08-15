@@ -180,9 +180,13 @@ public class CalculatedDataTablePane
           NMEADataCache cache = NMEAContext.getInstance().getCache();
           for (int i=0; i<data.length; i++)
           {
-            Object o = cache.get(data[i][0]);
+            Object k = data[i][0];
+//          System.out.println("Key [" + k + "]");
+            Object o = cache.get(k);
             if (o != null)
+            {
               data[i][1] = o;
+            }
           }
           ((AbstractTableModel)dataModel).fireTableDataChanged();
         }
@@ -310,6 +314,37 @@ public class CalculatedDataTablePane
         this.setForeground(new Color(0, 113, 0)); // Dark green
       
       this.setToolTipText(NMEADataCache.TOOLTIP_MAP.get(defaultTable[row][0]));
+      
+      if (defaultTable[row][0] == NMEADataCache.BSP && value instanceof Speed)
+      {
+        Speed speed = (Speed)value;
+        if (speed.getValue() == -Double.MAX_VALUE || Double.isInfinite(speed.getValue()) || Double.isNaN(speed.getValue()))
+          this.setText(" - ");
+      }
+      if (defaultTable[row][0] == NMEADataCache.AWS && value instanceof Speed)
+      {
+        Speed speed = (Speed)value;
+        if (speed.getValue() == -Double.MAX_VALUE || Double.isInfinite(speed.getValue()) || Double.isNaN(speed.getValue()))
+          this.setText(" - ");
+      }
+      if (defaultTable[row][0] == NMEADataCache.TWS && value instanceof TrueWindSpeed)
+      {
+        TrueWindSpeed speed = (TrueWindSpeed)value;
+        if (speed.getValue() == -Double.MAX_VALUE || Double.isInfinite(speed.getValue()) || Double.isNaN(speed.getValue()))
+          this.setText(" - ");
+      }
+      if (defaultTable[row][0] == NMEADataCache.CSP && value instanceof Speed)
+      {
+        Speed speed = (Speed)value;
+        if (speed.getValue() == -Double.MAX_VALUE || Double.isInfinite(speed.getValue()) || Double.isNaN(speed.getValue()))
+          this.setText(" - ");
+      }
+      if (defaultTable[row][0] == NMEADataCache.CDR && value instanceof Angle360)
+      {
+        Angle360 angle = (Angle360)value;
+        if (angle.getValue() == -Double.MAX_VALUE || Double.isInfinite(angle.getValue()) || Double.isNaN(angle.getValue()))
+          this.setText(" - ");
+      }
       
       return this;
     }
