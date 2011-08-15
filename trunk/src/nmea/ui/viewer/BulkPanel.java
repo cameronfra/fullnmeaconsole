@@ -57,6 +57,7 @@ public class BulkPanel
      {
        public void manageNMEAString(String str) 
        {
+         // Add the new loine to the panel.
          sentences.add(str);
          while (sentences.size() > nbLines)
            sentences.remove(0);
