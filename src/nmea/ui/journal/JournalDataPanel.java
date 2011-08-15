@@ -86,8 +86,8 @@ public class JournalDataPanel
   private static final String COMMENT   = "Comment";
 
   private String journalNames[] = new String[] { DATE_TIME, COMMENT };
-  private Object journalData[][] = new Object[0][journalNames.length];
-  private TableModel journalDataModel;
+  private transient Object journalData[][] = new Object[0][journalNames.length];
+  private transient TableModel journalDataModel;
   private JTable journalTable;
 
   private JScrollPane centerScrollPane = null;
@@ -314,12 +314,17 @@ public class JournalDataPanel
                 journalNames[i].equals("AWS") ||
                 journalNames[i].equals("CSP") ||
                 journalNames[i].equals("LOG"))
-            {
+            {              
               data = SPEED_DIST_FMT.format(d) + " kts";
               if (journalNames[i].equals("TWS"))
               {
                 int beaufort = WindUtils.getBeaufort(d);
                 data += (" - F " + Integer.toString(beaufort));
+              }
+              if (journalNames[i].equals("BSP") || journalNames[i].equals("AWS") || journalNames[i].equals("TWS") || journalNames[i].equals("CSP"))
+              {
+                if (d == -Double.MAX_VALUE || Double.isInfinite(d) || Double.isInfinite(d))
+                  data = " - ";
               }
             }
             else if (journalNames[i].equals("HDG") ||
@@ -332,6 +337,11 @@ public class JournalDataPanel
               data = DIRECTION_FMT.format(d);
               if (journalNames[i].equals("TWD"))
                 data += (" - " + WindUtils.getRoseDir(d));
+              if (journalNames[i].equals("TWA") || journalNames[i].equals("CDR"))
+              {
+                if (d == -Double.MAX_VALUE || Double.isInfinite(d) || Double.isInfinite(d))
+                  data = " - ";
+              }
             }
             else if (journalNames[i].equals("LAT"))
               data = GeomUtil.decToSex(d, GeomUtil.SWING, GeomUtil.NS, GeomUtil.LEADING_SIGN);

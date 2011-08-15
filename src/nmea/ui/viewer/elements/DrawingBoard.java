@@ -303,8 +303,11 @@ public class DrawingBoard
 //  gr.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE)); // TODO Table... ArrayList<String[]> ?
     gr.setColor(new Color(0, 142, 0));
     int y = FONT_SIZE;
-    gr.drawString("BSP (corrected) :" + DF32.format(bsp * bspCoeff) + " kts", 10, y);
-    y += FONT_SIZE;
+    if (bsp != -Double.MAX_VALUE)
+    {
+      gr.drawString("BSP (corrected) :" + DF32.format(bsp * bspCoeff) + " kts", 10, y);
+      y += FONT_SIZE;
+    }
     Angle180EW dec = (Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DECLINATION);
     if (dec.getValue() == -Double.MAX_VALUE)
       dec = (Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEFAULT_DECLINATION);
@@ -320,8 +323,11 @@ public class DrawingBoard
                   ")";
     gr.drawString(hdgMess, 10, y);
     y += FONT_SIZE;
-    gr.drawString("AWS (corrected) :" + DF32.format(aws * awsCoeff) + " kts", 10, y);
-    y += FONT_SIZE;
+    if (aws != -Double.MAX_VALUE)
+    {
+      gr.drawString("AWS (corrected) :" + DF32.format(aws * awsCoeff) + " kts", 10, y);
+      y += FONT_SIZE;
+    }
     gr.drawString("AWA (corrected) :" + DF3.format(awa + awaOffset) + "\272", 10, y);
     gr.setColor(Color.red);
     y += FONT_SIZE;
@@ -334,16 +340,25 @@ public class DrawingBoard
     gr.drawString("AWA Offset      :" + DF3.format(awaOffset) + "\272", 10, y);
     gr.setColor(Color.blue);
     y += FONT_SIZE;
-    gr.drawString("TWS             :" + DF32.format(tws) + " kts", 10, y);
-    y += FONT_SIZE;
+    if (tws != -Double.MAX_VALUE && !Double.isInfinite(tws) && !Double.isNaN(tws))
+    {
+      gr.drawString("TWS             :" + DF32.format(tws) + " kts", 10, y);
+      y += FONT_SIZE;
+    }
     gr.drawString("TWA             :" + DF3.format(twa) + "\272", 10, y);
     y += FONT_SIZE;
     gr.drawString("TWD             :" + DF3.format(twd) + "\272", 10, y);
     y += FONT_SIZE;
-    gr.drawString("CDR             :" + DF3.format(cdr) + "\272", 10, y);
-    y += FONT_SIZE;
-    gr.drawString("CSP             :" + DF32.format(csp) + " kts", 10, y);
-    y += (FONT_SIZE + 2);
+    if (cdr != -Double.MAX_VALUE && !Double.isInfinite(cdr) && !Double.isNaN(cdr))
+    {
+      gr.drawString("CDR             :" + DF3.format(cdr) + "\272", 10, y);
+      y += FONT_SIZE;
+    }
+    if (csp != -Double.MAX_VALUE && !Double.isInfinite(csp) && !Double.isNaN(csp))
+    {
+      gr.drawString("CSP             :" + DF32.format(csp) + " kts", 10, y);
+      y += (FONT_SIZE + 2);
+    }
     gr.drawString("leeway          :" + DF31.format(leeway) + "\272 (on " + DF31.format(maxLeeway) + "\272)", 10, y); // was df3
     y += FONT_SIZE;
     gr.drawString("CMG             :" + DF32.format(hdg + hdgOffset + leeway) + "\272", 10, y);
