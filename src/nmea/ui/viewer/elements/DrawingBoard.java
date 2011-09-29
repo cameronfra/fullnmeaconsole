@@ -19,6 +19,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.Stroke;
 
 import java.text.DecimalFormat;
@@ -130,6 +131,10 @@ public class DrawingBoard
 
   public void paintComponent(Graphics gr)
   {    
+    ((Graphics2D)gr).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                                      RenderingHints.VALUE_TEXT_ANTIALIAS_ON);      
+    ((Graphics2D)gr).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                      RenderingHints.VALUE_ANTIALIAS_ON);      
     // The boat position, in the middle
     boatPosX = this.getWidth() / 2;
     boatPosY = this.getHeight() / 2;
