@@ -12,9 +12,11 @@ import nmea.event.NMEAListener;
 import java.awt.BorderLayout;
 
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -224,6 +226,10 @@ public class DeviationPanelHolder
 
   public void paintComponent(Graphics g)
   {
+    ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                                     RenderingHints.VALUE_TEXT_ANTIALIAS_ON);      
+    ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                     RenderingHints.VALUE_ANTIALIAS_ON);      
     super.paintComponent(g);
 
     showHideDataPoints.setEnabled(deviationPanel.getDataPoint() != null);
