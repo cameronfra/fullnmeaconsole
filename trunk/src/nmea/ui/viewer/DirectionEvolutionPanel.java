@@ -4,6 +4,9 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+
 import java.util.Date;
 
 import javax.swing.JPanel;
@@ -130,6 +133,10 @@ public class DirectionEvolutionPanel
   
   public void paintComponent(Graphics gr)
   {
+    ((Graphics2D)gr).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                                      RenderingHints.VALUE_TEXT_ANTIALIAS_ON);      
+    ((Graphics2D)gr).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                      RenderingHints.VALUE_ANTIALIAS_ON);      
     Dimension dim = new Dimension(DirectionEvolutionDisplay.DEFAULT_WIDTH, this.getHeight());
     hdgLoggingDisplay.setPreferredSize(dim);
     cogLoggingDisplay.setPreferredSize(dim);
