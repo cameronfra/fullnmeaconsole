@@ -14,6 +14,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.Stroke;
 
 import java.io.IOException;
@@ -196,6 +197,10 @@ public class CurrentDisplay
 
   public void paintComponent(Graphics g)
   {
+    ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                                     RenderingHints.VALUE_TEXT_ANTIALIAS_ON);      
+    ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                     RenderingHints.VALUE_ANTIALIAS_ON);      
     // Background
     //  Dimension dim =  this.getSize();
     //  System.out.println("Dim:" + dim.getWidth() + "x" + dim.getHeight());
