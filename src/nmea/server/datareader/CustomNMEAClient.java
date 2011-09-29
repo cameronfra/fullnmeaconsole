@@ -146,7 +146,7 @@ public abstract class CustomNMEAClient extends NMEAClient
     
     super.startWorking();
     
-    System.out.println(this.getClass().getName() + ":NMEA Client initialized, and started");
+    if (System.getProperty("verbose", "false").equals("true")) System.out.println(this.getClass().getName() + ":NMEA Client initialized, and started");
   }
 
   public void dataDetectedEvent(NMEAEvent e)
