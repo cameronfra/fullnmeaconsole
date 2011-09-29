@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -91,6 +92,10 @@ public class GaugePanel
   
   public void paintComponent(Graphics gr)
   {
+    ((Graphics2D)gr).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                                      RenderingHints.VALUE_TEXT_ANTIALIAS_ON);      
+    ((Graphics2D)gr).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                      RenderingHints.VALUE_ANTIALIAS_ON);      
     Graphics2D g2d = (Graphics2D)gr;
     int fontSize = gr.getFont().getSize();
     // Gauge background 
