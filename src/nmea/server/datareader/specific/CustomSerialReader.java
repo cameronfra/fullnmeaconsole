@@ -9,12 +9,12 @@ import java.net.DatagramSocket;
 
 import java.util.ArrayList;
 
-import javax.comm.CommPort;
-import javax.comm.NoSuchPortException;
-import javax.comm.UnsupportedCommOperationException;
-import javax.comm.SerialPort;
-import javax.comm.CommPortIdentifier;
-import javax.comm.PortInUseException;
+import gnu.io.CommPort;
+import gnu.io.NoSuchPortException;
+import gnu.io.UnsupportedCommOperationException;
+import gnu.io.SerialPort;
+import gnu.io.CommPortIdentifier;
+import gnu.io.PortInUseException;
 
 import nmea.server.constants.Constants;
 
@@ -77,7 +77,7 @@ public class CustomSerialReader
 
   public void read()
   {
-    System.out.println("read() - From " + this.getClass().getName() + " Reading Serial Port " + comPort);
+    if (System.getProperty("verbose", "false").equals("true")) System.out.println("read() - From " + this.getClass().getName() + " Reading Serial Port " + comPort);
     super.enableReading();
     CommPortIdentifier com = null;
     try
@@ -115,12 +115,15 @@ public class CustomSerialReader
       manageError(ex);
     }
     int portType = com.getPortType();
-    if (portType == CommPortIdentifier.PORT_PARALLEL)
-      System.out.println(this.getClass().getName() + ":read() - This is a parallel port");
-    else if (portType == CommPortIdentifier.PORT_SERIAL)
-      System.out.println(this.getClass().getName() + ":read() - This is a serial port");
-    else
-      System.out.println(this.getClass().getName() + ":read() - This is an unknown port:" + portType);
+    if (System.getProperty("verbose", "false").equals("true"))
+    {
+      if (portType == CommPortIdentifier.PORT_PARALLEL)
+        System.out.println(this.getClass().getName() + ":read() - This is a parallel port");
+      else if (portType == CommPortIdentifier.PORT_SERIAL)
+        System.out.println(this.getClass().getName() + ":read() - This is a serial port");
+      else
+        System.out.println(this.getClass().getName() + ":read() - This is an unknown port:" + portType);
+    }
     if (portType == CommPortIdentifier.PORT_SERIAL)
     {
       SerialPort sp = (SerialPort) thePort;
@@ -143,8 +146,8 @@ public class CustomSerialReader
     {
       // Read the port here
       InputStream theInput = thePort.getInputStream();
-      System.out.println(this.getClass().getName() + ":read() - Reading serial port...");
-      boolean verbose = true;
+      boolean verbose = System.getProperty("verbose", "false").equals("true");
+      if (verbose) System.out.println(this.getClass().getName() + ":read() - Reading serial port...");
       byte buffer[] = new byte[4096];
 
       while (canRead())
@@ -207,7 +210,7 @@ public class CustomSerialReader
 //      System.out.println(s);
         super.fireDataRead(new NMEAEvent(this, this.dataRead));
       }
-      System.out.println("2 - " + this.getClass().getName() + ":Stop Reading serial port.");
+      if (System.getProperty("verbose", "false").equals("true")) System.out.println("2 - " + this.getClass().getName() + ":Stop Reading serial port [" + comPort + "]");
     }
     catch (Exception e)
     {
@@ -219,7 +222,7 @@ public class CustomSerialReader
   public void closeReader()
     throws Exception
   {
-    System.out.println("1 - Stop reading Serial Port");
+    if (System.getProperty("verbose", "false").equals("true")) System.out.println("1 - Stop reading Serial Port " + comPort);
     try
     {
       if (thePort != null)
