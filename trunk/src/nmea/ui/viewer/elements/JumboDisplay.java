@@ -14,6 +14,8 @@ import java.awt.GridBagLayout;
 
 import java.awt.Insets;
 
+import java.awt.RenderingHints;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -173,6 +175,10 @@ public class JumboDisplay
   }
   public void paintComponent(Graphics g)
   {
+    ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                                     RenderingHints.VALUE_TEXT_ANTIALIAS_ON);      
+    ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                     RenderingHints.VALUE_ANTIALIAS_ON);      
  // resize(jumboFontSize);
     
 //    Dimension dim =  this.getSize();
