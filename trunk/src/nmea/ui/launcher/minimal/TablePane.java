@@ -34,7 +34,7 @@ public class TablePane extends JPanel
   private JCheckBox httpCheckBox = new JCheckBox();
   private JTextField httpPortTextField = new JTextField();
 
-  private HTTPServer nmeaHttpServer = null;
+  private transient HTTPServer nmeaHttpServer = null;
   
   void init()
   {
@@ -219,13 +219,16 @@ public class TablePane extends JPanel
       }
       catch(Exception ignore) { }
       long current = System.currentTimeMillis();
-      timemap.put(key, new Long(current));
-      data[i][3] = dateFormat.format(new Date(current));
-      if(previous != 0L)
-        data[i][4] = Long.toString(current - previous);
+//    System.out.println("-- Key [" + key + "] Val:[" + val + "]");
+      if (!key.substring(2).equals("GSV") || (key.substring(2).equals("GSV") && StringParsers.getMessNum(val)[StringParsers.MESS_NUM] == 1))
+      {
+        timemap.put(key, new Long(current));
+        data[i][3] = dateFormat.format(new Date(current));
+        if(previous != 0L)
+          data[i][4] = Long.toString(current - previous);
+      }
       break;
     }
-
     ((AbstractTableModel)dataModel).fireTableDataChanged();
     table.repaint();
   }
@@ -254,15 +257,15 @@ public class TablePane extends JPanel
   final String names[] = new String[] {
       "Sentence ID", "Value", "Valid", "Read at", "delta (ms)"
     };
-  Object data[][] = new Object[0][names.length];
-  TableModel dataModel;
-  JTable table;
-  BorderLayout borderLayout1 = new BorderLayout();
-  JPanel centerPanel = new JPanel();
-  JPanel bottomPanel = new JPanel();
-  BorderLayout borderLayout2 = new BorderLayout();
-  JScrollPane centerScrollPane = null;
-  JPanel topPanel = new JPanel();
+  private transient Object data[][] = new Object[0][names.length];
+  private transient TableModel dataModel;
+  private JTable table;
+  private BorderLayout borderLayout1 = new BorderLayout();
+  private JPanel centerPanel = new JPanel();
+  private JPanel bottomPanel = new JPanel();
+  private BorderLayout borderLayout2 = new BorderLayout();
+  private JScrollPane centerScrollPane = null;
+  private JPanel topPanel = new JPanel();
   private JCheckBox logCheckbox = new JCheckBox();
   private NMEAFrame parent;
   private JLabel messageField = new JLabel();

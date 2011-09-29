@@ -16,9 +16,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
-// Referenced classes of package ui.launcher.minimal:
-//      TablePane, DataLogger
-
 public class NMEAFrame extends JFrame
 {
   private JButton helpButton = new JButton();
@@ -97,15 +94,15 @@ public class NMEAFrame extends JFrame
     tp.setMessage(mess);
   }
 
-  DataLogger parent;
+  transient DataLogger parent;
 
-  BorderLayout borderLayout1 = new BorderLayout();
-  JPanel bottomPanel = new JPanel();
-  TablePane tp = new TablePane(this);
+  private BorderLayout borderLayout1 = new BorderLayout();
+  private JPanel bottomPanel = new JPanel();
+  private TablePane tp = new TablePane(this);
   boolean reading = false;
-  JPanel topPanel = new JPanel();
-  JLabel jLabel1 = new JLabel();
-  JTextField prefixFld = new JTextField();
+  private JPanel topPanel = new JPanel();
+  private JLabel jLabel1 = new JLabel();
+  private JTextField prefixFld = new JTextField();
 
   private void helpButton_actionPerformed(ActionEvent e)
   {
