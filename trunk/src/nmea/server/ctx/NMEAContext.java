@@ -65,7 +65,7 @@ public class NMEAContext implements Serializable
     {
       NMEAListeners.add(l);
     }
-    System.out.println("We have " + NMEAListeners.size() + " NMEAListener(s). Last one belongs to group [" + l.getGroupID() + "]");
+    if (System.getProperty("verbose", "false").equals("true")) System.out.println("We have " + NMEAListeners.size() + " NMEAListener(s). Last one belongs to group [" + l.getGroupID() + "]");
   }
 
   public synchronized void removeNMEAListener(NMEAListener l)

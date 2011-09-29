@@ -71,10 +71,12 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
   {
     super();
     
-    System.out.println("+=================================+");
-    System.out.println("| Instantiating an NMEADataCache. |");
-    System.out.println("+=================================+");
-    
+    if (System.getProperty("verbose", "false").equals("true"))
+    {
+      System.out.println("+=================================+");
+      System.out.println("| Instantiating an NMEADataCache. |");
+      System.out.println("+=================================+");
+    }
     TOOLTIP_MAP.put(SOG,         "<html>Spped Over Ground<br>From the GPS</html>");
     TOOLTIP_MAP.put(POSITION,    "<html>Boat Position<br>From the GPS</html>");
     TOOLTIP_MAP.put(GPS_TIME,    "<html>GPS Time<br>From the GPS (GLL)</html>");
