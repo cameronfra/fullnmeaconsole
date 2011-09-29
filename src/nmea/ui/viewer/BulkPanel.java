@@ -8,6 +8,9 @@ import java.awt.BorderLayout;
 
 import java.awt.Graphics;
 
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+
 import java.util.ArrayList;
 
 import javax.swing.JEditorPane;
@@ -23,6 +26,10 @@ public class BulkPanel
     {
       public void paintComponent(Graphics gr)
       {
+        ((Graphics2D)gr).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                                          RenderingHints.VALUE_TEXT_ANTIALIAS_ON);      
+        ((Graphics2D)gr).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                          RenderingHints.VALUE_ANTIALIAS_ON);      
         super.paintComponent(gr);
         // Calculate nb lines
         int fontSize = this.getFont().getSize();
