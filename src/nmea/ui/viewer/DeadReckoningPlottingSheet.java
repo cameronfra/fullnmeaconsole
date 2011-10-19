@@ -15,17 +15,24 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.EventObject;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import javax.swing.border.BevelBorder;
@@ -53,6 +60,8 @@ public class DeadReckoningPlottingSheet
   extends JPanel
   implements ChartPanelParentInterface
 {
+  private final static boolean DEBUG = false;
+  
   private PlottingSheet plottingSheet;
   private JPanel        topPanel;
   private JComboBox     timeComboBox;
@@ -78,6 +87,15 @@ public class DeadReckoningPlottingSheet
   private ArrayList<Angle360> cmgBuffer    = new ArrayList<Angle360>();
   private ArrayList<Angle360> hdgBuffer    = new ArrayList<Angle360>();
   private ArrayList<Speed> bspBuffer       = new ArrayList<Speed>();
+  private JPanel boundariesPanel = new JPanel();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  private GridBagLayout gridBagLayout2 = new GridBagLayout();
+  private JLabel fromLabel = new JLabel();
+  private JLabel toLabel = new JLabel();
+  
+  private final static SimpleDateFormat SDF = new SimpleDateFormat("HH:mm:ss Z");
+  private JLabel jLabel1 = new JLabel();
+  private JLabel jLabel2 = new JLabel();
 
   public DeadReckoningPlottingSheet(int w, 
                                     int h, 
@@ -86,11 +104,11 @@ public class DeadReckoningPlottingSheet
                                     double ls)
   {
     super();
-    width = w;
-    height = h;
-    centerLat = cL;
-    centerLng = cG;
-    latSpan = ls;
+    this.width = w;
+    this.height = h;
+    this.centerLat = cL;
+    this.centerLng = cG;
+    this.latSpan = ls;
     
     try
     {
@@ -109,9 +127,10 @@ public class DeadReckoningPlottingSheet
     plottingSheet.setWithDistanceScale(true);
 
     centerPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+    bottomPanel.setLayout(gridBagLayout1);
     topPanel = new JPanel();
     this.setLayout(new BorderLayout());
-    this.setSize(new Dimension(400, 400));
+    this.setSize(new Dimension(400, 536));
     centerPanel.add(plottingSheet, BorderLayout.CENTER);
     this.add(centerPanel, BorderLayout.CENTER);
     timeComboBox = new JComboBox();
@@ -134,11 +153,7 @@ public class DeadReckoningPlottingSheet
      {
         public void actionPerformed(ActionEvent e)
         {
-          timeBuffer     = new ArrayList<UTCHolder>();
-          positionBuffer = new ArrayList<GeoPos>();
-          cmgBuffer      = new ArrayList<Angle360>();
-          hdgBuffer    = new ArrayList<Angle360>();
-          bspBuffer      = new ArrayList<Speed>();          
+          resetDataBuffers();
         }
       });
     currentDisplay.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
@@ -148,7 +163,24 @@ public class DeadReckoningPlottingSheet
     this.add(topPanel, BorderLayout.NORTH);
 
     currentDisplay.setDisplayColor(Color.cyan);
-    bottomPanel.add(currentDisplay, null);
+    boundariesPanel.setLayout(gridBagLayout2);
+    fromLabel.setText("From...");
+    toLabel.setText("To...");
+    jLabel1.setText("From");
+    jLabel2.setText("Until");
+    bottomPanel.add(currentDisplay, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+          new Insets(0, 0, 0, 0), 0, 0));
+    boundariesPanel.add(fromLabel, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+          new Insets(0, 0, 0, 0), 0, 0));
+    boundariesPanel.add(toLabel, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+          new Insets(0, 0, 0, 0), 0, 0));
+    boundariesPanel.add(jLabel1, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+          new Insets(0, 0, 0, 5), 0, 0));
+    boundariesPanel.add(jLabel2, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+          new Insets(0, 0, 0, 5), 0, 0));
+    bottomPanel.add(boundariesPanel,
+                    new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                           new Insets(0, 0, 0, 0), 0, 0));
     this.add(bottomPanel, BorderLayout.SOUTH);
     NMEAContext.getInstance().addNMEAListener(new NMEAListener()
       {
@@ -162,7 +194,13 @@ public class DeadReckoningPlottingSheet
 //            long time       = new Date().getTime();
               Object ot = (UTCDate)cache.get(NMEADataCache.GPS_DATE_TIME);
               if (ot == null)
+              {
                 ot = (UTCTime)cache.get(NMEADataCache.GPS_TIME);
+                if (DEBUG) System.out.println("Time from NMEADataCache.GPS_TIME");
+              }
+              else if (DEBUG)
+                System.out.println("Time from NMEADataCache.GPS_DATE_TIME");
+                
               UTCHolder utcDate = null;
               if (ot instanceof UTCDate)
                 utcDate = new UTCHolder((UTCDate)ot);
@@ -194,7 +232,21 @@ public class DeadReckoningPlottingSheet
                       else
                         keepGoing = false;
                     }
+                    if (timeBuffer.size() > 0)
+                    {  
+                      fromLabel.setText(SDF.format(oldest.getValue()));
+                      toLabel.setText(SDF.format(utcDate.getValue()));
+                    }
                   }
+                  else
+                  {
+                    // When reseting a simulation file
+//                  System.out.println("--> Timebuffer is empty");
+//                  resetDataBuffers(); 
+                    fromLabel.setText(" - ");
+                    toLabel.setText(" - ");
+                  }
+                  
                   timeBuffer.add(utcDate);
                   positionBuffer.add(position);
 //                System.out.println("Adding position:" + position.toString());
@@ -247,6 +299,15 @@ public class DeadReckoningPlottingSheet
                   repaint();
                 }
               }
+              else if (DEBUG)
+              {
+            //  if (!utcDate.isNull() && (timeBuffer.size() == 0 || (timeBuffer.size() > 0 && (timeBuffer.get(timeBuffer.size() - 1).getValue().getTime() < utcDate.getValue().getTime()))))
+                System.out.println("utcDate is " + (utcDate.isNull()?"":"not ") + "null");    
+                System.out.println("timeBuffer.size() = " + timeBuffer.size());
+                System.out.println("utcDate        :" + (utcDate.isNull()?"":new Date(utcDate.getValue().getTime()).toString()));
+                System.out.println("last timeBuffer:" + (timeBuffer.size() > 0?new Date(timeBuffer.get(timeBuffer.size() - 1).getValue().getTime()).toString():"none"));
+                System.out.println("-> " + ((timeBuffer.get(timeBuffer.size() - 1).getValue().getTime() < utcDate.getValue().getTime()) ? "true":"false"));
+              }
             }
             catch (Exception ex) 
             {
@@ -259,15 +320,12 @@ public class DeadReckoningPlottingSheet
   
   public void chartPanelPaintComponent(Graphics gr)
   {
-    plottingSheet.chartPanelPaintComponent(gr);
-    /*
-    double saveZoom = plottingSheet.getZoomFactor();
-    double z = Math.min((double) centerPanel.getWidth() / (double) plottingSheet.getWidth(),
-                        (double) centerPanel.getHeight() / (double) plottingSheet.getHeight());
-    plottingSheet.setZoomFactor(z);
-    plottingSheet.zoomIn();
-    plottingSheet.setZoomFactor(saveZoom);    
-    */
+    Stroke origStroke = ((Graphics2D)gr).getStroke();
+    Color origColor = gr.getColor();
+
+    plottingSheet.setW(centerPanel.getWidth() - 4);  // 4: for the bevel
+    plottingSheet.setH(centerPanel.getHeight() - 4); // 4: for the bevel
+
     Stroke stroke = new BasicStroke(5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
     ((Graphics2D) gr).setStroke(stroke);
 
@@ -405,8 +463,19 @@ public class DeadReckoningPlottingSheet
 //    System.err.println(ex.toString());
       ex.printStackTrace();
     }
+    ((Graphics2D) gr).setStroke(origStroke);
+    gr.setColor(origColor);
   }
 
+  private void resetDataBuffers()
+  {
+    timeBuffer     = new ArrayList<UTCHolder>();
+    positionBuffer = new ArrayList<GeoPos>();
+    cmgBuffer      = new ArrayList<Angle360>();
+    hdgBuffer    = new ArrayList<Angle360>();
+    bspBuffer      = new ArrayList<Speed>();          
+  }
+  
   public boolean onEvent(EventObject eventobject, int i)
   {
     return false;

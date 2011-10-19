@@ -24,6 +24,8 @@ import java.awt.Stroke;
 
 import java.text.DecimalFormat;
 
+import java.util.ArrayList;
+
 import javax.swing.JPanel;
 
 import nmea.server.constants.Constants;
@@ -289,7 +291,7 @@ public class DrawingBoard
     /*
      * Boat itself
      * 
-     * TODO An image (mono, cata, tri)
+     * TODO An image ? (mono, cata, tri)
      */
     stroke = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
     ((Graphics2D) gr).setStroke(stroke);
@@ -303,70 +305,62 @@ public class DrawingBoard
                    0.75f);
 
     // Display All Data Values:
-    final int FONT_SIZE = 11;  // TODO 12 as a parameter
-    gr.setFont(new Font("Courier New", Font.PLAIN, FONT_SIZE));
-//  gr.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE)); // TODO Table... ArrayList<String[]> ?
-    gr.setColor(new Color(0, 142, 0));
-    int y = FONT_SIZE;
+    ArrayList<Object[]> dataTable = new ArrayList<Object[]>();
+    
     if (bsp != -Double.MAX_VALUE)
     {
-      gr.drawString("BSP (corrected) :" + DF32.format(bsp * bspCoeff) + " kts", 10, y);
-      y += FONT_SIZE;
+      dataTable.add(new Object[] {"BSP (corrected)", DF32.format(bsp * bspCoeff) + " kts", new Color(0, 142, 0)});
     }
     Angle180EW dec = (Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DECLINATION);
     if (dec.getValue() == -Double.MAX_VALUE)
       dec = (Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEFAULT_DECLINATION);
     String hdgMess = "";
     if (Utils.isHdtPresent())
+    {
       hdgMess = "HDG (corrected) :" + DF31.format(hdg + hdgOffset) + "\272 (Using HDT)";
+      dataTable.add(new Object[] {"HDG (corrected)", DF31.format(hdg + hdgOffset) + "\272 (Using HDT)", new Color(0, 142, 0) });
+    }
     else
+    {
       hdgMess = "HDG (corrected) :" + DF31.format(hdg + hdgOffset) + "\272 (Decl.= " + 
                   dec.toFormattedString() +
                   ", dev.= " + 
                   ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEVIATION)).toFormattedString() +
                   ", Var.= " + (dec.getValue() >=0 ? "E " : "W ") + DF31.format(Math.abs(dec.getValue() + ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEVIATION)).getValue())) + "\272" +
                   ")";
-    gr.drawString(hdgMess, 10, y);
-    y += FONT_SIZE;
+      dataTable.add(new Object[] {"HDG (corrected)",  DF31.format(hdg + hdgOffset) + "\272 (Decl.= " + dec.toFormattedString() +
+                                                      ", dev.= " + ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEVIATION)).toFormattedString() +
+                                                      ", Var.= " + (dec.getValue() >=0 ? "E " : "W ") + DF31.format(Math.abs(dec.getValue() + ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEVIATION)).getValue())) + "\272" +
+                                                      ")", new Color(0, 142, 0) }
+                    );
+    }
     if (aws != -Double.MAX_VALUE)
     {
-      gr.drawString("AWS (corrected) :" + DF32.format(aws * awsCoeff) + " kts", 10, y);
-      y += FONT_SIZE;
+      dataTable.add(new Object[] { "AWS (corrected)", DF32.format(aws * awsCoeff) + " kts", new Color(0, 142, 0) });
     }
-    gr.drawString("AWA (corrected) :" + DF3.format(awa + awaOffset) + "\272", 10, y);
-    gr.setColor(Color.red);
-    y += FONT_SIZE;
-    gr.drawString("BSP Coeff       :" + DF33.format(bspCoeff), 10, y);
-    y += FONT_SIZE;
-    gr.drawString("HDG Offset      :" + DF3.format(hdgOffset) + "\272", 10, y);
-    y += FONT_SIZE;
-    gr.drawString("AWS Coeff       :" + DF32.format(awsCoeff), 10, y);
-    y += FONT_SIZE;
-    gr.drawString("AWA Offset      :" + DF3.format(awaOffset) + "\272", 10, y);
-    gr.setColor(Color.blue);
-    y += FONT_SIZE;
+    dataTable.add(new Object[] { "AWA (corrected)", DF3.format(awa + awaOffset) + "\272", new Color(0, 142, 0) });
+    dataTable.add(new Object[] { "BSP Coeff", DF33.format(bspCoeff), Color.red });
+    dataTable.add(new Object[] { "HDG Offset", DF3.format(hdgOffset) + "\272", Color.red });
+    dataTable.add(new Object[] { "AWS Coeff", DF32.format(awsCoeff), Color.red });
+    dataTable.add(new Object[] { "AWA Offset", DF3.format(awaOffset) + "\272", Color.red });
     if (tws != -Double.MAX_VALUE && !Double.isInfinite(tws) && !Double.isNaN(tws))
     {
-      gr.drawString("TWS             :" + DF32.format(tws) + " kts", 10, y);
-      y += FONT_SIZE;
+      dataTable.add(new Object[] { "TWS", DF32.format(tws) + " kts", Color.blue });
     }
-    gr.drawString("TWA             :" + DF3.format(twa) + "\272", 10, y);
-    y += FONT_SIZE;
-    gr.drawString("TWD             :" + DF3.format(twd) + "\272", 10, y);
-    y += FONT_SIZE;
+    dataTable.add(new Object[] { "TWA", DF3.format(twa) + "\272", Color.blue });
+    dataTable.add(new Object[] { "TWD", DF3.format(twd) + "\272", Color.blue });
     if (cdr != -Double.MAX_VALUE && !Double.isInfinite(cdr) && !Double.isNaN(cdr))
     {
-      gr.drawString("CDR             :" + DF3.format(cdr) + "\272", 10, y);
-      y += FONT_SIZE;
+      dataTable.add(new Object[] { "CDR", DF3.format(cdr) + "\272", Color.blue });
     }
     if (csp != -Double.MAX_VALUE && !Double.isInfinite(csp) && !Double.isNaN(csp))
     {
-      gr.drawString("CSP             :" + DF32.format(csp) + " kts", 10, y);
-      y += (FONT_SIZE + 2);
+      dataTable.add(new Object[] { "CSP", DF3.format(csp) + " kts", Color.blue });
     }
-    gr.drawString("leeway          :" + DF31.format(leeway) + "\272 (on " + DF31.format(maxLeeway) + "\272)", 10, y); // was df3
-    y += FONT_SIZE;
-    gr.drawString("CMG             :" + DF32.format(hdg + hdgOffset + leeway) + "\272", 10, y);
+    dataTable.add(new Object[] { "leeway", DF31.format(leeway) + "\272 (on " + DF31.format(maxLeeway) + "\272)", Color.blue });
+    dataTable.add(new Object[] { "CMG", DF32.format(hdg + hdgOffset + leeway) + "\272", Color.blue });
+    // Now displaying data
+    drawDataTable(dataTable, gr);
     
     // Leeway indicator
     if (Math.abs(leeway) > 0) // Indicator not show if no leeway
@@ -378,7 +372,7 @@ public class DrawingBoard
       gr.setColor(Color.blue);
       gr.drawRect(10, dim.height - leewayFrameHeight - 10, leewayFrameWidth, leewayFrameHeight);
       // Fill it
-      Color startColor = Color.black; // new Color(255, 255, 255);
+      Color startColor = Color.black;     // new Color(255, 255, 255);
       Color endColor   = Color.lightGray; // new Color(102, 102, 102);
       Paint paint = ((Graphics2D)gr).getPaint();
       GradientPaint grad = new GradientPaint(0, this.getHeight(), startColor, 0, 0, endColor); // vertical, upside down
@@ -478,6 +472,28 @@ public class DrawingBoard
     }
   }
 
+  private void drawDataTable(ArrayList<Object[]> data, Graphics gr)
+  {
+    // Determine biggest title width
+    int maxLen = 0;
+    for (Object[] sa : data)
+    {
+      String title = (String)sa[0];
+      int len = gr.getFontMetrics(gr.getFont()).stringWidth(title);
+      maxLen = Math.max(len, maxLen);
+    }
+    Font f = gr.getFont();
+    int fontSize = f.getSize();
+    int y = fontSize;
+    for (Object[] sa : data)
+    {
+      gr.setColor((Color)sa[2]);
+      gr.drawString((String)sa[0], 10, y);
+      gr.drawString((String)sa[1], maxLen + 5 + 10, y);
+      y += fontSize;
+    }
+  }
+  
   private final static int tubeWidth         = 10;
   private final static int bottomTemperature = -5;
   private final static int topTemperature    = 30;
