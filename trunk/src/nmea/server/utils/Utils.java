@@ -255,6 +255,11 @@ public class Utils
    */
   public static void parseAndCalculate(String key, String value, NMEADataCache ndc)
   {
+    if (!StringParsers.validCheckSum(value))
+    {
+      System.out.println("Ejecting [" + value + "]");
+      return;
+    }
     String sentenceId = key.substring(2);
     
     if ("RMC".equals(sentenceId))
@@ -312,6 +317,8 @@ public class Utils
     else if ("VHW".equals(sentenceId)) // Water Speed and Heading
     {
       double[] vhw = StringParsers.parseVHW(value);
+      if (vhw == null)
+        return;
       double bsp = vhw[StringParsers.BSP_in_VHW];
       double hdm = vhw[StringParsers.HDM_in_VHW];
       if (ndc == null)

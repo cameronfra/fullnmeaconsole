@@ -2,6 +2,8 @@ package nmea.ui.viewer;
 
 import java.awt.BorderLayout;
 
+import java.awt.Dimension;
+
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
@@ -33,6 +35,7 @@ public class Full2DPanel
     throws Exception
   {
     this.setLayout(borderLayout);
+    this.setSize(new Dimension(598, 431));
     jtabbedPane2D.setTabPlacement(JTabbedPane.BOTTOM);
     this.add(jtabbedPane2D, BorderLayout.CENTER);
     

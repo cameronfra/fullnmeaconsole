@@ -33,7 +33,10 @@ import ocss.nmea.parser.Angle360;
 import ocss.nmea.parser.Speed;
 import ocss.nmea.parser.Temperature;
 
-
+/**
+ * Contains 3 panels
+ * One drawing board, 2 DR panels
+ */
 public class TwinDRPanel
   extends JPanel
 {
@@ -98,9 +101,9 @@ public class TwinDRPanel
 
     this.add(panelHolder, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
           new Insets(0, 0, 0, 0), 0, 0));
-    this.add(psOne, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+    this.add(psOne, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
           new Insets(0, 0, 0, 0), 0, 0));
-    this.add(psTwo, new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+    this.add(psTwo, new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
           new Insets(0, 0, 0, 0), 0, 0));
 
     if (false)
@@ -127,15 +130,4 @@ public class TwinDRPanel
       psOne.repaint();
     }
   }
-  /*
-  @Override
-  protected void paintComponent(Graphics g)
-  {
-//  super.paintComponent(g);
-    Dimension dim = new Dimension(this.getWidth() / 3, this.getWidth() / 3);
-    psOne.getPlottingSheet().setPreferredSize(dim);
-    psTwo.getPlottingSheet().setPreferredSize(dim);
-    drawingBoard.setPreferredSize(dim);
-  }
-*/
 }
