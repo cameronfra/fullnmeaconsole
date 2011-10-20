@@ -35,6 +35,8 @@ import java.net.UnknownHostException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
+import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -54,8 +56,6 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
 import javax.swing.JOptionPane;
-
-import nmea.ui.viewer.minimaxi.wind.WindSpeed;
 
 import ocss.nmea.parser.Angle180;
 import ocss.nmea.parser.Angle180EW;
@@ -89,6 +89,8 @@ import user.util.GeomUtil;
 
 public class Utils
 {
+  private final static SimpleDateFormat SDF = new SimpleDateFormat("EEE dd-MMM-yyyy HH:mm:ss");
+  
   public final static String PROPERTIES_FILE = "nmea-config.properties";
   public final static String USER_CONFIG     = "user-nmea-config.xml";
   public final static String LOGISAIL_NS     = "urn:logisail-nmea";
@@ -272,13 +274,15 @@ public class Utils
         rmcMap.put(NMEADataCache.SOG,         new Speed(rmc.getSog()));
         rmcMap.put(NMEADataCache.POSITION,    rmc.getGp());
         rmcMap.put(NMEADataCache.GPS_DATE_TIME, new UTCDate(rmc.getRmcDate()));
+//      System.out.println("RMC:" + SDF.format(rmc.getRmcDate()));
+
         rmcMap.put(NMEADataCache.COG,         new Angle360(rmc.getCog()));
         rmcMap.put(NMEADataCache.DECLINATION, new Angle180EW(rmc.getDeclination()));
         
         // Compute Solar Time here
         try
         {
-          if (rmc != null)
+          if (rmc != null && rmc.getRmcDate() != null && rmc.getGp() != null)
           {
             long solarTime = rmc.getRmcDate().getTime() + longitudeToTime(rmc.getGp().lng);        
             Date solarDate = new Date(solarTime);
@@ -304,6 +308,7 @@ public class Utils
       {
         NMEAContext.getInstance().putDataCache(NMEADataCache.GPS_DATE_TIME, new UTCDate(utc.getDate()));
         NMEAContext.getInstance().putDataCache(NMEADataCache.GPS_TIME, new UTCTime(utc.getDate()));
+//      System.out.println("ZDA:" + SDF.format(utc.getDate()));
         
         GeoPos pos = (GeoPos)NMEAContext.getInstance().getDataCache(NMEADataCache.POSITION);
         if (pos != null)
@@ -422,6 +427,7 @@ public class Utils
         if (date != null)
         {
           NMEAContext.getInstance().putDataCache(NMEADataCache.GPS_TIME, new UTCTime(date));
+//        System.out.println("GLL:" + SDF.format(date));
           long solarTime = date.getTime() + longitudeToTime(pos.lng);        
           Date solarDate = new Date(solarTime);
           if (ndc == null)
@@ -1565,7 +1571,8 @@ public class Utils
       double sogMin = Double.MAX_VALUE, sogMax = 0d;
       double twsMin = Double.MAX_VALUE, twsMax = 0d;
       double awsMin = Double.MAX_VALUE, awsMax = 0d;
-      long  timeMin = Long.MAX_VALUE, timeMax = Long.MIN_VALUE;
+      long  timeMin = Long.MAX_VALUE, 
+            timeMax = Long.MIN_VALUE;
 
       NMEADataCache ndc = new NMEADataCache();
       
@@ -1585,6 +1592,7 @@ public class Utils
         ex.printStackTrace();
       }
       
+      String anomalyMess = "";
       boolean keepReading = true;
       while (keepReading)
       {
@@ -1595,58 +1603,90 @@ public class Utils
         {
           nbRec++;
           // Analyze here
-          if (line.startsWith("$"))
+          if (line.startsWith("$") && line.length() > 6)
           {
-            String key = line.substring(1, 6);
-            try { Utils.parseAndCalculate(key, line, ndc); } 
-            catch (Exception ex) { System.err.println("Oops (" + key + "):" + ex.toString()); }
-            // Get values for statistics
-            UTCDate utcDate = (UTCDate)ndc.get(NMEADataCache.GPS_DATE_TIME);
-            if (utcDate != null)
+            if (StringParsers.validCheckSum(line))
             {
-              long time = utcDate.getValue().getTime();        
-              if (time > timeMax) timeMax = time;
-              if (time < timeMin) timeMin = time;
-            }
-            Speed bsp = (Speed)ndc.get(NMEADataCache.BSP);
-            if (bsp != null)
-            {
-              if (bsp.getValue() < bspMin) bspMin = bsp.getValue();
-              if (bsp.getValue() > bspMax) bspMax = bsp.getValue();
-            }
-            Speed sog = (Speed)ndc.get(NMEADataCache.SOG);
-            if (sog != null)
-            {
-              if (sog.getValue() < sogMin) sogMin = sog.getValue();
-              if (sog.getValue() > sogMax) sogMax = sog.getValue();
-            }
-            TrueWindSpeed tws = (TrueWindSpeed)ndc.get(NMEADataCache.TWS);
-            if (tws != null)
-            {
-              if (tws.getValue() < twsMin) twsMin = tws.getValue();
-              if (tws.getValue() > twsMax) twsMax = tws.getValue();
-            }
-            
-            Speed aws = (Speed)ndc.get(NMEADataCache.AWS);
-            if (aws != null)
-            {
-              if (aws.getValue() < awsMin) awsMin = aws.getValue();
-              if (aws.getValue() > awsMax) awsMax = aws.getValue();
-            }
-            GeoPos pos = (GeoPos)ndc.get(NMEADataCache.POSITION);
-            if (pos != null)
-            {
-              if (pos.lat > north) north = pos.lat;
-              if (pos.lat < south) south = pos.lat;
-              if (pos.lng > east) east = pos.lng;
-              if (pos.lng < west) west = pos.lng;
+              String key = line.substring(1, 6);
+              try { Utils.parseAndCalculate(key, line, ndc); } 
+              catch (Exception ex) { System.err.println("Oops (" + key + "):" + ex.toString()); }
+              // Get values for statistics
+              UTCDate utcDate = (UTCDate)ndc.get(NMEADataCache.GPS_DATE_TIME);
+  
+              if (utcDate != null && utcDate.getValue() != null)
+              {
+  //            System.out.println("displayNMEADetails:" + SDF.format(utcDate.getValue()) + " from [" + line + "]");
+                long time = utcDate.getValue().getTime();                        
+                long timeDiff = time - timeMax;
+                if (Math.abs(timeDiff) > 50000)
+                {
+//                System.out.println("Record " + nbRec + ", Time diff:" + timeDiff);
+                  anomalyMess = "Suspicious time gap at record " + nbRec + "\n" +
+                                "From " + SDF.format(new Date(timeMax)) + " to " + SDF.format(new Date(time)) + "\n" +
+                                "----------------------------------------------\n";
+                }
+                timeDiff = time - timeMin;
+                if (Math.abs(timeDiff) > 50000)
+                {
+//                System.out.println("Record " + nbRec + ", Time diff:" + timeDiff);
+                  anomalyMess = "Suspicious time gap at record " + nbRec + "\n" +
+                                "From " + SDF.format(new Date(timeMin)) + " to " + SDF.format(new Date(time)) + "\n" +
+                                "----------------------------------------------\n";
+                }
+                timeMax = Math.max(timeMax, time);
+                timeMin = Math.min(timeMin, time);
+                              
+                if (false)
+                {
+                  GregorianCalendar gc = new GregorianCalendar();
+                  gc.setTime(new Date(timeMax));
+                  if (gc.get(Calendar.DAY_OF_MONTH) == 7)
+                    System.out.println("Ooch");
+                }
+              }
+              Speed bsp = (Speed)ndc.get(NMEADataCache.BSP);
+              if (bsp != null)
+              {
+                bspMin = Math.min(bspMin, bsp.getValue());
+                bspMax = Math.max(bspMax, bsp.getValue());
+              }
+              Speed sog = (Speed)ndc.get(NMEADataCache.SOG);
+              if (sog != null)
+              {
+                sogMin = Math.min(sogMin, sog.getValue());
+                sogMax = Math.max(sogMax, sog.getValue());
+              }
+              TrueWindSpeed tws = (TrueWindSpeed)ndc.get(NMEADataCache.TWS);
+              if (tws != null)
+              {
+                twsMin = Math.min(twsMin, tws.getValue());
+                twsMax = Math.max(twsMax, tws.getValue());
+              }
+              
+              Speed aws = (Speed)ndc.get(NMEADataCache.AWS);
+              if (aws != null)
+              {
+                awsMin = Math.min(awsMin, aws.getValue());
+                awsMax = Math.max(awsMax, aws.getValue());
+              }
+              GeoPos pos = (GeoPos)ndc.get(NMEADataCache.POSITION);
+              if (pos != null)
+              {
+                north = Math.max(north, pos.lat);
+                south = Math.min(south, pos.lat);
+                east  = Math.max(east, pos.lng);
+                west  = Math.min(west, pos.lng);
+              }
             }
           }
         }
       }
       br.close();
       message += (Integer.toString(nbRec) + " record(s).");
-      message += ("\n" + new Date(timeMin).toString() + "\n- to -\n" + new Date(timeMax).toString());
+      message += ("\n" + SDF.format(new Date(timeMin)) + " to " + SDF.format(new Date(timeMax)));
+      message += ("\n" + duration(timeMin, timeMax));
+      if (anomalyMess.trim().length() > 0)
+        message += ("\n" + anomalyMess);
       message += ("\nLatitude between " + GeomUtil.decToSex(north, GeomUtil.SWING, GeomUtil.NS, GeomUtil.LEADING_SIGN) +
                   " and " + GeomUtil.decToSex(south, GeomUtil.SWING, GeomUtil.NS, GeomUtil.LEADING_SIGN));
       message += ("\nLongitude between " + GeomUtil.decToSex(east, GeomUtil.SWING, GeomUtil.EW, GeomUtil.LEADING_SIGN) +
@@ -1662,6 +1702,41 @@ public class Utils
       ex.printStackTrace();
     }
     JOptionPane.showMessageDialog(null, message, "NMEA Details", JOptionPane.PLAIN_MESSAGE); // LOCALIZE
+  }
+  
+  public final static long NB_MS_PER_SECOND = 1000L;
+  public final static long NB_MS_PER_MINUTE = 60 * NB_MS_PER_SECOND;
+  public final static long NB_MS_PER_HOUR   = 60 * NB_MS_PER_MINUTE;
+  public final static long NB_MS_PER_DAY    = 24 * NB_MS_PER_HOUR;
+  
+  public static String duration(long from, long to)
+  {
+    String mess = "";
+    boolean sentenceStarted = false;
+    long diff = to - from;
+    int nbDay = (int)((double)diff / (double)NB_MS_PER_DAY);
+    diff -= (nbDay * NB_MS_PER_DAY);
+    int nbHour = (int)((double)diff / (double)NB_MS_PER_HOUR);
+    diff -= (nbHour * NB_MS_PER_HOUR);
+    int nbMin = (int)((double)diff / (double)NB_MS_PER_MINUTE);
+    diff -= (nbMin * NB_MS_PER_MINUTE);
+    int nbSec = (int)((double)diff / (double)NB_MS_PER_SECOND);
+    if (nbDay > 0)
+    {
+      mess += (nbDay + " day(s) ");
+      sentenceStarted = true;
+    }
+    if (nbHour > 0 || sentenceStarted)
+    {
+      mess += (nbHour + " hour(s) ");
+      sentenceStarted = true;
+    }
+    if (nbMin > 0 || sentenceStarted)
+    {
+      mess += (nbMin + " minute(s) ");
+    }
+    mess += (nbSec + " second(s).");
+    return mess;
   }
   
   public static void main1(String[] args)
