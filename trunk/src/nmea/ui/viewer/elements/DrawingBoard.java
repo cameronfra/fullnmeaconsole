@@ -355,10 +355,10 @@ public class DrawingBoard
     }
     if (csp != -Double.MAX_VALUE && !Double.isInfinite(csp) && !Double.isNaN(csp))
     {
-      dataTable.add(new Object[] { "CSP", DF3.format(csp) + " kts", Color.blue });
+      dataTable.add(new Object[] { "CSP", DF32.format(csp) + " kts", Color.blue });
     }
     dataTable.add(new Object[] { "leeway", DF31.format(leeway) + "\272 (on " + DF31.format(maxLeeway) + "\272)", Color.blue });
-    dataTable.add(new Object[] { "CMG", DF32.format(hdg + hdgOffset + leeway) + "\272", Color.blue });
+    dataTable.add(new Object[] { "CMG", DF31.format(hdg + hdgOffset + leeway) + "\272", Color.blue });
     // Now displaying data
     drawDataTable(dataTable, gr);
     
