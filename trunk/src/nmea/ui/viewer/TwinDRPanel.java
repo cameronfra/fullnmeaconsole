@@ -40,8 +40,8 @@ import ocss.nmea.parser.Temperature;
 public class TwinDRPanel
   extends JPanel
 {
-  private DeadReckoningPlottingSheet psOne = new DeadReckoningPlottingSheet(270, 270, 37d, -122d, 1d);
-  private DeadReckoningPlottingSheet psTwo = new DeadReckoningPlottingSheet(270, 270, 37d, -122d, 1d);
+  private DeadReckoningPlottingSheet psOne = new DeadReckoningPlottingSheet(270, 270, 37d, -122d, 1d,  60000L);
+  private DeadReckoningPlottingSheet psTwo = new DeadReckoningPlottingSheet(270, 270, 37d, -122d, 1d, 600000L);
   private DrawingBoard drawingBoard = new DrawingBoard();
   private CurrentDisplay currentDisplay = new CurrentDisplay("Current", "00.00", "Current", 30);
   private JPanel panelHolder = new JPanel(new BorderLayout());
