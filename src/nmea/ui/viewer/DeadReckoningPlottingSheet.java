@@ -62,6 +62,8 @@ public class DeadReckoningPlottingSheet
 {
   private final static boolean DEBUG = false;
   
+  private double minLatSpan = 0.001d;
+  
   private PlottingSheet plottingSheet;
   private JPanel        topPanel;
   private JComboBox     timeComboBox;
@@ -83,25 +85,28 @@ public class DeadReckoningPlottingSheet
   
   // Time, Position, CMG, BSP.
   private ArrayList<UTCHolder> timeBuffer    = new ArrayList<UTCHolder>();
-  private ArrayList<GeoPos> positionBuffer = new ArrayList<GeoPos>();
-  private ArrayList<Angle360> cmgBuffer    = new ArrayList<Angle360>();
-  private ArrayList<Angle360> hdgBuffer    = new ArrayList<Angle360>();
-  private ArrayList<Speed> bspBuffer       = new ArrayList<Speed>();
+  private ArrayList<GeoPos> positionBuffer   = new ArrayList<GeoPos>();
+  private ArrayList<Angle360> cmgBuffer      = new ArrayList<Angle360>();
+  private ArrayList<Angle360> hdgBuffer      = new ArrayList<Angle360>();
+  private ArrayList<Speed> bspBuffer         = new ArrayList<Speed>();
   private JPanel boundariesPanel = new JPanel();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private JLabel fromLabel = new JLabel();
-  private JLabel toLabel = new JLabel();
+  private JLabel toLabel   = new JLabel();
   
-  private final static SimpleDateFormat SDF = new SimpleDateFormat("HH:mm:ss Z");
+  private final static SimpleDateFormat SDF = new SimpleDateFormat("HH:mm:ss");
   private JLabel jLabel1 = new JLabel();
   private JLabel jLabel2 = new JLabel();
+  
+  private long timeStep = 0L;
 
   public DeadReckoningPlottingSheet(int w, 
                                     int h, 
                                     double cL, 
                                     double cG, 
-                                    double ls)
+                                    double ls,
+                                    long defaultTimeStep)
   {
     super();
     this.width = w;
@@ -109,6 +114,7 @@ public class DeadReckoningPlottingSheet
     this.centerLat = cL;
     this.centerLng = cG;
     this.latSpan = ls;
+    this.timeStep = defaultTimeStep;
     
     try
     {
@@ -141,6 +147,7 @@ public class DeadReckoningPlottingSheet
     timeComboBox.addItem(new TimeObject( 600000L, "10 minutes"));
     timeComboBox.addItem(new TimeObject(1200000L, "20 minutes"));
     timeComboBox.addItem(new TimeObject(1800000L, "30 minutes"));
+    timeComboBox.addItem(new TimeObject(3600000L,  "1 hour"));
     timeComboBox.addActionListener(new ActionListener()
       {
         public void actionPerformed(ActionEvent e)
@@ -148,6 +155,15 @@ public class DeadReckoningPlottingSheet
           setBufferLength(((TimeObject)timeComboBox.getSelectedItem()).getTime());
         }
       });    
+    for (int i=0; i<timeComboBox.getItemCount(); i++) // Set default selection
+    {
+      if (((TimeObject)timeComboBox.getItemAt(i)).getTime() == this.timeStep)
+      {
+        timeComboBox.setSelectedIndex(i);
+        setBufferLength(((TimeObject)timeComboBox.getItemAt(i)).getTime());
+        break;
+      }
+    }
     resetButton = new JButton("Reset");
     resetButton.addActionListener(new ActionListener()
      {
@@ -514,25 +530,27 @@ public class DeadReckoningPlottingSheet
     for (int i=0; groundData != null && i<groundData.length; i++)
     {
       GeoPoint gp = groundData[i];
-      if (gp.getL() < bottom) bottom = gp.getL();
-      if (gp.getL() > top) top = gp.getL();
-      if (gp.getG() > right) right = gp.getG();
-      if (gp.getG() < left) left = gp.getG();
+      bottom = Math.min(bottom, gp.getL());
+      top    = Math.max(top, gp.getL());
+      right  = Math.max(right, gp.getG());
+      left   = Math.min(left, gp.getG());
     }
     for (int i=0; drData != null && i<drData.length; i++)
     {
       GeoPoint gp = drData[i];
-      if (gp.getL() < bottom) bottom = gp.getL();
-      if (gp.getL() > top) top = gp.getL();
-      if (gp.getG() > right) right = gp.getG();
-      if (gp.getG() < left) left = gp.getG();
+      bottom = Math.min(bottom, gp.getL());
+      top    = Math.max(top, gp.getL());
+      right  = Math.max(right, gp.getG());
+      left   = Math.min(left, gp.getG());
     }
 //  System.out.println("Width:" + (right - left) + ", Height:" + (top - bottom));
     double max = Math.max((top - bottom), (right - left));
 //  if (max < 0.001d)
 //    max = 0.001d;
     
-    plottingSheet.setChartLatitudeSpan(max /*(top - bottom)*/ * 1.1d);
+    double latSpan = Math.max(max * 1.1, minLatSpan);
+//  System.out.println("Lat Span:" + latSpan);
+    plottingSheet.setChartLatitudeSpan(latSpan);
     plottingSheet.setCenterLat(bottom + ((top - bottom) / 2d));
     plottingSheet.setCenterLong(left + ((right - left) / 2d));
     
@@ -582,6 +600,11 @@ public class DeadReckoningPlottingSheet
   public PlottingSheet getPlottingSheet()
   {
     return plottingSheet;
+  }
+
+  public void setMinLatSpan(double minLatSpan)
+  {
+    this.minLatSpan = minLatSpan;
   }
 
   public static class TimeObject
