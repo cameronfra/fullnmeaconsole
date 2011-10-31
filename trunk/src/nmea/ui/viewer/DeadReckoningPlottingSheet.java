@@ -96,6 +96,7 @@ public class DeadReckoningPlottingSheet
   private JLabel toLabel   = new JLabel();
   
   private final static SimpleDateFormat SDF = new SimpleDateFormat("HH:mm:ss");
+  private final static SimpleDateFormat SDF2 = new SimpleDateFormat("HH:mm:ss.SSS");
   private JLabel jLabel1 = new JLabel();
   private JLabel jLabel2 = new JLabel();
   
@@ -226,6 +227,15 @@ public class DeadReckoningPlottingSheet
               GeoPos position = (GeoPos)cache.get(NMEADataCache.POSITION);
               Speed bsp       = (Speed)cache.get(NMEADataCache.BSP); 
               Angle360 hdg    = (Angle360)cache.get(NMEADataCache.HDG_TRUE); 
+              // From a file: reset?
+//            if (timeBuffer.size() > 1 && ((timeBuffer.get(timeBuffer.size() - 1).getValue().getTime() > utcDate.getValue().getTime())))
+              if (timeBuffer.size() > 1 && ((timeBuffer.get(timeBuffer.size() - 1).getValue().getTime() - utcDate.getValue().getTime()) > 1000 ))
+              {
+                // Buffer Reset
+                System.out.println("== Reseting data buffers: last date in buffer=[" + SDF2.format(timeBuffer.get(timeBuffer.size() - 1).getValue()) + "] > current Date=[" + SDF2.format(utcDate.getValue()) + "]");
+                resetDataBuffers();
+              }
+              
               if (!utcDate.isNull() && (timeBuffer.size() == 0 || (timeBuffer.size() > 0 && (timeBuffer.get(timeBuffer.size() - 1).getValue().getTime() < utcDate.getValue().getTime()))))
               {
                 if (utcDate != null && cmg != null && position != null && bsp != null && hdg != null)
