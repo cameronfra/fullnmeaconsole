@@ -53,9 +53,7 @@ import ocss.nmea.parser.UTCDate;
 import ocss.nmea.parser.UTCHolder;
 import ocss.nmea.parser.UTCTime;
 
-import user.util.GeomUtil;
-
-
+@SuppressWarnings("serial")
 public class DeadReckoningPlottingSheet
   extends JPanel
   implements ChartPanelParentInterface
