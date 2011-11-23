@@ -1,6 +1,5 @@
 package nmea.ui.viewer;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
@@ -8,8 +7,6 @@ import java.awt.Insets;
 import java.util.Date;
 
 import javax.swing.JPanel;
-
-import javax.swing.JScrollPane;
 
 import nmea.server.ctx.NMEAContext;
 import nmea.server.ctx.NMEADataCache;
@@ -28,6 +25,7 @@ import ocss.nmea.parser.TrueWindSpeed;
 import oracle.jdeveloper.layout.VerticalFlowLayout;
 
 
+@SuppressWarnings("serial")
 public class SpeedEvolutionPanel
   extends JPanel
 {
