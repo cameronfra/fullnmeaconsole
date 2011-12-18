@@ -90,6 +90,8 @@ public class NMEAMasterPanel
   private String udp = "";
   private String data = null;
   
+  private transient CustomNMEAClient nmeaClient = null;
+  
   public NMEAMasterPanel(boolean v,
                          String serial,
                          int br,
@@ -305,7 +307,7 @@ public class NMEAMasterPanel
   {
     System.out.println(this.getClass().getName()+ ":Reading...");
     setLogMessage(LogisailResourceBundle.buildMessage("reading", new String[] { port, Integer.toString(br)}));
-    CustomNMEAClient nmeaClient = null;
+//  CustomNMEAClient nmeaClient = null;
     nmeaClient = new CustomNMEAClient(this, port, br)
       {
         public void manageNMEAError(Throwable t)
@@ -324,7 +326,7 @@ public class NMEAMasterPanel
     System.out.println("Reading " + ((option == CustomNMEAClient.TCP_OPTION)?"TCP":"UDP") + "...");
     setLogMessage(LogisailResourceBundle.buildMessage("reading", new String[] { ((option == CustomNMEAClient.TCP_OPTION)?"TCP":"UDP"), 
                                                                                 Integer.toString(port)}));
-    CustomNMEAClient nmeaClient = null;
+//  CustomNMEAClient nmeaClient = null;
     nmeaClient = new CustomNMEAClient(this, option, port)
       {
         public void manageNMEAError(Throwable t)
@@ -341,7 +343,7 @@ public class NMEAMasterPanel
   private void read(File f)
   {
     System.out.println("Reading Data File...");
-    CustomNMEAClient nmeaClient = null;
+//  CustomNMEAClient nmeaClient = null;
     nmeaClient = new CustomNMEAClient(this, f)
       {
         public void manageNMEAError(Throwable t)
@@ -349,6 +351,18 @@ public class NMEAMasterPanel
           throw new RuntimeException(t);
         }
       };
+  }
+  
+  public void stopReadingSimulationFile()
+  {
+    try
+    {
+      nmeaClient.stopReading();
+    }
+    catch (Exception ex)
+    {
+      ex.printStackTrace();
+    }
   }
   
   public boolean verbose()

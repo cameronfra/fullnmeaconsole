@@ -201,6 +201,11 @@ public class NMEAInternalFrame
 //        NMEAContext.getInstance().removeNMEAListener(nmeaTP.getNMEAListener());
           NMEAContext.getInstance().removeNMEAListenerGroup(Constants.NMEA_SERVER_LISTENER_GROUP_ID);
           Utils.play(this.getClass().getResource("R2D2.wav"));
+          if (data != null && data.trim().length() > 0)
+          {
+            // Close the simulator
+            nmeaTP.stopReadingSimulationFile();
+          }
         }
       });
     getContentPane().add(nmeaTP, BorderLayout.CENTER);

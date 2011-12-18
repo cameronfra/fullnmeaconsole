@@ -31,8 +31,10 @@ import java.util.EventObject;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import javax.swing.border.BevelBorder;
@@ -53,7 +55,6 @@ import ocss.nmea.parser.UTCDate;
 import ocss.nmea.parser.UTCHolder;
 import ocss.nmea.parser.UTCTime;
 
-@SuppressWarnings("serial")
 public class DeadReckoningPlottingSheet
   extends JPanel
   implements ChartPanelParentInterface
@@ -99,6 +100,7 @@ public class DeadReckoningPlottingSheet
   private JLabel jLabel2 = new JLabel();
   
   private long timeStep = 0L;
+  private JCheckBox smoothCheckBox = new JCheckBox();
 
   public DeadReckoningPlottingSheet(int w, 
                                     int h, 
@@ -174,7 +176,8 @@ public class DeadReckoningPlottingSheet
     currentDisplay.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
     topPanel.add(timeComboBox, null);
     topPanel.add(resetButton, null);
-    
+
+    topPanel.add(smoothCheckBox, null);
     this.add(topPanel, BorderLayout.NORTH);
 
     currentDisplay.setDisplayColor(Color.cyan);
@@ -183,16 +186,31 @@ public class DeadReckoningPlottingSheet
     toLabel.setText("To...");
     jLabel1.setText("From");
     jLabel2.setText("Until");
-    bottomPanel.add(currentDisplay, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
-          new Insets(0, 0, 0, 0), 0, 0));
-    boundariesPanel.add(fromLabel, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-          new Insets(0, 0, 0, 0), 0, 0));
-    boundariesPanel.add(toLabel, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-          new Insets(0, 0, 0, 0), 0, 0));
-    boundariesPanel.add(jLabel1, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-          new Insets(0, 0, 0, 5), 0, 0));
-    boundariesPanel.add(jLabel2, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-          new Insets(0, 0, 0, 5), 0, 0));
+    smoothCheckBox.setText("smooth");
+    bottomPanel.add(currentDisplay,
+                    new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+                                           new Insets(0, 0, 0, 0), 0, 0));
+    boundariesPanel.add(fromLabel,
+                        new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+                                               new Insets(0, 0, 0, 0), 0, 0));
+    boundariesPanel.add(toLabel,
+                        new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0,
+                                                                                                                                  0,
+                                                                                                                                  0,
+                                                                                                                                  0),
+                                               0, 0));
+    boundariesPanel.add(jLabel1,
+                        new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0,
+                                                                                                                                  0,
+                                                                                                                                  0,
+                                                                                                                                  5),
+                                               0, 0));
+    boundariesPanel.add(jLabel2,
+                        new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0,
+                                                                                                                                  0,
+                                                                                                                                  0,
+                                                                                                                                  5),
+                                               0, 0));
     bottomPanel.add(boundariesPanel,
                     new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                            new Insets(0, 0, 0, 0), 0, 0));
@@ -341,6 +359,14 @@ public class DeadReckoningPlottingSheet
         }        
       });
   }
+
+
+  private final static Stroke STROKE_5 = new BasicStroke(5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
+  private final static Stroke STROKE_3 = new BasicStroke(3f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
+  private final static Stroke STROKE_2 = new BasicStroke(1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
+  private final static Stroke STROKE_1 = new BasicStroke(1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
+  
+  private transient ArrayList<TimeCurrent> timeCurrent = new ArrayList<TimeCurrent>();
   
   public void chartPanelPaintComponent(Graphics gr)
   {
@@ -349,19 +375,19 @@ public class DeadReckoningPlottingSheet
 
     plottingSheet.setW(centerPanel.getWidth() - 4);  // 4: for the bevel
     plottingSheet.setH(centerPanel.getHeight() - 4); // 4: for the bevel
-
-    Stroke stroke = new BasicStroke(5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
-    ((Graphics2D) gr).setStroke(stroke);
+    ((Graphics2D) gr).setStroke(STROKE_3);
 
     // Over Ground
-    gr.setColor(Color.black);
+    gr.setColor(Color.BLACK);
     Point ppt = null;
 //  System.out.println("GroundData.length = " + groundData.length);
+    // 1 - Build an array of panel points
+    ArrayList<Point> gData = new ArrayList<Point>(groundData.length);
     for (int i=0; groundData != null && i<groundData.length; i++)
     {
       Point pt = null;
       try { pt = plottingSheet.getPanelPoint(groundData[i]); } catch (Exception nep) { System.err.println("Pt:" + nep.toString()); } 
-      if (pt != null && i == 0)
+      if (pt != null && i == 0) // First
       {
         String[] sa =  groundData[i].toString().split("/");
         String one = sa[0].trim();
@@ -371,11 +397,11 @@ public class DeadReckoningPlottingSheet
         two = Utils.lpad(two, " ", len);
         Font f = gr.getFont();
         gr.setFont(new Font("courier new", Font.PLAIN, 11));
-        plottingSheet.postit(gr, one + "\n" + two, pt.x, pt.y, Color.yellow, Color.blue, 0.55f);
+        plottingSheet.postit(gr, one + "\n" + two, pt.x, pt.y, Color.yellow, Color.blue, 0.55f); // Postit. First point position
         gr.setFont(f);
       }
 
-      if (pt != null && i == (groundData.length - 1))
+      if (pt != null && i == (groundData.length - 1)) // Last
       {
         String[] sa =  groundData[i].toString().split("/");
         String one = sa[0].trim();
@@ -385,20 +411,58 @@ public class DeadReckoningPlottingSheet
         two = Utils.lpad(two, " ", len);
         Font f = gr.getFont();
         gr.setFont(new Font("courier new", Font.PLAIN, 11));
-        plottingSheet.postit(gr, one + "\n" + two, pt.x, pt.y, Color.yellow, Color.blue, 0.55f);
+        plottingSheet.postit(gr, one + "\n" + two, pt.x, pt.y, Color.yellow, Color.blue, 0.55f); // Postit. Last point position
         gr.setFont(f);
       }
-      
+      gData.add(pt);
+    }
+    
+    boolean smooth = smoothCheckBox.isSelected();
+    if (smooth)
+    {
+      // Draw Original data, thin line
+      if (true)
+      {
+        ((Graphics2D) gr).setStroke(STROKE_1);
+        Color c = gr.getColor();
+        gr.setColor(Color.BLUE);
+        ppt = null;
+        for (Point pt : gData)
+        {
+          if (ppt != null && pt != null)
+          {        
+            gr.drawLine(ppt.x, ppt.y, pt.x, pt.y);
+            ppt = pt;
+          }
+          ppt = pt;      
+        }
+        gr.setColor(c);
+      }
+      // Expand
+      gData = expandArray(gData, 75);
+      // Smooth
+//    System.out.println("New size : " + gData.size());
+      int sw = gData.size() / 20;
+      if (sw % 2 == 0)
+        sw += 1;
+      gData = smooth(sw, gData);
+    }
+    
+    ppt = null;
+    ((Graphics2D) gr).setStroke(STROKE_3);
+    for (Point pt : gData)
+    {
       if (ppt != null && pt != null)
       {        
         gr.drawLine(ppt.x, ppt.y, pt.x, pt.y);
         ppt = pt;
       }
-      ppt = pt;
+      ppt = pt;      
     }
     // Thru water
-    gr.setColor(Color.red);
+    gr.setColor(Color.RED);
     ppt = null;
+    ((Graphics2D) gr).setStroke(STROKE_5);
 //  System.out.println("DRData.length = " + drData.length);
     for (int i=0; drData != null && i<drData.length; i++)
     {
@@ -420,6 +484,7 @@ public class DeadReckoningPlottingSheet
       }
       ppt = pt;
     }
+    
     // Boat
     if (groundData != null && groundData.length > 0 && hdgBuffer.size() > 0)
     {
@@ -427,8 +492,7 @@ public class DeadReckoningPlottingSheet
       try { pt = plottingSheet.getPanelPoint(groundData[groundData.length - 1]); } catch (Exception nep) { System.err.println("Drawing boat:" + nep.toString()); } 
       if (pt != null)
       {
-        stroke = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
-        ((Graphics2D) gr).setStroke(stroke);
+        ((Graphics2D) gr).setStroke(STROKE_2);
         Utils.drawBoat((Graphics2D) gr, 
                        Color.blue, 
                        Color.gray,
@@ -459,11 +523,22 @@ public class DeadReckoningPlottingSheet
           double dir  = Math.toDegrees(GreatCircle.calculateRhumLineRoute(geoFrom, geoTo));
           double hourRatio = (double)(timeBuffer.get(timeBuffer.size() - 1).getValue().getTime() - timeBuffer.get(0).getValue().getTime()) / (double)3600000L;
           double speed = dist / hourRatio;
-          
+          timeCurrent.add(new TimeCurrent(timeBuffer.get(timeBuffer.size() - 1).getValue().getTime(), speed, dir));
+          // trim current buffer
+          long oldest = timeCurrent.get(0).getTime();
+          boolean keepGoing = true;          
+          while (keepGoing && oldest < (timeCurrent.get(timeCurrent.size() - 1).getTime() - bufferLength))
+          {
+            timeCurrent.remove(0);
+            if (timeBuffer.size() > 0)
+              oldest = timeCurrent.get(0).getTime();
+            else
+              keepGoing = false;
+          }
+//        System.out.println("Current Buffer [" + (bufferLength / 1000) + "] = " + timeCurrent.size() + " element(s)");
 //        System.out.println("-- Speed:" + speed + " (" + dist + " nm in " + hourRatio + " hour(s).)");
   
-          stroke = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
-          ((Graphics2D) gr).setStroke(stroke);
+          ((Graphics2D) gr).setStroke(STROKE_2);
           Utils.drawCurrentArrow((Graphics2D) gr, p2, p1, Color.green);
           if (speed > 0.25)
             Utils.drawHollowArrow((Graphics2D) gr, p2, p1, Color.green);
@@ -487,8 +562,103 @@ public class DeadReckoningPlottingSheet
 //    System.err.println(ex.toString());
       ex.printStackTrace();
     }
+    // Point cloud
+    try
+    {
+      gr.setColor(Color.BLUE);
+      // Max Speed
+      double maxSpeed = 0D;
+      for (TimeCurrent tc : timeCurrent)
+        maxSpeed = Math.max(maxSpeed, tc.getSpeed());
+      double ratio = Math.min(plottingSheet.getWidth() / 2, plottingSheet.getHeight() / 2) / maxSpeed;
+      ratio /= 1.5;
+//    System.out.println("Ratio:" + ratio);
+      int x = 0, y = 0, prevx = Integer.MIN_VALUE, prevy = Integer.MIN_VALUE;
+      for (TimeCurrent tc : timeCurrent)
+      {
+        double dir = tc.getDir();
+        double speed = tc.getSpeed();
+        x = (int)((plottingSheet.getWidth() / 2) + (speed * Math.sin(Math.toRadians(dir)) * ratio));
+        y = (int)((plottingSheet.getHeight() / 2) - (speed * Math.cos(Math.toRadians(dir)) * ratio));
+        gr.drawOval(x - 2, y - 2, 4, 4);
+        if (prevx != Integer.MIN_VALUE && prevy != Integer.MIN_VALUE)
+          gr.drawLine(prevx, prevy, x, y);
+        prevx = x;
+        prevy = y;
+      }
+      gr.setColor(Color.GREEN);
+      gr.drawLine(plottingSheet.getWidth() / 2, plottingSheet.getHeight() / 2, x, y);
+    }
+    catch (Exception e)
+    {
+      e.printStackTrace();
+    }
     ((Graphics2D) gr).setStroke(origStroke);
     gr.setColor(origColor);
+  }
+
+  private static ArrayList<Point> expandArray(ArrayList<Point> origData, int smoothFactor)
+  {
+    ArrayList<Point> expanded = new ArrayList<Point>(origData.size() * smoothFactor);
+    for (int i=0; i<origData.size() - 1; i++)
+    {
+      try
+      {
+        int deltaX = origData.get(i + 1).x - origData.get(i).x;
+        int deltaY = origData.get(i + 1).y - origData.get(i).y;
+        
+        for (int j=0; j<smoothFactor; j++)
+        {
+          int newX = (int)(origData.get(i).x + (deltaX * ((double)j / (double)smoothFactor)));
+          int newY = (int)(origData.get(i).y + (deltaY * ((double)j / (double)smoothFactor)));
+          expanded.add(new Point(newX, newY));
+        }
+      }
+      catch (Exception ex)
+      {
+        continue;
+      }
+    }
+    return expanded;
+  }
+  
+  private static ArrayList<Point> smooth(int fork, ArrayList<Point>rawData)  
+  {
+    if ((fork % 2) != 1)
+    {
+      JOptionPane.showMessageDialog(null, "Fork width must be odd", "Smoothing", JOptionPane.ERROR_MESSAGE); // LOCALIZE     
+      throw new RuntimeException("Fork must be odd.");
+    }
+    
+    ArrayList<Point> smoothedData = new ArrayList<Point>(rawData.size());
+      
+    for (Point pt : rawData) // Clone the array
+    {
+      Point p = new Point(pt.x, pt.y);
+      smoothedData.add(p);
+    }
+    int halfFork = ((fork-1) / 2);
+    for (int i=0; i<rawData.size(); i++)    
+    {
+      double dx = 0D;      
+      double dy = 0D;
+      
+      for (int j=(i-halfFork); j<=(i+halfFork); j++)
+      {
+        int _j = j;
+        if (_j<0) 
+          _j = 0;
+        if (_j>=rawData.size()) 
+          _j = rawData.size() - 1;
+        dx += rawData.get(_j).x;
+        dy += rawData.get(_j).y;
+      }
+      dx = dx / fork;
+      dy = dy / fork;
+      smoothedData.get(i).x = (int)Math.round(dx);      
+      smoothedData.get(i).y = (int)Math.round(dy);      
+    }
+    return smoothedData;
   }
 
   private void resetDataBuffers()
@@ -496,8 +666,9 @@ public class DeadReckoningPlottingSheet
     timeBuffer     = new ArrayList<UTCHolder>();
     positionBuffer = new ArrayList<GeoPos>();
     cmgBuffer      = new ArrayList<Angle360>();
-    hdgBuffer    = new ArrayList<Angle360>();
-    bspBuffer      = new ArrayList<Speed>();          
+    hdgBuffer      = new ArrayList<Angle360>();
+    bspBuffer      = new ArrayList<Speed>();
+    timeCurrent    = new ArrayList<TimeCurrent>();
   }
   
   public boolean onEvent(EventObject eventobject, int i)
@@ -648,6 +819,35 @@ public class DeadReckoningPlottingSheet
     public String getLabel()
     {
       return label;
+    }
+  }
+  
+  public static class TimeCurrent
+  {
+    private final long time; 
+    private final double speed; 
+    private final double dir;
+   
+    public TimeCurrent(long time, double speed, double dir)
+    {
+      this.time = time;
+      this.speed = speed;
+      this.dir = dir;
+    }
+
+    public long getTime()
+    {
+      return time;
+    }
+
+    public double getSpeed()
+    {
+      return speed;
+    }
+
+    public double getDir()
+    {
+      return dir;
     }
   }
 }
