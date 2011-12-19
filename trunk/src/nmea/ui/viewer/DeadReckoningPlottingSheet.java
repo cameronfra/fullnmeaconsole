@@ -544,7 +544,7 @@ public class DeadReckoningPlottingSheet
             Utils.drawHollowArrow((Graphics2D) gr, p2, p1, Color.green);
   //      gr.drawLine(p1.x, p1.y, p2.x, p2.y);
           // Display values
-          gr.setColor(Color.blue);
+          gr.setColor(Color.BLUE);
           Font f = gr.getFont();
           gr.setFont(new Font("courier new", Font.PLAIN, 12));
           gr.drawString("Current dir  :" + NMEAContext.DF3.format(dir) + "\272", 10, 10);
@@ -588,6 +588,10 @@ public class DeadReckoningPlottingSheet
       }
       gr.setColor(Color.GREEN);
       gr.drawLine(plottingSheet.getWidth() / 2, plottingSheet.getHeight() / 2, x, y);
+      gr.setColor(Color.GRAY);
+      String str = Integer.toString(timeCurrent.size()) + " point(s)";
+      int strWidth  = gr.getFontMetrics(gr.getFont()).stringWidth(str);
+      gr.drawString(str, plottingSheet.getWidth() - strWidth - 2, 12);
     }
     catch (Exception e)
     {
