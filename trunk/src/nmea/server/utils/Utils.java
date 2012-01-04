@@ -45,6 +45,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -1102,14 +1103,14 @@ public class Utils
     return data;
   }
   
-  public static ArrayList<double[]> loadDeviationCurve(Hashtable<Double, Double> data)
+  public static List<double[]> loadDeviationCurve(Hashtable<Double, Double> data)
   {
-    ArrayList<double[]> ret = null;
+    List<double[]> ret = null;
     
     try
     {
       Set<Double> set = data.keySet();
-      ArrayList<Double> list = new ArrayList<Double>(set.size());
+      List<Double> list = new ArrayList<Double>(set.size());
       for (Double d: set)
         list.add(d);
       Collections.sort(list);
@@ -1129,9 +1130,9 @@ public class Utils
     return ret;
   }
     
-  public static ArrayList<double[]> loadDeviationCurve(String deviationFileName)
+  public static List<double[]> loadDeviationCurve(String deviationFileName)
   {
-    ArrayList<double[]> ret = null;
+    List<double[]> ret = null;
     try
     {
       Hashtable<Double, Double> data = loadDeviationHashtable(deviationFileName);
@@ -1144,7 +1145,7 @@ public class Utils
     return ret;
   }
   
-  public static Hashtable<Double, Double> loadDeviationCurve(ArrayList<double[]> data)
+  public static Hashtable<Double, Double> loadDeviationCurve(List<double[]> data)
   {
     Hashtable<Double, Double> ret = new Hashtable<Double, Double>(data.size());    
     try
@@ -1166,7 +1167,7 @@ public class Utils
     return getDeviation(cc, NMEAContext.getInstance().getDeviation());
   }
   
-  public static double getDeviation(double cc, ArrayList<double[]> deviationAL)
+  public static double getDeviation(double cc, List<double[]> deviationAL)
   {
     double deviation = 0d;
     if (deviationAL != null)
@@ -1194,9 +1195,9 @@ public class Utils
     return deviation;
   }
 
-  public static ArrayList<double[]> getDataForDeviation(String dataFileName)
+  public static List<double[]> getDataForDeviation(String dataFileName)
   {
-    ArrayList<double[]> ret = null;
+    List<double[]> ret = null;
     
     try
     {
@@ -1341,7 +1342,7 @@ public class Utils
               if (resp == JOptionPane.OK_OPTION)
               {
                 double d = dp.getDeclinationValue();
-                ArrayList<double[]> adjusted = new ArrayList<double[]>(ret.size());
+                List<double[]> adjusted = new ArrayList<double[]>(ret.size());
                 for (double[] da : ret)
                 {
                   da[0] += d;
@@ -1428,7 +1429,7 @@ public class Utils
               if (resp == JOptionPane.OK_OPTION)
               {
                 double d = dp.getDeclinationValue();
-                ArrayList<double[]> adjusted = new ArrayList<double[]>(ret.size());
+                List<double[]> adjusted = new ArrayList<double[]>(ret.size());
                 for (double[] da : ret)
                 {
                   da[0] += d;

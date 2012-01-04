@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import java.util.List;
 import java.util.Set;
 
 import ocss.nmea.parser.Angle180;
@@ -65,7 +66,7 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
   // Damping ArrayList's
   private int dampingSize = 1;  
   
-  private transient HashMap<String, ArrayList<Object>> dampingMap = new HashMap<String, ArrayList<Object>>();
+  private transient HashMap<String, List<Object>> dampingMap = new HashMap<String, List<Object>>();
   
   public NMEADataCache()
   {
@@ -142,7 +143,7 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
     Object o = super.put(key, value);
     if (dampingSize > 1 && dampingMap.containsKey(key))
     {
-      ArrayList<Object> ald = dampingMap.get(key);
+      List<Object> ald = dampingMap.get(key);
       ald.add(value);      
       while (ald.size() > dampingSize)
         ald.remove(0);
@@ -170,7 +171,7 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
     {
       Object ret = null;
       Class cl = null;
-      ArrayList<Object> ald = dampingMap.get(key);
+      List<?> ald = dampingMap.get(key);
       double sum = 0d;
       double sumCos = 0d,
              sumSin = 0d;

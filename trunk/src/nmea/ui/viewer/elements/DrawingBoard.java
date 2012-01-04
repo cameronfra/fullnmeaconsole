@@ -26,6 +26,8 @@ import java.text.DecimalFormat;
 
 import java.util.ArrayList;
 
+import java.util.List;
+
 import javax.swing.JPanel;
 
 import nmea.server.constants.Constants;
@@ -305,7 +307,7 @@ public class DrawingBoard
                    0.75f);
 
     // Display All Data Values:
-    ArrayList<Object[]> dataTable = new ArrayList<Object[]>();
+    List<Object[]> dataTable = new ArrayList<Object[]>();
     
     if (bsp != -Double.MAX_VALUE)
     {
@@ -472,7 +474,7 @@ public class DrawingBoard
     }
   }
 
-  private void drawDataTable(ArrayList<Object[]> data, Graphics gr)
+  private void drawDataTable(List<Object[]> data, Graphics gr)
   {
     // Determine biggest title width
     int maxLen = 0;

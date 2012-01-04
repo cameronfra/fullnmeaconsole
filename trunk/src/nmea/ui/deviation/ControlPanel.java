@@ -22,6 +22,8 @@ import java.io.FileWriter;
 
 import java.util.ArrayList;
 
+import java.util.List;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -110,8 +112,8 @@ public class ControlPanel
         {
           public void run()
           {
-            ArrayList<double[]> data = Utils.getDataForDeviation(fName);
-          NMEAContext.getInstance().fireLoadDataPointsForDeviation(data);
+            List<double[]> data = Utils.getDataForDeviation(fName);
+            NMEAContext.getInstance().fireLoadDataPointsForDeviation(data);
           }
         };
       dataThread.start();
@@ -152,7 +154,7 @@ public class ControlPanel
                                         "Save");
     if (fName != null && fName.trim().length() > 0)
     {
-      ArrayList<double[]> dc = NMEAContext.getInstance().getDeviation();
+      List<double[]> dc = NMEAContext.getInstance().getDeviation();
       try
       {
         BufferedWriter bw = new BufferedWriter(new FileWriter(fName));

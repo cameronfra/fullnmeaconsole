@@ -16,6 +16,8 @@ import gnu.io.SerialPort;
 import gnu.io.CommPortIdentifier;
 import gnu.io.PortInUseException;
 
+import java.util.List;
+
 import nmea.server.constants.Constants;
 
 import nmea.server.datareader.DataReader;
@@ -35,7 +37,7 @@ public class CustomSerialReader
 
   private CommPort thePort = null;
 
-  public CustomSerialReader(ArrayList<NMEAListener> al)
+  public CustomSerialReader(List<NMEAListener> al)
   {
     super(al);
     NMEAContext.getInstance().addNMEAListener(new nmea.event.NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
@@ -54,7 +56,7 @@ public class CustomSerialReader
       });
   }
 
-  public CustomSerialReader(ArrayList<NMEAListener> al, String com, int br)
+  public CustomSerialReader(List<NMEAListener> al, String com, int br)
   {
     super(al);
     comPort = com;

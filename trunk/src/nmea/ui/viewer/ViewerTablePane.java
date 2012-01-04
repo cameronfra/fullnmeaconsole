@@ -30,6 +30,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
 
+import java.util.List;
+
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -542,7 +544,7 @@ public class ViewerTablePane
     for (int j=0; j<data.length; j++)
       data[j][SELECTED_POS] = Boolean.valueOf(false);
     
-    ArrayList<String> missingSentences = new ArrayList<String>();
+    List<String> missingSentences = new ArrayList<String>();
     
     for (int i=0; i<nmeaSentences.length; i++)
     {
@@ -578,7 +580,7 @@ public class ViewerTablePane
   {
     System.out.println("Save...");
     // Write file, tell the NMEAFrame
-    ArrayList<String> toLog = new ArrayList<String>();
+    List<String> toLog = new ArrayList<String>();
     for (int i=0; i<data.length; i++)
     {
       if (((Boolean) data[i][SELECTED_POS]).booleanValue())

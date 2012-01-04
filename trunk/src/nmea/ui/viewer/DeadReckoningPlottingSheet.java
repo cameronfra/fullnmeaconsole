@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.EventObject;
 
+import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -83,11 +85,11 @@ public class DeadReckoningPlottingSheet
   private long bufferLength = 60000L;
   
   // Time, Position, CMG, BSP.
-  private ArrayList<UTCHolder> timeBuffer    = new ArrayList<UTCHolder>();
-  private ArrayList<GeoPos> positionBuffer   = new ArrayList<GeoPos>();
-  private ArrayList<Angle360> cmgBuffer      = new ArrayList<Angle360>();
-  private ArrayList<Angle360> hdgBuffer      = new ArrayList<Angle360>();
-  private ArrayList<Speed> bspBuffer         = new ArrayList<Speed>();
+  private List<UTCHolder> timeBuffer    = new ArrayList<UTCHolder>();
+  private List<GeoPos> positionBuffer   = new ArrayList<GeoPos>();
+  private List<Angle360> cmgBuffer      = new ArrayList<Angle360>();
+  private List<Angle360> hdgBuffer      = new ArrayList<Angle360>();
+  private List<Speed> bspBuffer         = new ArrayList<Speed>();
   private JPanel boundariesPanel = new JPanel();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
@@ -366,7 +368,7 @@ public class DeadReckoningPlottingSheet
   private final static Stroke STROKE_2 = new BasicStroke(1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
   private final static Stroke STROKE_1 = new BasicStroke(1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
   
-  private transient ArrayList<TimeCurrent> timeCurrent = new ArrayList<TimeCurrent>();
+  private transient List<TimeCurrent> timeCurrent = new ArrayList<TimeCurrent>();
   
   public void chartPanelPaintComponent(Graphics gr)
   {
@@ -382,7 +384,7 @@ public class DeadReckoningPlottingSheet
     Point ppt = null;
 //  System.out.println("GroundData.length = " + groundData.length);
     // 1 - Build an array of panel points
-    ArrayList<Point> gData = new ArrayList<Point>(groundData.length);
+    List<Point> gData = new ArrayList<Point>(groundData.length);
     for (int i=0; groundData != null && i<groundData.length; i++)
     {
       Point pt = null;
@@ -601,9 +603,9 @@ public class DeadReckoningPlottingSheet
     gr.setColor(origColor);
   }
 
-  private static ArrayList<Point> expandArray(ArrayList<Point> origData, int smoothFactor)
+  private static List<Point> expandArray(List<Point> origData, int smoothFactor)
   {
-    ArrayList<Point> expanded = new ArrayList<Point>(origData.size() * smoothFactor);
+    List<Point> expanded = new ArrayList<Point>(origData.size() * smoothFactor);
     for (int i=0; i<origData.size() - 1; i++)
     {
       try
@@ -626,7 +628,7 @@ public class DeadReckoningPlottingSheet
     return expanded;
   }
   
-  private static ArrayList<Point> smooth(int fork, ArrayList<Point>rawData)  
+  private static List<Point> smooth(int fork, List<Point>rawData)  
   {
     if ((fork % 2) != 1)
     {
@@ -634,7 +636,7 @@ public class DeadReckoningPlottingSheet
       throw new RuntimeException("Fork must be odd.");
     }
     
-    ArrayList<Point> smoothedData = new ArrayList<Point>(rawData.size());
+    List<Point> smoothedData = new ArrayList<Point>(rawData.size());
       
     for (Point pt : rawData) // Clone the array
     {

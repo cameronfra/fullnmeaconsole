@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 
+import java.util.List;
+
 import nmea.event.NMEAListener;
 
 import oracle.xml.parser.v2.DOMParser;
@@ -25,10 +27,10 @@ import oracle.xml.parser.v2.DOMParser;
 public class NMEAContext implements Serializable
 {
   private static NMEAContext applicationContext = null;  
-  private transient ArrayList<NMEAListener> NMEAListeners = null;
+  private transient List<NMEAListener> NMEAListeners = null;
   private NMEADataCache dataCache = null;
   private transient NMEADataCache frozenDataCache = null;
-  private static ArrayList<double[]> deviation = null;
+  private static List<double[]> deviation = null;
   
   public final static DecimalFormat DF22 = new DecimalFormat("00.00");
   public final static DecimalFormat DF3  = new DecimalFormat("000");
@@ -54,7 +56,7 @@ public class NMEAContext implements Serializable
     return applicationContext;
   }
     
-  public ArrayList<NMEAListener> getListeners()
+  public List<NMEAListener> getListeners()
   {
     return NMEAListeners;
   }    
@@ -77,7 +79,7 @@ public class NMEAContext implements Serializable
   {
     System.out.println("Removing NMEAListener from group [" + groupID + "]");
     System.out.println("Start with " + NMEAListeners.size() + " NMEAListener(s).");
-    ArrayList<NMEAListener> toRemove = new ArrayList<NMEAListener>(1);
+    List<NMEAListener> toRemove = new ArrayList<NMEAListener>(1);
     for (NMEAListener listener : NMEAListeners)
     {
       if (listener.getGroupID().equals(groupID))
@@ -195,7 +197,7 @@ public class NMEAContext implements Serializable
     }
   }  
 
-  public void fireLoadDataPointsForDeviation(ArrayList<double[]> data)
+  public void fireLoadDataPointsForDeviation(List<double[]> data)
   {
     for (int i=0; i<NMEAListeners.size(); i++)
     {
@@ -278,12 +280,12 @@ public class NMEAContext implements Serializable
     fireDataChanged();
   }
 
-  public synchronized void setDeviation(ArrayList<double[]> deviation)
+  public synchronized void setDeviation(List<double[]> deviation)
   {
     NMEAContext.deviation = deviation;
   }
 
-  public synchronized ArrayList<double[]> getDeviation()
+  public synchronized List<double[]> getDeviation()
   {
     return deviation;
   }

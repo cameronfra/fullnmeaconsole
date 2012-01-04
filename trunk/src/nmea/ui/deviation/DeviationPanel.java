@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.JOptionPane;
@@ -73,8 +74,8 @@ public class DeviationPanel
   private Color lineColor3 = Color.yellow;
   
   private Hashtable<Double, Double> htDeviationCurve = new Hashtable<Double, Double>(); 
-  private ArrayList<double[]> alSprayedPoints = new ArrayList<double[]>(); 
-  private ArrayList<double[]> dataPoint = null;
+  private List<double[]> alSprayedPoints = new ArrayList<double[]>(); 
+  private List<double[]> dataPoint = null;
   private boolean showData = true;
   private boolean showCurvePoints = true;
   
@@ -286,7 +287,7 @@ public class DeviationPanel
       {
         try
         {        
-          ArrayList<double[]> dp = new ArrayList<double[]>();
+          List<double[]> dp = new ArrayList<double[]>();
           for (double[] da : dataPoint)
           {
             double hdg = da[0], 
@@ -408,7 +409,7 @@ public class DeviationPanel
       g.setColor(Color.black);
     previousPoint = null;
     Set<Double> set = htDeviationCurve.keySet();
-    ArrayList<Double> list = new ArrayList<Double>(set.size());
+    List<Double> list = new ArrayList<Double>(set.size());
     for (Double d: set)
       list.add(d);
     Collections.sort(list);
@@ -503,7 +504,7 @@ public class DeviationPanel
       suggestedCurve.put(new Double(i), dbl);
     }
     htDeviationCurve = suggestedCurve;
-    ArrayList<double[]> ald = Utils.loadDeviationCurve(htDeviationCurve);
+    List<double[]> ald = Utils.loadDeviationCurve(htDeviationCurve);
     NMEAContext.getInstance().setDeviation(ald);
     repaint();
   }
@@ -526,7 +527,7 @@ public class DeviationPanel
       }
       htDeviationCurve = ht;
       // TODO Ask question 
-      ArrayList<double[]> ald = Utils.loadDeviationCurve(htDeviationCurve);
+      List<double[]> ald = Utils.loadDeviationCurve(htDeviationCurve);
       NMEAContext.getInstance().setDeviation(ald);
     }
     catch (Exception ex)
@@ -707,7 +708,7 @@ public class DeviationPanel
         {
           int nbPtDeleted = 0;
           double hdgOffset = ((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.HDG_OFFSET)).doubleValue();
-          ArrayList<double[]> newData = new ArrayList<double[]>();
+          List<double[]> newData = new ArrayList<double[]>();
           for (double[] d : dataPoint)
           {
             double hdg = d[0], 
@@ -762,7 +763,7 @@ public class DeviationPanel
 //                       " to " + e.getX() + "/" + e.getY() +
 //                       " -> " + pp.getTwa() + "/" + pp.getBsp());
       this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-      ArrayList<double[]> ald = Utils.loadDeviationCurve(htDeviationCurve);
+      List<double[]> ald = Utils.loadDeviationCurve(htDeviationCurve);
       NMEAContext.getInstance().setDeviation(ald);
       repaint();
     }
@@ -786,11 +787,11 @@ public class DeviationPanel
     return htDeviationCurve;
   }
   
-  public void setDataPoint(ArrayList<double[]> dataPoint)
+  public void setDataPoint(List<double[]> dataPoint)
   {
     this.dataPoint = dataPoint;
   }
-  public ArrayList<double[]> getDataPoint()
+  public List<double[]> getDataPoint()
   {
     return dataPoint;
   }
@@ -821,7 +822,7 @@ public class DeviationPanel
     data = dp.getHtDeviationCurve();
     
     Set<Double> set = data.keySet();
-    ArrayList<Double> list = new ArrayList<Double>(set.size());
+    List<Double> list = new ArrayList<Double>(set.size());
     for (Double d: set)
       list.add(d);
     Collections.sort(list);

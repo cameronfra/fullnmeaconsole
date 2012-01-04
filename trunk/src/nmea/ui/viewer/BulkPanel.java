@@ -13,6 +13,8 @@ import java.awt.RenderingHints;
 
 import java.util.ArrayList;
 
+import java.util.List;
+
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 
@@ -40,7 +42,7 @@ public class BulkPanel
     };
 
   int nbLines = 0;
-  ArrayList<String> sentences = new ArrayList<String>(10);
+  List<String> sentences = new ArrayList<String>(10);
   
   public BulkPanel()
   {

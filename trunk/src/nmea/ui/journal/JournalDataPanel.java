@@ -25,6 +25,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import java.util.List;
+
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -217,7 +219,7 @@ public class JournalDataPanel
       Connection conn = NMEAContext.getInstance().getDBConnection();
       Statement stmt = conn.createStatement();
       ResultSet rs = stmt.executeQuery(GET_DATA_TYPE_STMT);
-      ArrayList<String> result = new ArrayList<String>();
+      List<String> result = new ArrayList<String>();
       while (rs.next())
       {
         String s1 = rs.getString(1);
@@ -290,7 +292,7 @@ public class JournalDataPanel
       Connection conn = NMEAContext.getInstance().getDBConnection();
       Statement stmt = conn.createStatement();
       ResultSet rs = stmt.executeQuery(GET_JOURNAL_HEADER);
-      ArrayList<ArrayList<String>> result = new ArrayList<ArrayList<String>>();
+      List<ArrayList<String>> result = new ArrayList<ArrayList<String>>();
       while (rs.next())
       {
         ArrayList<String> line = new ArrayList<String>();
