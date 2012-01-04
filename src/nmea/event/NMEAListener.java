@@ -2,6 +2,7 @@ package nmea.event;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 
 public abstract class NMEAListener
 {
@@ -22,7 +23,7 @@ public abstract class NMEAListener
   public void internalFrameClosed() {}
   
   public void dataUpdate() {}
-  public void loadDataPointsForDeviation(ArrayList<double[]> dp) {}
+  public void loadDataPointsForDeviation(List<double[]> dp) {}
   public void deviationCurveChanged(Hashtable<Double, Double> devCurve) {}
   public void replaySpeedChanged(int slider) {}
   public void dataBufferSizeChanged(int size) {}

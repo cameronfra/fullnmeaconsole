@@ -25,6 +25,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import java.util.List;
+
 import javax.swing.JPanel;
 
 import nmea.server.ctx.NMEAContext;
@@ -45,8 +47,8 @@ public class DirectionEvolutionDisplay
   private String toolTipText = null;
 
   private String name = "HDG";
-  private transient ArrayList<DatedData> aldd = null;
-  private transient ArrayList<DatedData> alnddd = null;
+  private transient List<DatedData> aldd = null;
+  private transient List<DatedData> alnddd = null;
   public final static int DEFAULT_WIDTH = 150;
 
   private long maxDataLength = NMEAContext.DEFAULT_BUFFER_SIZE;

@@ -32,6 +32,8 @@ import java.util.ArrayList;
 
 import java.util.Date;
 
+import java.util.List;
+
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -96,7 +98,7 @@ public class JournalSetupPanel
   private JComboBox unitComboBox = new JComboBox();
   
   private boolean logging = false;
-  private ArrayList<String> data2log = null;
+  private List<String> data2log = null;
 
   public JournalSetupPanel()
   {
@@ -243,7 +245,7 @@ public class JournalSetupPanel
       Connection conn = NMEAContext.getInstance().getDBConnection();
       Statement stmt = conn.createStatement();
       ResultSet rs = stmt.executeQuery(GET_DATA_TYPE_STMT);
-      ArrayList<DataType> result = new ArrayList<DataType>();
+      List<DataType> result = new ArrayList<DataType>();
       while (rs.next())
       {
         String s1 = rs.getString(1);
@@ -296,7 +298,7 @@ public class JournalSetupPanel
   {
     if (!logging)
     {
-      ArrayList<String> config = new ArrayList<String>();
+      List<String> config = new ArrayList<String>();
       for (int i=0; i<configData.length; i++)
       {
         if (((Boolean)configData[i][1]).booleanValue()) // Selected

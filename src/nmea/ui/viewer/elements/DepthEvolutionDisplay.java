@@ -23,6 +23,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import java.util.List;
+
 import javax.swing.JPanel;
 
 import nmea.server.ctx.NMEAContext;
@@ -46,7 +48,7 @@ public class DepthEvolutionDisplay
   private String toolTipText = null;
 
   private String name = "DBT";
-  private transient ArrayList<DatedData> aldd = null;
+  private transient List<DatedData> aldd = null;
 
   private long maxDataLength = NMEAContext.DEFAULT_BUFFER_SIZE;
 

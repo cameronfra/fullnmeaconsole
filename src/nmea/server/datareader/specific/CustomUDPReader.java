@@ -8,6 +8,8 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.ArrayList;
 
+import java.util.List;
+
 import nmea.server.constants.Constants;
 
 import nmea.server.datareader.DataReader;
@@ -22,7 +24,7 @@ public class CustomUDPReader extends NMEAReader implements DataReader
   private int udpport  = 8001;
   private long timeout = 5000L; // Default value
 
-  public CustomUDPReader(ArrayList<NMEAListener> al)
+  public CustomUDPReader(List<NMEAListener> al)
   {
     super(al);
     NMEAContext.getInstance().addNMEAListener(new nmea.event.NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
@@ -35,7 +37,7 @@ public class CustomUDPReader extends NMEAReader implements DataReader
       });
   }
 
-  public CustomUDPReader(ArrayList<NMEAListener> al, int udp)
+  public CustomUDPReader(List<NMEAListener> al, int udp)
   {
     super(al);
     udpport = udp;

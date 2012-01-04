@@ -7,6 +7,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
 
+import java.util.List;
+
 import nmea.server.constants.Constants;
 
 import nmea.server.datareader.DataReader;
@@ -21,7 +23,7 @@ public class CustomTCPReader extends NMEAReader implements DataReader
   private int tcpport = 80;
   private String hostName = "localhost";
 
-  public CustomTCPReader(ArrayList<NMEAListener> al)
+  public CustomTCPReader(List<NMEAListener> al)
   {
     super(al);
     NMEAContext.getInstance().addNMEAListener(new nmea.event.NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
@@ -34,7 +36,7 @@ public class CustomTCPReader extends NMEAReader implements DataReader
       });
   }
 
-  public CustomTCPReader(ArrayList<NMEAListener> al, int tcp)
+  public CustomTCPReader(List<NMEAListener> al, int tcp)
   {
     super(al);
     tcpport = tcp;
@@ -48,7 +50,7 @@ public class CustomTCPReader extends NMEAReader implements DataReader
       });
   }
 
-  public CustomTCPReader(ArrayList<NMEAListener> al, String host, int tcp)
+  public CustomTCPReader(List<NMEAListener> al, String host, int tcp)
   {
     super(al);
     hostName = host;

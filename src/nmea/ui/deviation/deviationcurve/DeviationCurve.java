@@ -6,6 +6,7 @@ import java.io.FileReader;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Set;
 
 import nmea.ui.deviation.deviationcurve.util.SquareMatrix;
@@ -42,7 +43,7 @@ public class DeviationCurve
   
   public static double[] calculateCurve(String fName) throws Exception
   {
-    ArrayList<double[]> al = new ArrayList<double[]>();
+    List<double[]> al = new ArrayList<double[]>();
     File devFile = new File(fName);
     if (!devFile.exists())
     {
@@ -72,7 +73,7 @@ public class DeviationCurve
   
   public static double[] calculateCurve(Hashtable<Double, Double> ht) throws Exception
   {
-    ArrayList<double[]> ald = new ArrayList<double[]>();
+    List<double[]> ald = new ArrayList<double[]>();
     for (Double d : ht.keySet())
     {
       double val = ht.get(d).doubleValue();
@@ -87,7 +88,7 @@ public class DeviationCurve
    * @return
    * @throws Exception
    */
-  public static double[] calculateCurve(ArrayList<double[]> ald) throws Exception
+  public static double[] calculateCurve(List<double[]> ald) throws Exception
   {
     SquareMatrix matrix = new SquareMatrix(5, true);
     double[] c = new double[] { 0d, 0d, 0d, 0d, 0d };

@@ -12,6 +12,8 @@ import ocss.nmea.api.NMEAReader;
 import ocss.nmea.api.NMEAEvent;
 import java.util.ArrayList;
 
+import java.util.List;
+
 import nmea.server.constants.Constants;
 
 import ocss.nmea.api.NMEAListener;
@@ -22,7 +24,7 @@ import ocss.nmea.api.NMEAListener;
 public class CustomFileReader extends NMEAReader implements DataReader
 {
   File dataFile = null;
-  public CustomFileReader(ArrayList<NMEAListener> al, File f)
+  public CustomFileReader(List<NMEAListener> al, File f)
   {
     super(al);
     dataFile = f;

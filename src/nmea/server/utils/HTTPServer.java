@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -329,9 +330,9 @@ public class HTTPServer
       Utils.playSound(this.getClass().getResource("saberup.wav")); } catch (Exception ex) { ex.printStackTrace(); }
   }
 
-  private ArrayList<String> getSentenceList()
+  private List<String> getSentenceList()
   {
-    ArrayList<String> al = new ArrayList<String>(data.length);
+    List<String> al = new ArrayList<String>(data.length);
     for (int i=0; i<data.length; i++)
       al.add((String)data[i][0]);
     return al;
@@ -932,7 +933,7 @@ public class HTTPServer
       {
         try
         {
-          ArrayList<Object> al = StringParsers.parseGGA(nmea);
+          List<Object> al = StringParsers.parseGGA(nmea);
           UTC utc = (UTC)al.get(0);
           GeoPos pos = (GeoPos)al.get(1);
           Integer nbs = (Integer)al.get(2);

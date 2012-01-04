@@ -25,6 +25,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import java.util.List;
+
 import javax.swing.JPanel;
 
 import javax.swing.ToolTipManager;
@@ -47,8 +49,8 @@ public class SpeedEvolutionDisplay
   private String toolTipText = null;
 
   private String name = "BSP";
-  private transient ArrayList<DatedData> aldd = null;
-  private transient ArrayList<DatedData> alnddd = null; // Not Damped
+  private transient List<DatedData> aldd = null;
+  private transient List<DatedData> alnddd = null; // Not Damped
   private transient DatedData mini = null, maxi = null; // Extrema
   
   private long maxDataLength = NMEAContext.DEFAULT_BUFFER_SIZE;
