@@ -247,14 +247,28 @@ public class DeadReckoningPlottingSheet
               Angle360 hdg    = (Angle360)cache.get(NMEADataCache.HDG_TRUE); 
               // From a file: reset?
 //            if (timeBuffer.size() > 1 && ((timeBuffer.get(timeBuffer.size() - 1).getValue().getTime() > utcDate.getValue().getTime())))
-              if (timeBuffer.size() > 1 && ((timeBuffer.get(timeBuffer.size() - 1).getValue().getTime() - utcDate.getValue().getTime()) > 1000 ))
+              if (timeBuffer != null &&
+                  timeBuffer.size() > 1 && 
+                  timeBuffer.get(timeBuffer.size() - 1) != null && 
+                  !timeBuffer.get(timeBuffer.size() - 1).isNull() && 
+                  utcDate != null && 
+                  !utcDate.isNull() && 
+                  utcDate.getValue() != null &&
+                  ((timeBuffer.get(timeBuffer.size() - 1).getValue().getTime() - utcDate.getValue().getTime()) > 1000 ))
               {
                 // Buffer Reset
                 System.out.println("== Reseting data buffers: last date in buffer=[" + SDF2.format(timeBuffer.get(timeBuffer.size() - 1).getValue()) + "] > current Date=[" + SDF2.format(utcDate.getValue()) + "]");
                 resetDataBuffers();
               }
               
-              if (!utcDate.isNull() && (timeBuffer.size() == 0 || (timeBuffer.size() > 0 && (timeBuffer.get(timeBuffer.size() - 1).getValue().getTime() < utcDate.getValue().getTime()))))
+              if (timeBuffer != null && 
+                  utcDate != null && 
+                  !utcDate.isNull() && 
+                  utcDate.getValue() != null &&
+                  (timeBuffer.size() == 0 || 
+                   (timeBuffer.size() > 0 && 
+                    timeBuffer.get(timeBuffer.size() - 1).getValue() != null && 
+                    (timeBuffer.get(timeBuffer.size() - 1).getValue().getTime() < utcDate.getValue().getTime()))))
               {
                 if (utcDate != null && cmg != null && position != null && bsp != null && hdg != null)
                 {
@@ -346,7 +360,7 @@ public class DeadReckoningPlottingSheet
               else if (DEBUG)
               {
             //  if (!utcDate.isNull() && (timeBuffer.size() == 0 || (timeBuffer.size() > 0 && (timeBuffer.get(timeBuffer.size() - 1).getValue().getTime() < utcDate.getValue().getTime()))))
-                System.out.println("utcDate is " + (utcDate.isNull()?"":"not ") + "null");    
+                System.out.println("utcDate is " + (utcDate == null || utcDate.isNull()?"":"not ") + "null");    
                 System.out.println("timeBuffer.size() = " + timeBuffer.size());
                 System.out.println("utcDate        :" + (utcDate.isNull()?"":new Date(utcDate.getValue().getTime()).toString()));
                 System.out.println("last timeBuffer:" + (timeBuffer.size() > 0?new Date(timeBuffer.get(timeBuffer.size() - 1).getValue().getTime()).toString():"none"));
