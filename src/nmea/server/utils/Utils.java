@@ -274,7 +274,15 @@ public class Utils
         HashMap<String, Object> rmcMap = new HashMap<String, Object>(5);
         rmcMap.put(NMEADataCache.SOG,         new Speed(rmc.getSog()));
         rmcMap.put(NMEADataCache.POSITION,    rmc.getGp());
-        rmcMap.put(NMEADataCache.GPS_DATE_TIME, new UTCDate(rmc.getRmcDate()));
+        Date date = rmc.getRmcDate();
+        if (date != null)
+          rmcMap.put(NMEADataCache.GPS_DATE_TIME, new UTCDate(date));
+        else
+          rmcMap.put(NMEADataCache.GPS_DATE_TIME, null);
+
+        Date time = rmc.getRmcTime();
+        if (time != null)
+          rmcMap.put(NMEADataCache.GPS_TIME, new UTCTime(time));
 //      System.out.println("RMC:" + SDF.format(rmc.getRmcDate()));
 
         rmcMap.put(NMEADataCache.COG,         new Angle360(rmc.getCog()));
@@ -283,9 +291,13 @@ public class Utils
         // Compute Solar Time here
         try
         {
-          if (rmc != null && rmc.getRmcDate() != null && rmc.getGp() != null)
+          if (rmc != null && (rmc.getRmcDate() != null || rmc.getRmcTime() != null) && rmc.getGp() != null)
           {
-            long solarTime = rmc.getRmcDate().getTime() + longitudeToTime(rmc.getGp().lng);        
+            long solarTime = -1L;
+            if (rmc.getRmcDate() != null)
+              solarTime = rmc.getRmcDate().getTime() + longitudeToTime(rmc.getGp().lng);        
+            else
+              solarTime = rmc.getRmcTime().getTime() + longitudeToTime(rmc.getGp().lng);
             Date solarDate = new Date(solarTime);
             rmcMap.put(NMEADataCache.GPS_SOLAR_TIME, new SolarDate(solarDate));
           }

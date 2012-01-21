@@ -80,7 +80,7 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
     }
     TOOLTIP_MAP.put(SOG,         "<html>Spped Over Ground<br>From the GPS</html>");
     TOOLTIP_MAP.put(POSITION,    "<html>Boat Position<br>From the GPS</html>");
-    TOOLTIP_MAP.put(GPS_TIME,    "<html>GPS Time<br>From the GPS (GLL)</html>");
+    TOOLTIP_MAP.put(GPS_TIME,    "<html>GPS Time<br>From the GPS (GLL, RMC)</html>");
     TOOLTIP_MAP.put(GPS_DATE_TIME, "<html>GPS Time<br>From the GPS (RMC)</html>");
     TOOLTIP_MAP.put(GPS_SOLAR_TIME, "<html>Solar Time<br>From the GPS Time and Position</html>");
     TOOLTIP_MAP.put(COG,         "<html>Course Over Ground<br>From the GPS</html>");
