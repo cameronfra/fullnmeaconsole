@@ -183,7 +183,7 @@ public class CalculatedDataTablePane
             Object k = data[i][0];
 //          System.out.println("Key [" + k + "]");
             Object o = cache.get(k);
-            if (o != null)
+//          if (o != null)
             {
               data[i][1] = o;
             }
@@ -259,6 +259,8 @@ public class CalculatedDataTablePane
     {
       if (value != null)
         this.setText(value.toString());
+      else
+        this.setText("");
       
       this.setForeground(Color.black);
       if (row < 6)

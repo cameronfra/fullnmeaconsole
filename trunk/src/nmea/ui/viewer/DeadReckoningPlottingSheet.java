@@ -398,46 +398,50 @@ public class DeadReckoningPlottingSheet
     Point ppt = null;
 //  System.out.println("GroundData.length = " + groundData.length);
     // 1 - Build an array of panel points
-    List<Point> gData = new ArrayList<Point>(groundData.length);
-    for (int i=0; groundData != null && i<groundData.length; i++)
+    List<Point> gData = null;
+    if (groundData != null)
     {
-      Point pt = null;
-      try { pt = plottingSheet.getPanelPoint(groundData[i]); } catch (Exception nep) { System.err.println("Pt:" + nep.toString()); } 
-      if (pt != null && i == 0) // First
+      gData = new ArrayList<Point>(groundData.length);
+      for (int i=0; groundData != null && i<groundData.length; i++)
       {
-        String[] sa =  groundData[i].toString().split("/");
-        String one = sa[0].trim();
-        String two = sa[1].trim();
-        int len = Math.max(one.length(), two.length());
-        one = Utils.lpad(one, " ", len);
-        two = Utils.lpad(two, " ", len);
-        Font f = gr.getFont();
-        gr.setFont(new Font("courier new", Font.PLAIN, 11));
-        plottingSheet.postit(gr, one + "\n" + two, pt.x, pt.y, Color.yellow, Color.blue, 0.55f); // Postit. First point position
-        gr.setFont(f);
+        Point pt = null;
+        try { pt = plottingSheet.getPanelPoint(groundData[i]); } catch (Exception nep) { System.err.println("Pt:" + nep.toString()); } 
+        if (pt != null && i == 0) // First
+        {
+          String[] sa =  groundData[i].toString().split("/");
+          String one = sa[0].trim();
+          String two = sa[1].trim();
+          int len = Math.max(one.length(), two.length());
+          one = Utils.lpad(one, " ", len);
+          two = Utils.lpad(two, " ", len);
+          Font f = gr.getFont();
+          gr.setFont(new Font("courier new", Font.PLAIN, 11));
+          plottingSheet.postit(gr, one + "\n" + two, pt.x, pt.y, Color.yellow, Color.blue, 0.55f); // Postit. First point position
+          gr.setFont(f);
+        }
+  
+        if (pt != null && i == (groundData.length - 1)) // Last
+        {
+          String[] sa =  groundData[i].toString().split("/");
+          String one = sa[0].trim();
+          String two = sa[1].trim();
+          int len = Math.max(one.length(), two.length());
+          one = Utils.lpad(one, " ", len);
+          two = Utils.lpad(two, " ", len);
+          Font f = gr.getFont();
+          gr.setFont(new Font("courier new", Font.PLAIN, 11));
+          plottingSheet.postit(gr, one + "\n" + two, pt.x, pt.y, Color.yellow, Color.blue, 0.55f); // Postit. Last point position
+          gr.setFont(f);
+        }
+        gData.add(pt);
       }
-
-      if (pt != null && i == (groundData.length - 1)) // Last
-      {
-        String[] sa =  groundData[i].toString().split("/");
-        String one = sa[0].trim();
-        String two = sa[1].trim();
-        int len = Math.max(one.length(), two.length());
-        one = Utils.lpad(one, " ", len);
-        two = Utils.lpad(two, " ", len);
-        Font f = gr.getFont();
-        gr.setFont(new Font("courier new", Font.PLAIN, 11));
-        plottingSheet.postit(gr, one + "\n" + two, pt.x, pt.y, Color.yellow, Color.blue, 0.55f); // Postit. Last point position
-        gr.setFont(f);
-      }
-      gData.add(pt);
     }
     
     boolean smooth = smoothCheckBox.isSelected();
-    if (smooth)
+    if (smooth && gData != null)
     {
       // Draw Original data, thin line
-      if (true)
+      if (gData != null)
       {
         ((Graphics2D) gr).setStroke(STROKE_1);
         Color c = gr.getColor();
@@ -466,14 +470,17 @@ public class DeadReckoningPlottingSheet
     
     ppt = null;
     ((Graphics2D) gr).setStroke(STROKE_3);
-    for (Point pt : gData)
+    if (gData != null)
     {
-      if (ppt != null && pt != null)
-      {        
-        gr.drawLine(ppt.x, ppt.y, pt.x, pt.y);
-        ppt = pt;
+      for (Point pt : gData)
+      {
+        if (ppt != null && pt != null)
+        {        
+          gr.drawLine(ppt.x, ppt.y, pt.x, pt.y);
+          ppt = pt;
+        }
+        ppt = pt;      
       }
-      ppt = pt;      
     }
     // Thru water
     gr.setColor(Color.RED);
