@@ -262,59 +262,61 @@ public class CalculatedDataTablePane
       else
         this.setText("");
       
-      this.setForeground(Color.black);
-      if (row < 6)
-        this.setBackground(Color.pink);
-      else if (row < 13)
-        this.setBackground(Color.cyan);
-      else if (row < 15)
-        this.setBackground(Color.red);
-      else if (row < 19)
-        this.setBackground(Color.orange);
-      else if (row < 24)
-        this.setBackground(Color.green);
-      else if (row < 26)
-        this.setBackground(Color.lightGray);
-      else if (row < 34)
-        this.setBackground(Color.lightGray);
-      else
+      if (!isSelected || true)
       {
-        this.setBackground(Color.gray);
-        this.setForeground(Color.white);
+        this.setForeground(Color.black);
+        if (row < 6)
+          this.setBackground(Color.pink);
+        else if (row < 13)
+          this.setBackground(Color.cyan);
+        else if (row < 15)
+          this.setBackground(Color.red);
+        else if (row < 19)
+          this.setBackground(Color.orange);
+        else if (row < 24)
+          this.setBackground(Color.green);
+        else if (row < 26)
+          this.setBackground(Color.lightGray);
+        else if (row < 34)
+          this.setBackground(Color.lightGray);
+        else
+        {
+          this.setBackground(Color.gray);
+          this.setForeground(Color.white);
+        }
+        if (column == 1)
+        {
+          this.setFont(this.getFont().deriveFont(Font.BOLD, this.getFont().getSize()));
+        }
+        if (defaultTable[row][0] == NMEADataCache.COG || // GPS Data
+            defaultTable[row][0] == NMEADataCache.SOG ||
+            defaultTable[row][0] == NMEADataCache.POSITION ||
+            defaultTable[row][0] == NMEADataCache.GPS_TIME ||
+            defaultTable[row][0] == NMEADataCache.GPS_DATE_TIME ||
+            defaultTable[row][0] == NMEADataCache.GPS_SOLAR_TIME ||
+            defaultTable[row][0] == NMEADataCache.FROM_WP ||
+            defaultTable[row][0] == NMEADataCache.D2WP ||
+            defaultTable[row][0] == NMEADataCache.XTE ||
+            defaultTable[row][0] == NMEADataCache.TO_WP ||
+            defaultTable[row][0] == NMEADataCache.WP_POS ||
+            defaultTable[row][0] == NMEADataCache.B2WP ||
+            defaultTable[row][0] == NMEADataCache.S2WP ||
+            defaultTable[row][0] == NMEADataCache.S2STEER)
+          this.setForeground(Color.blue);
+        else if (defaultTable[row][0] == NMEADataCache.HDG_COMPASS ||  // NMEA
+                 defaultTable[row][0] == NMEADataCache.DECLINATION ||
+                 defaultTable[row][0] == NMEADataCache.BSP ||
+                 defaultTable[row][0] == NMEADataCache.LOG ||
+                 defaultTable[row][0] == NMEADataCache.DAILY_LOG ||
+                 defaultTable[row][0] == NMEADataCache.WATER_TEMP ||
+                 defaultTable[row][0] == NMEADataCache.DBT ||
+                 defaultTable[row][0] == NMEADataCache.AWA ||
+                 defaultTable[row][0] == NMEADataCache.AWS)
+          this.setForeground(Color.red);
+        else if (defaultTable[row][0] == NMEADataCache.DEVIATION ||
+                 defaultTable[row][0] == NMEADataCache.MAX_LEEWAY)
+          this.setForeground(new Color(0, 113, 0)); // Dark green
       }
-      if (column == 1)
-      {
-        this.setFont(this.getFont().deriveFont(Font.BOLD, this.getFont().getSize()));
-      }
-      if (defaultTable[row][0] == NMEADataCache.COG || // GPS Data
-          defaultTable[row][0] == NMEADataCache.SOG ||
-          defaultTable[row][0] == NMEADataCache.POSITION ||
-          defaultTable[row][0] == NMEADataCache.GPS_TIME ||
-          defaultTable[row][0] == NMEADataCache.GPS_DATE_TIME ||
-          defaultTable[row][0] == NMEADataCache.GPS_SOLAR_TIME ||
-          defaultTable[row][0] == NMEADataCache.FROM_WP ||
-          defaultTable[row][0] == NMEADataCache.D2WP ||
-          defaultTable[row][0] == NMEADataCache.XTE ||
-          defaultTable[row][0] == NMEADataCache.TO_WP ||
-          defaultTable[row][0] == NMEADataCache.WP_POS ||
-          defaultTable[row][0] == NMEADataCache.B2WP ||
-          defaultTable[row][0] == NMEADataCache.S2WP ||
-          defaultTable[row][0] == NMEADataCache.S2STEER)
-        this.setForeground(Color.blue);
-      else if (defaultTable[row][0] == NMEADataCache.HDG_COMPASS ||  // NMEA
-               defaultTable[row][0] == NMEADataCache.DECLINATION ||
-               defaultTable[row][0] == NMEADataCache.BSP ||
-               defaultTable[row][0] == NMEADataCache.LOG ||
-               defaultTable[row][0] == NMEADataCache.DAILY_LOG ||
-               defaultTable[row][0] == NMEADataCache.WATER_TEMP ||
-               defaultTable[row][0] == NMEADataCache.DBT ||
-               defaultTable[row][0] == NMEADataCache.AWA ||
-               defaultTable[row][0] == NMEADataCache.AWS)
-        this.setForeground(Color.red);
-      else if (defaultTable[row][0] == NMEADataCache.DEVIATION ||
-               defaultTable[row][0] == NMEADataCache.MAX_LEEWAY)
-        this.setForeground(new Color(0, 113, 0)); // Dark green
-      
       this.setToolTipText(NMEADataCache.TOOLTIP_MAP.get(defaultTable[row][0]));
       
       if (defaultTable[row][0] == NMEADataCache.BSP && value instanceof Speed)

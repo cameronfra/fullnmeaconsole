@@ -339,10 +339,13 @@ public class Utils
         return;
       double bsp = vhw[StringParsers.BSP_in_VHW];
       double hdm = vhw[StringParsers.HDM_in_VHW];
-      if (ndc == null)
-        NMEAContext.getInstance().putDataCache(NMEADataCache.BSP, new Speed(bsp));
-      else
-        ndc.put(NMEADataCache.BSP, new Speed(bsp));
+      if (bsp != -Double.MAX_VALUE)
+      {
+        if (ndc == null)
+          NMEAContext.getInstance().putDataCache(NMEADataCache.BSP, new Speed(bsp));
+        else
+          ndc.put(NMEADataCache.BSP, new Speed(bsp));
+      }
       // QUESTION for NMEA, HDG is TRUE when there is a Dec in HDG, or RMC
       double dec = ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DECLINATION)).getValue();
       if (dec == -Double.MAX_VALUE)
