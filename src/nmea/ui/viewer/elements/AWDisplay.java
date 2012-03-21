@@ -42,10 +42,13 @@ public class AWDisplay
 
   private String toolTipText = null;
 
-  private String origName = "Wind", 
+  private String origName  = "Wind", 
                  origValue = "00.00";
   
   private double awa = 0d;
+  
+  private int graphicXOffset = 0;
+  private int graphicYOffset = 0;
 
   public AWDisplay(String name, String value)
   {
@@ -129,6 +132,12 @@ public class AWDisplay
     dataValueLabel.setFont(digiFont.deriveFont(Font.BOLD, big));    
   }
 
+  public void setGraphicOffsets(int x, int y)
+  {
+    this.graphicXOffset = x;  
+    this.graphicYOffset = y;
+  }
+  
   private static Font loadDigiFont()
   {
     Font f = null;
@@ -213,12 +222,12 @@ public class AWDisplay
     //  GradientPaint gradient = new GradientPaint(0, 0, startColor, 0, this.getHeight(), endColor); // vertical
     GradientPaint gradient = new GradientPaint(0, this.getHeight(), startColor, 0, 0, endColor); // vertical, upside down
     ((Graphics2D) g).setPaint(gradient);
-    g.fillRect(0, 0, this.getWidth(), this.getHeight());
+    g.fillRect(0 + graphicXOffset, 0 + graphicYOffset, this.getWidth(), this.getHeight());
 
     Dimension dim =  this.getSize();
     double radius = (Math.min(dim.width, dim.height) - 10d) / 2d;
     
-    // Boat
+    // Boat ?
     
     // Starboard - Port
     float alpha = 0.3f;
@@ -229,8 +238,8 @@ public class AWDisplay
                                      BasicStroke.JOIN_BEVEL);
     ((Graphics2D)g).setStroke(stroke);  
     g.setColor(Color.green);
-    Shape starBoardSide = new Arc2D.Float((float)((dim.width / 2) - radius),
-                                          (float)((dim.height / 2) - radius),
+    Shape starBoardSide = new Arc2D.Float((float)((dim.width / 2) - radius + graphicXOffset),
+                                          (float)((dim.height / 2) - radius + graphicYOffset),
                                           (float)(2 * radius), 
                                           (float)(2 * radius), 
                                           -10f, 
@@ -238,8 +247,8 @@ public class AWDisplay
                                           Arc2D.OPEN);
     ((Graphics2D) g).draw(starBoardSide);
     g.setColor(Color.red);
-    Shape portSide      = new Arc2D.Float((float)((dim.width / 2) - radius),
-                                          (float)((dim.height / 2) - radius),
+    Shape portSide      = new Arc2D.Float((float)((dim.width / 2) - radius + graphicXOffset),
+                                          (float)((dim.height / 2) - radius + graphicYOffset),
                                           (float)(2 * radius), 
                                           (float)(2 * radius), 
                                           90f, 
@@ -257,19 +266,30 @@ public class AWDisplay
       int y1 = (dim.height / 2) + (int)((radius - 10) * Math.sin(Math.toRadians(i)));  
       int x2 = (dim.width / 2) + (int)((radius) * Math.cos(Math.toRadians(i)));  
       int y2 = (dim.height / 2) + (int)((radius) * Math.sin(Math.toRadians(i)));  
-      g.drawLine(x1, y1, x2, y2);
+      g.drawLine(x1 + graphicXOffset, y1 + graphicYOffset, x2 + graphicXOffset, y2 + graphicYOffset);
     }
     // Wind vane
     g.setColor(Color.white);
     stroke =  new BasicStroke(4, 
-                              BasicStroke.CAP_BUTT,
+                              BasicStroke.CAP_ROUND,
                               BasicStroke.JOIN_BEVEL);
     ((Graphics2D)g).setStroke(stroke);  
-    int x = (dim.width / 2) + (int)((radius) * Math.cos(Math.toRadians(awa - 90)));  
-    int y = (dim.height / 2) + (int)((radius) * Math.sin(Math.toRadians(awa - 90)));  
-    g.drawLine((dim.width / 2),
-               (dim.height / 2),
-               x, y);
+    int x = (dim.width / 2) + (int)((radius - 5) * Math.cos(Math.toRadians(awa - 90)));  
+    int y = (dim.height / 2) + (int)((radius - 5) * Math.sin(Math.toRadians(awa - 90)));  
+    g.drawLine((dim.width / 2) + graphicXOffset,
+               (dim.height / 2) + graphicYOffset,
+               x + graphicXOffset, 
+               y + graphicYOffset);
     ((Graphics2D)g).setStroke(origStroke);  
+    // Dot in the middle
+    startColor = Color.white;
+    endColor = Color.lightGray;
+    gradient = new GradientPaint(0, 0, startColor, this.getWidth(), this.getHeight(), endColor); // Diagonal, top-left to bottom-right
+    //  GradientPaint gradient = new GradientPaint(0, this.getHeight(), startColor, this.getWidth(), 0, endColor); // Horizontal
+    //  GradientPaint gradient = new GradientPaint(0, 0, startColor, 0, this.getHeight(), endColor); // vertical
+    // GradientPaint gradient = new GradientPaint(0, this.getHeight(), startColor, 0, 0, endColor); // vertical, upside down
+    ((Graphics2D) g).setPaint(gradient);
+    int diameter = 11;
+    g.fillOval((dim.width / 2) - (diameter / 2) + graphicXOffset, (dim.height / 2) - (diameter / 2) + graphicYOffset, diameter, diameter);     
   }
 }

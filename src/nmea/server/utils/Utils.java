@@ -260,7 +260,7 @@ public class Utils
   {
     if (!StringParsers.validCheckSum(value))
     {
-      System.out.println("Ejecting [" + value + "]");
+      System.out.println("Rejecting [" + value + "]");
       return;
     }
     String sentenceId = key.substring(2);
@@ -604,10 +604,14 @@ public class Utils
     try { aws = ((Speed)cache.get(NMEADataCache.AWS)).getValue() * ((Double)cache.get(NMEADataCache.AWS_FACTOR)).doubleValue(); } catch (Exception ex) {}
     try { awa = (int)(((Angle180)cache.get(NMEADataCache.AWA)).getValue() + ((Double)cache.get(NMEADataCache.AWA_OFFSET)).doubleValue()); } catch (Exception ex) {}
         
-    double awsCoeff  = ((Double)cache.get(NMEADataCache.AWS_FACTOR)).doubleValue();
-    double awaOffset = ((Double)cache.get(NMEADataCache.AWA_OFFSET)).doubleValue();
-    double bspCoeff  = ((Double)cache.get(NMEADataCache.BSP_FACTOR)).doubleValue();
-    double hdgOffset = ((Double)cache.get(NMEADataCache.HDG_OFFSET)).doubleValue();
+    double awsCoeff  = 1d;
+    try { awsCoeff = ((Double)cache.get(NMEADataCache.AWS_FACTOR)).doubleValue(); } catch (Exception ex) {}
+    double awaOffset = 0d;
+    try { awaOffset = ((Double)cache.get(NMEADataCache.AWA_OFFSET)).doubleValue(); } catch (Exception ex) {}
+    double bspCoeff  = 0d;
+    try { bspCoeff  = ((Double)cache.get(NMEADataCache.BSP_FACTOR)).doubleValue(); } catch (Exception ex) {}
+    double hdgOffset = 0d;
+    try { hdgOffset = ((Double)cache.get(NMEADataCache.HDG_OFFSET)).doubleValue(); } catch (Exception ex) {}
     
     if ("true".equals(System.getProperty("use.gps.method", "true")))
     {
