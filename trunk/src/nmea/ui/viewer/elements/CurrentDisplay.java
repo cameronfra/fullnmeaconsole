@@ -1,5 +1,7 @@
 package nmea.ui.viewer.elements;
 
+import java.awt.AlphaComposite;
+
 import nmea.server.utils.Utils;
 
 import java.awt.BasicStroke;
@@ -14,6 +16,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
+import java.awt.RadialGradientPaint;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 
@@ -93,7 +96,7 @@ public class CurrentDisplay
       digiFont = digiFont.deriveFont(Font.BOLD, 20);
     digiFont = loadDigiFont();
     this.setLayout(gridBagLayout1);
-    this.setBackground(Color.lightGray);
+//  this.setBackground(Color.lightGray);
     
     resize(jumboFontSize);
     
@@ -206,20 +209,36 @@ public class CurrentDisplay
     //  System.out.println("Dim:" + dim.getWidth() + "x" + dim.getHeight());
     Color startColor = new Color(0x94, 0x9c, 0x84); // new Color(0, 128, 128); // Color.black; // new Color(255, 255, 255);
     Color endColor = new Color(0, 64, 64); // Color.gray; // new Color(102, 102, 102);
-    //  GradientPaint gradient = new GradientPaint(0, 0, startColor, this.getWidth(), this.getHeight(), endColor); // Diagonal, top-left to bottom-right
-    //  GradientPaint gradient = new GradientPaint(0, this.getHeight(), startColor, this.getWidth(), 0, endColor); // Horizontal
-    //  GradientPaint gradient = new GradientPaint(0, 0, startColor, 0, this.getHeight(), endColor); // vertical
     GradientPaint gradient = new GradientPaint(0, this.getHeight(), startColor, 0, 0, endColor); // vertical, upside down
-    ((Graphics2D) g).setPaint(gradient);
-    g.fillRect(0, 0, this.getWidth(), this.getHeight());
 
-    Dimension dim = this.getSize();
+    if (false)
+    {
+      //  GradientPaint gradient = new GradientPaint(0, 0, startColor, this.getWidth(), this.getHeight(), endColor); // Diagonal, top-left to bottom-right
+      //  GradientPaint gradient = new GradientPaint(0, this.getHeight(), startColor, this.getWidth(), 0, endColor); // Horizontal
+      //  GradientPaint gradient = new GradientPaint(0, 0, startColor, 0, this.getHeight(), endColor); // vertical
+      ((Graphics2D) g).setPaint(gradient);
+      g.fillRect(0, 0, this.getWidth(), this.getHeight());
+    }
+    Dimension dim =  this.getSize();
     double radius = (Math.min(dim.width, dim.height) - 10d) / 2d;
-
+    if (true)
+    {
+      Point center = new Point((dim.width / 2), (dim.height / 2));
+      if (true) // With shaded bevel
+      {
+        RadialGradientPaint rgp = new RadialGradientPaint(center, 
+                                                          (int)(radius * 1.15), 
+                                                          new float[] {0f, 0.9f, 1f}, 
+                                                          new Color[] {this.getBackground(), Color.gray, this.getBackground()});
+        ((Graphics2D)g).setPaint(rgp);
+        ((Graphics2D)g).fillRect(0, 0, dim.width, dim.height);
+      }
+      drawGlossyCircularDisplay((Graphics2D)g, center, (int)radius, Color.lightGray, Color.black, 1f);
+    }
     // Boat
 
     // Rose
-    g.setColor(Color.darkGray);
+    g.setColor(Color.lightGray);
     for (int i = 0; i < 360; i += 10)
     {
       int x1 = (dim.width / 2) + (int) ((radius - 10) * Math.cos(Math.toRadians(i)));
@@ -245,5 +264,28 @@ public class CurrentDisplay
 //  g.drawLine((dim.width / 2), (dim.height / 2), x, y);
     Utils.drawArrow((Graphics2D)g, new Point((dim.width / 2), (dim.height / 2)), new Point(x, y), Color.white);    
     ((Graphics2D) g).setStroke(origStroke);
+  }
+
+  private static void drawGlossyCircularDisplay(Graphics2D g2d, Point center, int radius, Color lightColor, Color darkColor, float transparency)
+  {
+    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, transparency));
+    g2d.setPaint(null);
+
+    g2d.setColor(darkColor);
+    g2d.fillOval(center.x - radius, center.y - radius, 2 * radius, 2 * radius);
+
+    Point gradientOrigin = new Point(center.x - radius,
+                                     center.y - radius);
+    GradientPaint gradient = new GradientPaint(gradientOrigin.x, 
+                                               gradientOrigin.y, 
+                                               lightColor, 
+                                               gradientOrigin.x, 
+                                               gradientOrigin.y + (2 * radius / 3), 
+                                               darkColor); // vertical, light on top
+    g2d.setPaint(gradient);
+    g2d.fillOval((int)(center.x - (radius * 0.90)), 
+                 (int)(center.y - (radius * 0.95)), 
+                 (int)(2 * radius * 0.9), 
+                 (int)(2 * radius * 0.95));
   }
 }

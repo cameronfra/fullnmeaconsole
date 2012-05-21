@@ -1,10 +1,11 @@
 package nmea.event;
 
 import java.util.ArrayList;
+import java.util.EventListener;
 import java.util.Hashtable;
 import java.util.List;
 
-public abstract class NMEAListener
+public abstract class NMEAListener implements EventListener
 {
   private String groupID = "";
   

@@ -146,12 +146,22 @@ public class DrawingBoard
     GradientPaint gradient = new GradientPaint(0, 0, 
                                                Color.white, 
                                                this.getWidth(), this.getHeight(), 
-                                               Color.lightGray);
-    ((Graphics2D)gr).setPaint(gradient);
-
-//  gr.setColor(Color.white);  // Aha!
-    
-    gr.fillRect(0, 0, this.getWidth(), this.getHeight());
+                                               new Color(225, 225, 225) /*Color.lightGray*/);
+    if (false)
+    {
+      ((Graphics2D)gr).setPaint(gradient);
+  //  gr.setColor(Color.white);  // Aha!   
+      gr.fillRect(0, 0, this.getWidth(), this.getHeight());
+    }
+    if (true)
+    {
+      drawGlossyRectangularDisplay((Graphics2D) gr, 
+                                   new Point(0, 0),
+                                   new Point(this.getWidth(), this.getHeight()), 
+                                   Color.white, 
+                                   new Color(225, 225, 225), // Color.lightGray, 
+                                   1f);      
+    }
 
     double bspLengthAt10 = 1d * this.getWidth() / speedScale; // 3d;
     
@@ -365,7 +375,7 @@ public class DrawingBoard
     drawDataTable(dataTable, gr);
     
     // Leeway indicator
-    if (Math.abs(leeway) > 0) // Indicator not show if no leeway
+    if (Math.abs(leeway) > 0) // Indicator not shown if no leeway
     {
       int leewayFrameHeight = 100;  
       int leewayFrameWidth  =  50;  
@@ -374,12 +384,26 @@ public class DrawingBoard
       gr.setColor(Color.blue);
       gr.drawRect(10, dim.height - leewayFrameHeight - 10, leewayFrameWidth, leewayFrameHeight);
       // Fill it
-      Color startColor = Color.black;     // new Color(255, 255, 255);
-      Color endColor   = Color.lightGray; // new Color(102, 102, 102);
       Paint paint = ((Graphics2D)gr).getPaint();
-      GradientPaint grad = new GradientPaint(0, this.getHeight(), startColor, 0, 0, endColor); // vertical, upside down
-      ((Graphics2D)gr).setPaint(grad);
-      gr.fillRect(10, dim.height - leewayFrameHeight - 10, leewayFrameWidth, leewayFrameHeight);      
+      if (false)
+      {
+        Color startColor = Color.black;     // new Color(255, 255, 255);
+        Color endColor   = Color.lightGray; // new Color(102, 102, 102);
+        GradientPaint grad = new GradientPaint(0, this.getHeight(), startColor, 0, 0, endColor); // vertical, upside down
+        ((Graphics2D)gr).setPaint(grad);
+        gr.fillRect(10, dim.height - leewayFrameHeight - 10, leewayFrameWidth, leewayFrameHeight);
+      }
+      if (true)
+      {
+        Point topLeft     = new Point(10, dim.height - leewayFrameHeight - 10);
+        Point bottomRight = new Point(topLeft.x + leewayFrameWidth, topLeft.y + leewayFrameHeight);
+        drawGlossyRectangularDisplay((Graphics2D)gr, 
+                                     topLeft, 
+                                     bottomRight, 
+                                     Color.lightGray, 
+                                     Color.black, 
+                                     1f); 
+      }
       ((Graphics2D)gr).setPaint(paint); // reset
       // Value
       ((Graphics2D)gr).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.70f));
@@ -627,5 +651,31 @@ public class DrawingBoard
   public void setShowTemperature(boolean showTemperature)
   {
     this.showTemperature = showTemperature;
+  }
+
+  private static void drawGlossyRectangularDisplay(Graphics2D g2d, Point topLeft, Point bottomRight, Color lightColor, Color darkColor, float transparency)
+  {
+    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, transparency));
+    g2d.setPaint(null);
+
+    g2d.setColor(darkColor);
+
+    int width  = bottomRight.x - topLeft.x;
+    int height = bottomRight.y - topLeft.y;
+
+    g2d.fillRoundRect(topLeft.x , topLeft.y, width, height, 10, 10);
+
+    Point gradientOrigin = new Point(topLeft.x + (width) / 2,
+                                     topLeft.y);
+    GradientPaint gradient = new GradientPaint(gradientOrigin.x, 
+                                               gradientOrigin.y, 
+                                               lightColor, 
+                                               gradientOrigin.x, 
+                                               gradientOrigin.y + (height / 3), 
+                                               darkColor); // vertical, light on top
+    g2d.setPaint(gradient);
+    int offset = 3;
+    int arcRadius = 5;
+    g2d.fillRoundRect(topLeft.x + offset, topLeft.y + offset, (width - (2 * offset)), (height - (2 * offset)), 2 * arcRadius, 2 * arcRadius); 
   }
 }

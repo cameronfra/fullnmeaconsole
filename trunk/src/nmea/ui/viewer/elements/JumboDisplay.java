@@ -1,5 +1,6 @@
 package nmea.ui.viewer.elements;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -14,6 +15,7 @@ import java.awt.GridBagLayout;
 
 import java.awt.Insets;
 
+import java.awt.Point;
 import java.awt.RenderingHints;
 
 import java.io.IOException;
@@ -183,13 +185,50 @@ public class JumboDisplay
     
 //    Dimension dim =  this.getSize();
 //    System.out.println("Dim:" + dim.getWidth() + "x" + dim.getHeight());
-    Color startColor = Color.black; // new Color(255, 255, 255);
-    Color endColor   = Color.gray; // new Color(102, 102, 102);
-//  GradientPaint gradient = new GradientPaint(0, 0, startColor, this.getWidth(), this.getHeight(), endColor); // Diagonal, top-left to bottom-right
-//  GradientPaint gradient = new GradientPaint(0, this.getHeight(), startColor, this.getWidth(), 0, endColor); // Horizontal
-//  GradientPaint gradient = new GradientPaint(0, 0, startColor, 0, this.getHeight(), endColor); // vertical
-    GradientPaint gradient = new GradientPaint(0, this.getHeight(), startColor, 0, 0, endColor); // vertical, upside down
-    ((Graphics2D)g).setPaint(gradient);
-    g.fillRect(0, 0, this.getWidth(), this.getHeight());
+    if (false)
+    {
+      Color startColor = Color.black; // new Color(255, 255, 255);
+      Color endColor   = Color.gray; // new Color(102, 102, 102);
+  //  GradientPaint gradient = new GradientPaint(0, 0, startColor, this.getWidth(), this.getHeight(), endColor); // Diagonal, top-left to bottom-right
+  //  GradientPaint gradient = new GradientPaint(0, this.getHeight(), startColor, this.getWidth(), 0, endColor); // Horizontal
+  //  GradientPaint gradient = new GradientPaint(0, 0, startColor, 0, this.getHeight(), endColor); // vertical
+      
+      GradientPaint gradient = new GradientPaint(0, this.getHeight(), startColor, 0, 0, endColor); // vertical, upside down
+      ((Graphics2D)g).setPaint(gradient);
+      g.fillRect(0, 0, this.getWidth(), this.getHeight());
+    }
+    if (true)
+      drawGlossyRectangularDisplay((Graphics2D)g, 
+                                   new Point(0, 0), 
+                                   new Point(this.getWidth(), this.getHeight()), 
+                                   Color.gray, 
+                                   Color.black, 
+                                   1f);
+  }
+
+  private static void drawGlossyRectangularDisplay(Graphics2D g2d, Point topLeft, Point bottomRight, Color lightColor, Color darkColor, float transparency)
+  {
+    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, transparency));
+    g2d.setPaint(null);
+
+    g2d.setColor(darkColor);
+
+    int width  = bottomRight.x - topLeft.x;
+    int height = bottomRight.y - topLeft.y;
+
+    g2d.fillRoundRect(topLeft.x , topLeft.y, width, height, 10, 10);
+
+    Point gradientOrigin = new Point(0, //topLeft.x + (width) / 2,
+                                     0);
+    GradientPaint gradient = new GradientPaint(gradientOrigin.x, 
+                                               gradientOrigin.y, 
+                                               lightColor, 
+                                               gradientOrigin.x, 
+                                               gradientOrigin.y + (height / 3), 
+                                               darkColor); // vertical, light on top
+    g2d.setPaint(gradient);
+    int offset = (int)(width * 0.025);
+    int arcRadius = 5;
+    g2d.fillRoundRect(topLeft.x + offset, topLeft.y + offset, (width - (2 * offset)), (height - (2 * offset)), 2 * arcRadius, 2 * arcRadius); 
   }
 }
