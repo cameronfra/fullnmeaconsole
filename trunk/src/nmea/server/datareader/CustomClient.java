@@ -13,7 +13,9 @@ import nmea.server.datareader.specific.CustomTCPReader;
 import ocss.nmea.api.NMEAClient;
 import ocss.nmea.api.NMEAEvent;
 /**
- * Used by the MinimalREader
+ * Used by the MinimalReader
+ * @deprecated
+ * @see CustomNMEAClient
  */
 public class CustomClient extends NMEAClient
 {
