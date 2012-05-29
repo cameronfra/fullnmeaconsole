@@ -1501,7 +1501,7 @@ public class Utils
   
   public static void playSound(URL sound) throws Exception
   {
-    boolean play = System.getProperty("play.sounds", "true").equals("true");
+    boolean play = System.getProperty("play.sounds", "false").equals("true");
     if (play)
     {
       AudioInputStream  audioInputStream = null;

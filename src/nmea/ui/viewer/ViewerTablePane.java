@@ -33,6 +33,7 @@ import java.util.Hashtable;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -102,7 +103,8 @@ public class ViewerTablePane
   private JComboBox predefList = new JComboBox();
   private JButton applyButton = new JButton(LogisailResourceBundle.buildMessage("apply"));
   private JButton revertButton = new JButton(LogisailResourceBundle.buildMessage("reset"));
-  private JButton saveButton = new JButton(LogisailResourceBundle.buildMessage("save-logging"));
+  private JCheckBox logCheckBox = new JCheckBox("Log checked sentences");
+  private JCheckBox addDateCheckBox = new JCheckBox("Time in Log");
   private BorderLayout borderLayout2 = new BorderLayout();
   private JScrollPane centerScrollPane = null;
   private JPanel topPanel = new JPanel();
@@ -243,11 +245,11 @@ public class ViewerTablePane
           setSelectedSentences();
         }
       });
-    saveButton.addActionListener(new ActionListener()
+    logCheckBox.addActionListener(new ActionListener()
       {
         public void actionPerformed(ActionEvent e)
         {
-          saveButton_actionPerformed(e);
+          logCheckBox_actionPerformed(e);
         }
       });
     jSeparator1.setOrientation(SwingConstants.VERTICAL);
@@ -265,7 +267,8 @@ public class ViewerTablePane
     bottomPanel.add(applyButton, null);
     bottomPanel.add(revertButton, null);
     bottomPanel.add(jSeparator1, null);
-    bottomPanel.add(saveButton, null);
+    bottomPanel.add(logCheckBox, null);
+    bottomPanel.add(addDateCheckBox, null);
 
     initTable();
   }
@@ -576,22 +579,26 @@ public class ViewerTablePane
     }
   }
 
-  private void saveButton_actionPerformed(ActionEvent e)
+  private void logCheckBox_actionPerformed(ActionEvent e)
   {
-    System.out.println("Save...");
-    // Write file, tell the NMEAFrame
-    List<String> toLog = new ArrayList<String>();
-    for (int i=0; i<data.length; i++)
+    boolean log = logCheckBox.isSelected();
+    if (log)
     {
-      if (((Boolean) data[i][SELECTED_POS]).booleanValue())
-        toLog.add((String)data[i][SENTENCE_ID_POS]);
+      List<String> toLog = new ArrayList<String>();
+      for (int i=0; i<data.length; i++)
+      {
+        if (((Boolean) data[i][SELECTED_POS]).booleanValue())
+          toLog.add((String)data[i][SENTENCE_ID_POS]);
+      }
+      String[] sa = new String[toLog.size()];
+      sa = toLog.toArray(sa);
+      parent.setSentencesToLog(sa);
+      parent.writeSentencesToLog(sa);      
     }
-    String[] sa = new String[toLog.size()];
-    sa = toLog.toArray(sa);
-    parent.setSentencesToLog(sa);
-    parent.writeSentencesToLog(sa);
+    NMEAContext.getInstance().fireLogChanged(log, addDateCheckBox.isSelected());
+    addDateCheckBox.setEnabled(!logCheckBox.isSelected());
   }
-
+  
   public void setUserConfig(HashMap<String, String> userConfig)
   {
     this.userConfig = userConfig;

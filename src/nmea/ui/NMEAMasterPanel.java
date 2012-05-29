@@ -8,10 +8,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.IOException;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -42,7 +40,6 @@ import nmea.ui.calc.CalculatedDataTablePane;
 import nmea.ui.deviation.ControlPanel;
 import nmea.ui.deviation.DeviationPanelHolder;
 import nmea.ui.journal.JournalPanel;
-import nmea.ui.logger.LoggerTablePane;
 import nmea.ui.viewer.BulkPanel;
 import nmea.ui.viewer.Full2DPanel;
 import nmea.ui.viewer.ViewerTablePane;
@@ -68,7 +65,6 @@ public class NMEAMasterPanel
   private BorderLayout borderLayout  = new BorderLayout();
   private JPanel bottomPanel         = new JPanel();
   private BulkPanel               bp = new BulkPanel();
-  private LoggerTablePane         lp = new LoggerTablePane(this);
   private ViewerTablePane         vp = new ViewerTablePane(this);
   private CalculatedDataTablePane cp = new CalculatedDataTablePane(this);
   private JTabbedPane nmeaTabbedPane = new JTabbedPane();
@@ -88,6 +84,7 @@ public class NMEAMasterPanel
   private int br = 0;
   private String tcp = "";
   private String udp = "";
+  private String host = "localhost";
   private String data = null;
   
   private transient CustomNMEAClient nmeaClient = null;
@@ -97,6 +94,7 @@ public class NMEAMasterPanel
                          int br,
                          String port,
                          int option,
+                         String host,
                          String fName, // simulation file
                          String propertiesFile,
                          boolean openSerial)
@@ -108,6 +106,7 @@ public class NMEAMasterPanel
       this.tcp = port;
     if (option == CustomNMEAClient.UDP_OPTION)
       this.udp = port;
+    this.host = host;
     this.data = fName;
     this.pfile = propertiesFile;
     if (data != null && data.trim().length() > 0)
@@ -189,17 +188,19 @@ public class NMEAMasterPanel
           // Right-click only (Actually: no left-click)
           if ((mask & MouseEvent.BUTTON2_MASK) != 0 || (mask & MouseEvent.BUTTON3_MASK) != 0)
           {
-            String fileName = status.getText();
-            if (fileName.startsWith("Simulation:"))
-              fileName = fileName.substring("Sumulation:".length());
-            File f = new File(fileName);
-            if (f.exists())
+            String statusText = status.getText();
+            if (statusText.startsWith("Simulation:"))
             {
-              LoggingDetailsPopup popup = new LoggingDetailsPopup(fileName);
-              popup.show(status, e.getX(), e.getY());
+              String fileName = statusText.substring("Sumulation:".length());
+              File f = new File(fileName);
+              if (f.exists())
+              {
+                LoggingDetailsPopup popup = new LoggingDetailsPopup(fileName);
+                popup.show(status, e.getX(), e.getY());
+              }
+              else
+                System.out.println(statusText + " does not exist.");
             }
-            else
-              System.out.println(fileName + " does not exist.");
           }
         }
 
@@ -224,9 +225,6 @@ public class NMEAMasterPanel
     nmeaTabbedPane.setTabPlacement(JTabbedPane.BOTTOM);
     nmeaTabbedPane.add(LogisailResourceBundle.buildMessage("bulk-data"), bp);
     nmeaTabbedPane.add(LogisailResourceBundle.buildMessage("viewer"), vp);
-    String withLogger = System.getProperty("with.logger", "false");
-    if ("true".equals(withLogger))
-      nmeaTabbedPane.add(LogisailResourceBundle.buildMessage("logger"), lp);
     nmeaTabbedPane.add(LogisailResourceBundle.buildMessage("data-viewer"), cp);
       
     tabbedPane.add(LogisailResourceBundle.buildMessage("nmea-data"), nmeaTabbedPane);
@@ -248,7 +246,6 @@ public class NMEAMasterPanel
     
     this.add(tabbedPane, BorderLayout.CENTER);
 
-    loadLoggerTable();
     vp.setCurrentSentences(currentSentencesToLog);
 
     System.out.println(this.getClass().toString() + ":Port is " + (openSerialPort?"":"NOT ") + "to be opened.");
@@ -259,12 +256,12 @@ public class NMEAMasterPanel
         if (tcp != null && tcp.trim().length() > 0)
         {
           int tcpport = Integer.parseInt(tcp);
-          read(tcpport, CustomNMEAClient.TCP_OPTION);
+          read(tcpport, host, CustomNMEAClient.TCP_OPTION);
         } 
         else if (udp != null && udp.trim().length() > 0)
         {
           int udpport = Integer.parseInt(udp);
-          read(udpport, CustomNMEAClient.UDP_OPTION);
+          read(udpport, host, CustomNMEAClient.UDP_OPTION);
         } 
         else if (data != null && data.trim().length() > 0)
         {
@@ -321,13 +318,13 @@ public class NMEAMasterPanel
    * Read with TCP or UDP
    * @param port
    */
-  private void read(int port, int option)
+  private void read(int port, String host, int option)
   {
     System.out.println("Reading " + ((option == CustomNMEAClient.TCP_OPTION)?"TCP":"UDP") + "...");
     setLogMessage(LogisailResourceBundle.buildMessage("reading", new String[] { ((option == CustomNMEAClient.TCP_OPTION)?"TCP":"UDP"), 
-                                                                                Integer.toString(port)}));
+                                                                                host + ":" + Integer.toString(port)}));
 //  CustomNMEAClient nmeaClient = null;
-    nmeaClient = new CustomNMEAClient(this, option, port)
+    nmeaClient = new CustomNMEAClient(this, option, host, port)
       {
         public void manageNMEAError(Throwable t)
         {
@@ -408,8 +405,6 @@ public class NMEAMasterPanel
     // If key in list, display in logger pane, and log if necessary
     if (Utils.isInArray(key, currentSentencesToLog))
     {
-      lp.setValue(key, payload); // Send to the logging panel
-
       if (goLog) // Logging?
       {
         nbRec++;
@@ -526,40 +521,6 @@ public class NMEAMasterPanel
     return match;
   }
 
-  private void loadLoggerTable()
-  {
-    // Read properties here
-    Properties properties = new Properties();
-    try
-    {
-      properties.load(new FileInputStream(pfile));
-      // currentPrefix = properties.getProperty("device.prefix");
-      String sentences = properties.getProperty("nmea.sentences");
-      String patternStr = ",";
-      setSentencesToLog(sentences.split(patternStr));
-    }
-    catch (IOException e)
-    {
-      e.printStackTrace();
-      System.exit(1);
-    }
-  }
-
-  public void setSentencesToLog(String[] sa)
-  {
-    currentSentencesToLog = sa;
-
-    for (int i = 0; i < currentSentencesToLog.length; i++)
-      System.out.println("NMEA Sentence:" + currentSentencesToLog[i]);
-
-    // Erase the table
-    lp.dropTable();
-
-    for (int i = 0; i < currentSentencesToLog.length; i++)
-      lp.addLineInTable(currentSentencesToLog[i]);
-    lp.refreshHTTPServer();
-  }
-
   public void writeSentencesToLog(String[] sa)
   {
     String sentences = "";
@@ -577,11 +538,6 @@ public class NMEAMasterPanel
     {
       ex.printStackTrace();
     }
-  }
-
-  public void setLoggerValue(String key, String val)
-  {
-    lp.setValue(key, val);
   }
 
   private void showHelp()
@@ -607,11 +563,11 @@ public class NMEAMasterPanel
     return currentSentencesToLog;
   }
 
-  public LoggerTablePane getLp()
+  public void setSentencesToLog(String[] sa)
   {
-    return lp;
+    currentSentencesToLog = sa;
   }
-
+  
   public ViewerTablePane getVp()
   {
     return vp;
@@ -624,7 +580,7 @@ public class NMEAMasterPanel
     private JMenuItem details;
     private String fileName;
 
-    private final static String DETAILS = "Recording Details";
+    private final static String DETAILS     = "Recording Details...";
 
     public LoggingDetailsPopup(String fName)
     {

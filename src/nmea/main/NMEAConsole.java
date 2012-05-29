@@ -37,6 +37,7 @@ public class NMEAConsole
                        int br, 
                        int option,
                        String tcp, 
+                       String host,
                        String data, 
                        String prmfile)
   {
@@ -63,6 +64,7 @@ public class NMEAConsole
                           br, 
                           option,
                           tcp, 
+                          host,
                           data, 
                           pfile);
 
@@ -119,13 +121,15 @@ public class NMEAConsole
   public static void main(String[] args)
   {
     System.out.println("Usage:");
-    System.out.println(" java nmea.main.NMEAConsole [-config [configfile]] [-verb [y|n]] [[-simul [filename]] | [-serial [COM1] -br [4800]] | [-tcp [80]] | [-udp [8000]] ");
+    System.out.println(" java nmea.main.NMEAConsole [-config [configfile]] [-verb [y|n]] [[-simul [filename]] | [-serial [COM1] -br [4800]] | [-tcp [80]] | [-udp [8000]] | [-host [localhost]] [-http.port [80]]");
     String fName = null;
     boolean verb = false;
     String serial = "COM1";
     String br     = "4800";
     String tcp = "";
     String udp = "";
+    String httpport = "";
+    String host = "localhost";
     for (int i = 0; i < args.length; i++)
     {
       if(args[i].equals("-verb"))
@@ -138,6 +142,10 @@ public class NMEAConsole
         tcp = args[i + 1];
       else if(args[i].equals("-udp"))
         udp = args[i + 1];
+      else if(args[i].equals("-http.port"))
+        httpport = args[i + 1];
+      else if(args[i].equals("-host"))
+        host = args[i + 1];
       else if(args[i].equals("-config"))
         pfile = args[i + 1];
       else if(args[i].equals("-simul"))
@@ -163,6 +171,7 @@ public class NMEAConsole
                     option,
                     (option == CustomNMEAClient.TCP_OPTION)?System.getProperty("nmea.tcp.port", tcp):
                                                             System.getProperty("nmea.udp.port", udp), // TCP/UDP Port
+                    host,
                     fName, 
                     System.getProperty("nmea.config.file", pfile));
   }

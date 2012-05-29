@@ -240,7 +240,7 @@ public class HTTPServer
               {
                 // All data in XML Format                
               }
-              else if (line.startsWith("GET /"))
+              else if (line.startsWith("GET /")) // display a file
               {
                 fileToFetch = line.substring("GET /".length());
                 fileToFetch = fileToFetch.substring(0, fileToFetch.indexOf(" "));
@@ -326,8 +326,11 @@ public class HTTPServer
       }
     };
     httpListenerThread.start();
-    try {
-      Utils.playSound(this.getClass().getResource("saberup.wav")); } catch (Exception ex) { ex.printStackTrace(); }
+    try 
+    {
+      Utils.playSound(this.getClass().getResource("saberup.wav")); 
+    } 
+    catch (Exception ex) { ex.printStackTrace(); }
   }
 
   private List<String> getSentenceList()

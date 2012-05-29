@@ -24,14 +24,13 @@ public class SampleUDPClientMain
   public static void main(String[] args) throws Exception
   {
     SampleUDPClientMain me = new SampleUDPClientMain();
-    CustomNMEAClient cnc = new CustomNMEAClient(me, CustomNMEAClient.UDP_OPTION, 8001, 10000L)
+    CustomNMEAClient cnc = new CustomNMEAClient(me, CustomNMEAClient.UDP_OPTION, "230.0.0.1", 8001) //, 10000L)
     {
       public void manageNMEAError(Throwable t)
       {
         System.err.println("Oops:" + t.toString());
       }
     };
-    
-    cnc.startWorking();
+//  cnc.startWorking();
   }
 }

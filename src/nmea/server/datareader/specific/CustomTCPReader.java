@@ -3,8 +3,9 @@ package nmea.server.datareader.specific;
 import nmea.server.ctx.NMEAContext;
 
 import java.io.InputStream;
+
+import java.net.InetAddress;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Date;
 
 import java.util.List;
@@ -20,7 +21,7 @@ import ocss.nmea.api.NMEAReader;
 
 public class CustomTCPReader extends NMEAReader implements DataReader
 {
-  private int tcpport = 80;
+  private int tcpport     = 80;
   private String hostName = "localhost";
 
   public CustomTCPReader(List<NMEAListener> al)
@@ -69,11 +70,16 @@ public class CustomTCPReader extends NMEAReader implements DataReader
   
   public void read()
   {
-    System.out.println("From " + getClass().getName() + " Reading TCP Port " + tcpport);
+    System.out.println("From " + getClass().getName() + " Reading TCP Port " + tcpport + " on " + hostName);
     super.enableReading();
     try
     {
-      skt = new Socket(hostName, tcpport);
+      InetAddress address = InetAddress.getByName(hostName);
+      System.out.println("INFO:" + hostName + " (" + address.toString() + ")" + " is" + (address.isMulticastAddress() ? "" : " NOT") + " a multicast address");
+
+      skt = new Socket(address, tcpport);
+      
+      
       InputStream theInput = skt.getInputStream();
       byte buffer[] = new byte[4096];
       String s;

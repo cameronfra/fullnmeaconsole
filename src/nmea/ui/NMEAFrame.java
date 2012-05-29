@@ -57,6 +57,7 @@ public class NMEAFrame
   private int option = -1;
   private String tcp = "";
   private String udp = "";
+  private String host = "localhost";
   private String data = null;
 
   public NMEAFrame(boolean v,
@@ -64,6 +65,7 @@ public class NMEAFrame
                    int br,
                    int option,
                    String port,
+                   String host,
                    String fName, // simulation file
                    String propertiesFile)
   {
@@ -75,6 +77,7 @@ public class NMEAFrame
       this.tcp = port;
     if (option == CustomNMEAClient.UDP_OPTION)
       this.udp = port;
+    this.host = host;
     this.data = fName;
     pfile = propertiesFile;
     NMEAContext.getInstance().setFromFile(data != null && data.trim().length() > 0);
@@ -101,6 +104,7 @@ public class NMEAFrame
                                  br, 
                                  _port, 
                                  option,
+                                 host,
                                  data, 
                                  pfile,
                                  true); 
