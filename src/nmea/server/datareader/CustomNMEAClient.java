@@ -4,6 +4,7 @@ import java.io.File;
 
 import nmea.server.NMEAEventManager;
 import nmea.server.datareader.specific.CustomFileReader;
+import nmea.server.datareader.specific.CustomRMIReader;
 import nmea.server.datareader.specific.CustomSerialReader;
 import nmea.server.datareader.specific.CustomTCPReader;
 import nmea.server.datareader.specific.CustomUDPReader;
@@ -20,7 +21,7 @@ public abstract class CustomNMEAClient extends NMEAClient
   private NMEAEventManager parent;
   private String port = "";
   private int br = 4800;
-  private int tcpOrUdpPort = -1;
+  private int dataPort = -1;
   private String host = "localhost";
   private File data = null;
   
@@ -30,6 +31,7 @@ public abstract class CustomNMEAClient extends NMEAClient
   
   public final static int TCP_OPTION  = 0;
   public final static int UDP_OPTION  = 1;
+  public final static int RMI_OPTION  = 2;
   
   private int option = TCP_OPTION;
 
@@ -61,7 +63,7 @@ public abstract class CustomNMEAClient extends NMEAClient
   }
 
   /**
-   * Read TCP/UDP Port
+   * Read TCP/UDP/RMI Port
    * @param parent
    * @param port
    */
@@ -70,16 +72,16 @@ public abstract class CustomNMEAClient extends NMEAClient
     this(parent, option, host, port, DEFAULT_TIMEOUT);
   }
   /**
-   * Read TCP/UDP Port
+   * Read TCP/UDP/RMI Port
    * @param parent
-   * @param port TCP or UDP port number, like 8001
+   * @param port TCP, RMI or UDP port number, like 8001
    * @param tout Timeout in milliseconds
    */
   public CustomNMEAClient(NMEAEventManager parent, int option, String host, int port, long tout)
   {
     this.option = option;
     this.host = host;
-    tcpOrUdpPort = port;
+    dataPort = port;
     setDevicePrefix("*");
     this.parent = parent;
     this.timeout = tout;
@@ -106,7 +108,7 @@ public abstract class CustomNMEAClient extends NMEAClient
     super.initClient();
     if (data != null)
       this.setReader(new CustomFileReader(getListeners(), data));            // File (Simulation, replay)
-    else if (tcpOrUdpPort == -1)
+    else if (dataPort == -1)
     {
       this.setReader(new CustomSerialReader(getListeners(), port, br)        // Serial
         {
@@ -121,7 +123,7 @@ public abstract class CustomNMEAClient extends NMEAClient
       ((CustomSerialReader)this.getReader()).setTimeout(timeout);
     }
     else if (option == TCP_OPTION)
-      this.setReader(new CustomTCPReader(getListeners(), host, tcpOrUdpPort)       // TCP
+      this.setReader(new CustomTCPReader(getListeners(), host, dataPort)       // TCP
         {
           @Override
           public void manageError(Throwable t)
@@ -131,7 +133,7 @@ public abstract class CustomNMEAClient extends NMEAClient
         });
     else if (option == UDP_OPTION)
     {
-      this.setReader(new CustomUDPReader(getListeners(), host, tcpOrUdpPort)       // UDP 
+      this.setReader(new CustomUDPReader(getListeners(), host, dataPort)       // UDP 
         {
           @Override
           public void manageError(Throwable t)
@@ -141,6 +143,15 @@ public abstract class CustomNMEAClient extends NMEAClient
         });
       ((CustomUDPReader)this.getReader()).setTimeout(timeout);
     }
+    else if (option == RMI_OPTION)
+      this.setReader(new CustomRMIReader(getListeners(), host, dataPort)       // RMI
+        {
+          @Override
+          public void manageError(Throwable t)
+          {
+            manageNMEAError(t);
+          }
+        });
     reader = (DataReader)this.getReader();    
     super.startWorking();
     

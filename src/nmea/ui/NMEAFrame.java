@@ -57,6 +57,7 @@ public class NMEAFrame
   private int option = -1;
   private String tcp = "";
   private String udp = "";
+  private String rmi = "";
   private String host = "localhost";
   private String data = null;
 
@@ -77,6 +78,8 @@ public class NMEAFrame
       this.tcp = port;
     if (option == CustomNMEAClient.UDP_OPTION)
       this.udp = port;
+    if (option == CustomNMEAClient.RMI_OPTION)
+      this.rmi = port;
     this.host = host;
     this.data = fName;
     pfile = propertiesFile;
@@ -99,6 +102,8 @@ public class NMEAFrame
       _port = tcp;
     if (option == CustomNMEAClient.UDP_OPTION)
       _port = udp;
+    if (option == CustomNMEAClient.RMI_OPTION)
+      _port = rmi;
     nmeaTP = new NMEAMasterPanel(verbose, 
                                  serial, 
                                  br, 

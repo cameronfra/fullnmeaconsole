@@ -84,6 +84,7 @@ public class NMEAMasterPanel
   private int br = 0;
   private String tcp = "";
   private String udp = "";
+  private String rmi = "";
   private String host = "localhost";
   private String data = null;
   
@@ -106,6 +107,8 @@ public class NMEAMasterPanel
       this.tcp = port;
     if (option == CustomNMEAClient.UDP_OPTION)
       this.udp = port;
+    if (option == CustomNMEAClient.RMI_OPTION)
+      this.rmi = port;
     this.host = host;
     this.data = fName;
     this.pfile = propertiesFile;
@@ -263,6 +266,11 @@ public class NMEAMasterPanel
           int udpport = Integer.parseInt(udp);
           read(udpport, host, CustomNMEAClient.UDP_OPTION);
         } 
+        else if (rmi != null && rmi.trim().length() > 0)
+        {
+          int rmiport = Integer.parseInt(rmi);
+          read(rmiport, host, CustomNMEAClient.RMI_OPTION);
+        } 
         else if (data != null && data.trim().length() > 0)
         {
           read(new File(data));
@@ -315,14 +323,20 @@ public class NMEAMasterPanel
   }
 
   /**
-   * Read with TCP or UDP
+   * Read with TCP, RMI or UDP
    * @param port
    */
   private void read(int port, String host, int option)
   {
-    System.out.println("Reading " + ((option == CustomNMEAClient.TCP_OPTION)?"TCP":"UDP") + "...");
-    setLogMessage(LogisailResourceBundle.buildMessage("reading", new String[] { ((option == CustomNMEAClient.TCP_OPTION)?"TCP":"UDP"), 
-                                                                                host + ":" + Integer.toString(port)}));
+    String optionStr = "";
+    if (option == CustomNMEAClient.TCP_OPTION)
+      optionStr = "TCP";
+    else if (option == CustomNMEAClient.UDP_OPTION)
+      optionStr = "UDP";
+    else if (option == CustomNMEAClient.RMI_OPTION)
+      optionStr = "RMI";
+    System.out.println("Reading " + optionStr + "...");
+    setLogMessage(LogisailResourceBundle.buildMessage("reading", new String[] { optionStr, host + ":" + Integer.toString(port)}));
 //  CustomNMEAClient nmeaClient = null;
     nmeaClient = new CustomNMEAClient(this, option, host, port)
       {

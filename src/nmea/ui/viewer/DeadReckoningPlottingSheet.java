@@ -175,7 +175,7 @@ public class DeadReckoningPlottingSheet
           resetDataBuffers();
         }
       });
-    currentDisplay.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+//  currentDisplay.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
     topPanel.add(timeComboBox, null);
     topPanel.add(resetButton, null);
 

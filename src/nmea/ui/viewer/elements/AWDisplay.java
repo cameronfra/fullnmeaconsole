@@ -51,12 +51,20 @@ public class AWDisplay
   
   private int graphicXOffset = 0;
   private int graphicYOffset = 0;
+  
+  private boolean displayGlossyEffect = true;
 
   public AWDisplay(String name, String value)
+  {
+    this(name, value, true);
+  }
+
+  public AWDisplay(String name, String value, boolean dge)
   {
     instance = this;
     origName = name;
     origValue = value;
+    this.displayGlossyEffect = dge;
   }
 
   public AWDisplay(String name, String value, String ttText)
@@ -231,17 +239,18 @@ public class AWDisplay
     }
     Dimension dim =  this.getSize();
     double radius = (Math.min(dim.width, dim.height) - 10d) / 2d;
-    if (true)
+    if (this.displayGlossyEffect)
     {
       Point center = new Point((dim.width / 2), (dim.height / 2));
       if (true) // With shaded bevel
       {
+        Graphics2D g2d = (Graphics2D)g;
         RadialGradientPaint rgp = new RadialGradientPaint(center, 
                                                           (int)(radius * 1.15), 
                                                           new float[] {0f, 0.9f, 1f}, 
                                                           new Color[] {this.getBackground(), Color.gray, this.getBackground()});
-        ((Graphics2D)g).setPaint(rgp);
-        ((Graphics2D)g).fillRect(0, 0, dim.width, dim.height);
+        g2d.setPaint(rgp);
+        g2d.fillRect(0, 0, dim.width, dim.height);
       }
       drawGlossyCircularDisplay((Graphics2D)g, center, (int)radius, Color.lightGray, Color.black, 1f);
     }
