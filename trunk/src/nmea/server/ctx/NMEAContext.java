@@ -257,7 +257,7 @@ public class NMEAContext implements Serializable
     return dataCache;
   }
   
-  public static NMEADataCache getCache_oneTrip()
+  public static NMEADataCache getCache_oneTrip() // Used for RMI
   {
     NMEADataCache cache = getInstance().getCache();
     return cache;

@@ -263,6 +263,9 @@ public class Utils
       System.out.println("Rejecting [" + value + "]");
       return;
     }
+    // Put the last valid NMEA Value in the cache
+    NMEAContext.getInstance().putDataCache(NMEADataCache.LAST_NMEA_SENTENCE, value);
+    
     String sentenceId = key.substring(2);
     
     if ("RMC".equals(sentenceId))

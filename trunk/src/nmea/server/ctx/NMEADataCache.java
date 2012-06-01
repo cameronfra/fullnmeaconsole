@@ -16,6 +16,8 @@ import ocss.nmea.parser.NMEADoubleValueHolder;
 
 public class NMEADataCache extends HashMap<String, Object> implements Serializable
 {
+  public final static String LAST_NMEA_SENTENCE = "NMEA";
+
   public final static String SOG         = "SOG";
   public final static String POSITION    = "Boat Position";
   public final static String GPS_DATE_TIME = "GPS Date & Time";
@@ -78,7 +80,9 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
       System.out.println("| Instantiating an NMEADataCache. |");
       System.out.println("+=================================+");
     }
-    TOOLTIP_MAP.put(SOG,         "<html>Spped Over Ground<br>From the GPS</html>");
+    TOOLTIP_MAP.put(LAST_NMEA_SENTENCE, "<html>Last read NMEA Sentence</html>");
+    
+    TOOLTIP_MAP.put(SOG,         "<html>Speed Over Ground<br>From the GPS</html>");
     TOOLTIP_MAP.put(POSITION,    "<html>Boat Position<br>From the GPS</html>");
     TOOLTIP_MAP.put(GPS_TIME,    "<html>GPS Time<br>From the GPS (GLL, RMC)</html>");
     TOOLTIP_MAP.put(GPS_DATE_TIME, "<html>GPS Time<br>From the GPS (RMC)</html>");
