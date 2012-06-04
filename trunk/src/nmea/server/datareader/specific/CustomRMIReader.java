@@ -8,9 +8,9 @@ import java.rmi.NotBoundException;
 
 import java.util.List;
 
-import nmea.client.NMEAClient;
+import rmi.nmea.client.NMEAClient;
 
-import nmea.rmiserver.RemoteNMEAInterface;
+import rmi.nmea.rmiserver.RemoteNMEAInterface;
 
 import nmea.server.constants.Constants;
 import nmea.server.ctx.NMEAContext;
