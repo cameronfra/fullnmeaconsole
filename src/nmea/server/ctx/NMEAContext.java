@@ -197,6 +197,15 @@ public class NMEAContext implements Serializable
     }
   }  
 
+  public void fireDampingHasChanged(int val)
+  {
+    for (int i=0; i<NMEAListeners.size(); i++)
+    {
+      NMEAListener l = NMEAListeners.get(i);
+      l.dampingHasChanged(val);
+    }
+  }  
+
   public void fireLoadDataPointsForDeviation(List<double[]> data)
   {
     for (int i=0; i<NMEAListeners.size(); i++)

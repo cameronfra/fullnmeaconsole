@@ -8,11 +8,11 @@ public final class NMEAServer_Skel
 {
     private static final java.rmi.server.Operation[] operations = {
 	new java.rmi.server.Operation("nmea.server.ctx.NMEADataCache getNMEACache()"),
-	new java.rmi.server.Operation("void registerForNotification(nmea.client.Notifiable)"),
-	new java.rmi.server.Operation("void unregisterForNotification(nmea.client.Notifiable)")
+	new java.rmi.server.Operation("void registerForNotification(rmi.nmea.client.Notifiable)"),
+	new java.rmi.server.Operation("void unregisterForNotification(rmi.nmea.client.Notifiable)")
     };
     
-    private static final long interfaceHash = 6296721287492850241L;
+    private static final long interfaceHash = 1702952686599859746L;
     
     public java.rmi.server.Operation[] getOperations() {
 	return (java.rmi.server.Operation[]) operations.clone();
@@ -24,9 +24,9 @@ public final class NMEAServer_Skel
 	if (opnum < 0) {
 	    if (hash == 3544281633149487421L) {
 		opnum = 0;
-	    } else if (hash == 5376817839078363496L) {
+	    } else if (hash == -4373675191714245596L) {
 		opnum = 1;
-	    } else if (hash == 2109539391690866604L) {
+	    } else if (hash == 5396830962268796561L) {
 		opnum = 2;
 	    } else {
 		throw new java.rmi.UnmarshalException("invalid method hash");

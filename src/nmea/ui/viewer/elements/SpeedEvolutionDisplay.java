@@ -135,6 +135,12 @@ public class SpeedEvolutionDisplay
         maxDataLength = size;
       }
       
+      public void dampingHasChanged(int damping) 
+      {
+        // TODO Re-smooth? alndd -> aldd
+        System.out.println("Dampoing value is now " + damping);
+      }
+      
       public void showRawData(boolean b) 
       {
         showRawData = b;

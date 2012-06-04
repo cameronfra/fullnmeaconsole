@@ -309,7 +309,10 @@ public class JournalDataPanel
           String data = "";
           while (details.next())
           {
-            double d = details.getDouble(1);
+            double d = 0;
+            try { d = details.getDouble(1); }
+            catch (Exception ex)
+            {  System.err.println(ex.getLocalizedMessage()); }
             if (journalNames[i].equals("BSP") ||
                 journalNames[i].equals("SOG") ||
                 journalNames[i].equals("TWS") ||

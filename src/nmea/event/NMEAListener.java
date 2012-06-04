@@ -37,4 +37,5 @@ public abstract class NMEAListener implements EventListener
   public void fireError(Throwable t) {}
   
   public void setWindScale(float f) {}
+  public void dampingHasChanged(int damping) {}
 }
