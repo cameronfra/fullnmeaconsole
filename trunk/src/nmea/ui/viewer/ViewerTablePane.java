@@ -66,7 +66,7 @@ public class ViewerTablePane
   
   private final static String config[][] = new String[][]
   {
-    new String[] { "GPS Only",              "GLL,RMC" },
+    new String[] { "GPS Only",              "GLL,RMC,RMB" },
     new String[] { "Nav Station",           "HDG,HDM,MWV,VHW" },
     new String[] { "GPS + NKE Nav Station", "GLL,HDG,HDM,VHW,VTG" },
     new String[] { "GPS + B&G Nav Station", "GLL,HDG,HDM,MWV,RMC,VHW" }
@@ -355,6 +355,8 @@ public class ViewerTablePane
 
           public void setValueAt(Object aValue, int row, int column)
           {
+//            if (column == 0)
+//              System.out.println("Selected:"+ aValue.toString());
             data[row][column] = aValue;
           }
         };

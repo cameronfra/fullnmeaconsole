@@ -9,11 +9,11 @@ public final class NMEAServer_Stub
 {
     private static final java.rmi.server.Operation[] operations = {
 	new java.rmi.server.Operation("nmea.server.ctx.NMEADataCache getNMEACache()"),
-	new java.rmi.server.Operation("void registerForNotification(nmea.client.Notifiable)"),
-	new java.rmi.server.Operation("void unregisterForNotification(nmea.client.Notifiable)")
+	new java.rmi.server.Operation("void registerForNotification(rmi.nmea.client.Notifiable)"),
+	new java.rmi.server.Operation("void unregisterForNotification(rmi.nmea.client.Notifiable)")
     };
     
-    private static final long interfaceHash = 6296721287492850241L;
+    private static final long interfaceHash = 1702952686599859746L;
     
     private static final long serialVersionUID = 2;
     
@@ -89,7 +89,7 @@ public final class NMEAServer_Stub
     {
 	try {
 	    if (useNewInvoke) {
-		ref.invoke(this, $method_registerForNotification_1, new java.lang.Object[] {$param_Notifiable_1}, 5376817839078363496L);
+		ref.invoke(this, $method_registerForNotification_1, new java.lang.Object[] {$param_Notifiable_1}, -4373675191714245596L);
 	    } else {
 		java.rmi.server.RemoteCall call = ref.newCall((java.rmi.server.RemoteObject) this, operations, 1, interfaceHash);
 		try {
@@ -116,7 +116,7 @@ public final class NMEAServer_Stub
     {
 	try {
 	    if (useNewInvoke) {
-		ref.invoke(this, $method_unregisterForNotification_2, new java.lang.Object[] {$param_Notifiable_1}, 2109539391690866604L);
+		ref.invoke(this, $method_unregisterForNotification_2, new java.lang.Object[] {$param_Notifiable_1}, 5396830962268796561L);
 	    } else {
 		java.rmi.server.RemoteCall call = ref.newCall((java.rmi.server.RemoteObject) this, operations, 2, interfaceHash);
 		try {

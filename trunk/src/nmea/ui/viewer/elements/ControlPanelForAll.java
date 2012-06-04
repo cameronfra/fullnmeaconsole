@@ -275,6 +275,7 @@ public class ControlPanelForAll
             val = 1;
           NMEAContext.getInstance().getCache().setDampingSize(val);
           NMEAContext.getInstance().getCache().put(NMEADataCache.DAMPING, val);
+          NMEAContext.getInstance().fireDampingHasChanged(val);
         }
       }
     });
