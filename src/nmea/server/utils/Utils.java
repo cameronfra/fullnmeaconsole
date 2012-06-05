@@ -242,7 +242,8 @@ public class Utils
     }
     catch (Exception ex)
     {
-      ex.printStackTrace();
+      System.err.println(ex.getLocalizedMessage());
+//    ex.printStackTrace();
     }
   }
   
@@ -1514,8 +1515,9 @@ public class Utils
       }
       catch (Exception e)
       {
-        e.printStackTrace();
-        System.exit(1);
+        System.err.println(e.getLocalizedMessage());
+//      e.printStackTrace();
+//      System.exit(1);
       }
   
       AudioFormat audioFormat = audioInputStream.getFormat();

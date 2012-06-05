@@ -175,7 +175,8 @@ public class ViewerTablePane
     }
     catch (Exception ignore) 
     {
-      ignore.printStackTrace();
+      System.err.println(ignore.getLocalizedMessage());
+//    ignore.printStackTrace();
     }
 
     NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
