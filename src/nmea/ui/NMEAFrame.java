@@ -124,10 +124,11 @@ public class NMEAFrame
     {
       public void actionPerformed(ActionEvent ae)
       {
-          NMEAContext.getInstance().fireLogChanged(false);
-        try {
-            NMEAContext.getInstance().fireStopReading(); } catch (Exception ex) {}
-          NMEAContext.getInstance().getCache().resetDampingBuffers();
+        NMEAContext.getInstance().fireLogChanged(false);
+        try 
+        { NMEAContext.getInstance().fireStopReading(); } 
+        catch (Exception ex) {}
+        NMEAContext.getInstance().getCache().resetDampingBuffers();
         System.exit(0);
       }
     });
