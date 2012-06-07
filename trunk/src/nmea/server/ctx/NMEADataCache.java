@@ -8,10 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import ocss.nmea.parser.Angle180;
-import ocss.nmea.parser.Angle180EW;
-import ocss.nmea.parser.Angle180LR;
-import ocss.nmea.parser.Angle360;
+import ocss.nmea.parser.Angle;
 import ocss.nmea.parser.NMEADoubleValueHolder;
 
 public class NMEADataCache extends HashMap<String, Object> implements Serializable
@@ -62,6 +59,8 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
   public final static String DEVIATION_FILE      = "Deviation file name";
   public final static String DEFAULT_DECLINATION = "Default Declination";
   public final static String DAMPING             = "Damping";
+  
+  private final static boolean DEBUG = false;
 
   public final static HashMap<String, String> TOOLTIP_MAP = new HashMap<String, String>();
 
@@ -192,7 +191,7 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
           if (false && key.equals(TWD))
             System.out.print(((NMEADoubleValueHolder)v).getDoubleValue() + ";");
 
-          if (v instanceof Angle360 || v instanceof Angle180 || v instanceof Angle180EW || v instanceof Angle180LR)
+          if (v instanceof Angle) // Angle360 || v instanceof Angle180 || v instanceof Angle180EW || v instanceof Angle180LR)
           {
             double val = ((NMEADoubleValueHolder)v).getDoubleValue();
             sumCos += (Math.cos(Math.toRadians(val)));
@@ -221,23 +220,23 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
           else
           {
             ret = Class.forName(cl.getName()).newInstance();
-            if (ret instanceof Angle360 || ret instanceof Angle180 || ret instanceof Angle180EW || ret instanceof Angle180LR)
+            if (ret instanceof Angle) // Angle360 || ret instanceof Angle180 || ret instanceof Angle180EW || ret instanceof Angle180LR)
             {
               double a = Math.toDegrees(Math.acos(sumCos));
               if (sumSin < 0)
                 a = 360d - a;
               sum = a;
-              if (false && key.equals(TWD))
+              if (DEBUG && key.equals(TWD))
               {
                 System.out.println(" Average:" + sum);
                 if (ald.size() == dampingSize && Math.abs(sum - prevTWD) > 2)
-                  System.out.println("Hoonk!!");
+                  System.out.println("Honk!!");
                 prevTWD = sum;
               }
             }
             ((NMEADoubleValueHolder)ret).setDoubleValue(sum);
             
-            if (false) // Debug...
+            if (DEBUG) 
             {
               double orig = 0;
               if (cl.equals(Double.class))
