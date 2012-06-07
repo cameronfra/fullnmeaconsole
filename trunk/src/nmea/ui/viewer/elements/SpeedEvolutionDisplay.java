@@ -37,6 +37,9 @@ import nmea.server.utils.Utils;
 import nmea.event.NMEAListener;
 
 import nmea.server.constants.Constants;
+import nmea.server.ctx.NMEADataCache;
+
+import ocss.nmea.parser.Speed;
 
 
 public class SpeedEvolutionDisplay
@@ -49,11 +52,12 @@ public class SpeedEvolutionDisplay
   private String toolTipText = null;
 
   private String name = "BSP";
-  private transient List<DatedData> aldd = null;
-  private transient List<DatedData> alnddd = null; // Not Damped
+  private transient List<DatedData> aldd   = null; // ArrayList of Dated Data (Damped)
+  private transient List<DatedData> alnddd = null; // ArrayList of Not Damped Dated Data
   private transient DatedData mini = null, maxi = null; // Extrema
   
   private long maxDataLength = NMEAContext.DEFAULT_BUFFER_SIZE;
+  private final static long MINIMUM_DELAY = 100L;
   
   private transient  double min = 0d, max = 0d; // Boundaries
   private double step = 1d;
@@ -69,7 +73,7 @@ public class SpeedEvolutionDisplay
   public SpeedEvolutionDisplay(String name)
   {
     this.name = name;
-    aldd = new ArrayList<DatedData>();
+    aldd   = new ArrayList<DatedData>();
     alnddd = new ArrayList<DatedData>();
   }
 
@@ -83,7 +87,7 @@ public class SpeedEvolutionDisplay
     this.name = name;
     toolTipText = ttText;
     this.jumboFontSize = basicSize;
-    aldd = new ArrayList<DatedData>();
+    aldd   = new ArrayList<DatedData>();
     alnddd = new ArrayList<DatedData>();
     try
     {
@@ -137,8 +141,7 @@ public class SpeedEvolutionDisplay
       
       public void dampingHasChanged(int damping) 
       {
-        // TODO Re-smooth? alndd -> aldd
-        System.out.println("Dampoing value is now " + damping);
+        System.out.println("Damping value is now " + damping + ", buffer has " + alnddd.size() + " point(s)");
       }
       
       public void showRawData(boolean b) 
@@ -216,7 +219,7 @@ public class SpeedEvolutionDisplay
   {
     synchronized (aldd)
     {
-      if (!Double.isInfinite(value) && value != -Double.MAX_VALUE && (aldd.size() == 0 || (date.getTime() - aldd.get(aldd.size() - 1).getDate().getTime() > 1000L)))
+      if (!Double.isInfinite(value) && value != -Double.MAX_VALUE && (aldd.size() == 0 || (date.getTime() - aldd.get(aldd.size() - 1).getDate().getTime() > MINIMUM_DELAY)))
       {
 //      if ("BSP".equals(this.name))
 //        System.out.println("Adding value to BSP:" + sdf.format(date));
@@ -231,7 +234,7 @@ public class SpeedEvolutionDisplay
   {
     synchronized (alnddd)
     {
-      if (!Double.isInfinite(value) && value != -Double.MAX_VALUE && (alnddd.size() == 0 || (date.getTime() - alnddd.get(alnddd.size() - 1).getDate().getTime() > 1000L)))
+      if (!Double.isInfinite(value) && value != -Double.MAX_VALUE && (alnddd.size() == 0 || (date.getTime() - alnddd.get(alnddd.size() - 1).getDate().getTime() > MINIMUM_DELAY)))
       {
   //      if ("BSP".equals(this.name))
   //        System.out.println("Adding value to BSP:" + sdf.format(date));
@@ -478,7 +481,7 @@ public class SpeedEvolutionDisplay
           // Last value
           String str = df21.format(aldd.get(aldd.size() - 1).getValue()) + " " + unit;
           int strWidth  = gr.getFontMetrics(gr.getFont()).stringWidth(str);
-          gr.setColor(Color.yellow);
+          gr.setColor(Color.cyan);
           gr.drawString(str, this.getWidth() - strWidth - 2,  jumboFontSize + 2);
         }
         else

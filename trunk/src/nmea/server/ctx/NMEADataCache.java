@@ -205,9 +205,9 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
       }
       try
       {
-        if (ald.size() != 0)
+        if (ald.size() != 0) // Average here
         {
-          sum /= ald.size();
+          sum    /= ald.size();
           sumCos /= ald.size();
           sumSin /= ald.size();
         }

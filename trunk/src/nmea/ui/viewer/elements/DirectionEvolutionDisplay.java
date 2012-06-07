@@ -52,6 +52,7 @@ public class DirectionEvolutionDisplay
   public final static int DEFAULT_WIDTH = 150;
 
   private long maxDataLength = NMEAContext.DEFAULT_BUFFER_SIZE;
+  private final static long MINIMUM_DELAY = 100L;
 
   private double min = -180d, max = 180d;
   private double step = 45d;
@@ -212,7 +213,7 @@ public class DirectionEvolutionDisplay
   {
     synchronized (aldd)
     {
-      if (!Double.isInfinite(value) && value != -Double.MAX_VALUE && (aldd.size() == 0 || (date.getTime() - aldd.get(aldd.size() - 1).getDate().getTime() > 1000L)))
+      if (!Double.isInfinite(value) && value != -Double.MAX_VALUE && (aldd.size() == 0 || (date.getTime() - aldd.get(aldd.size() - 1).getDate().getTime() > MINIMUM_DELAY)))
         aldd.add(new DatedData(date, value));
       while (aldd.size() > maxDataLength)
         aldd.remove(0);
@@ -223,7 +224,7 @@ public class DirectionEvolutionDisplay
   {
     synchronized (alnddd)
     {
-      if (!Double.isInfinite(value) && value != -Double.MAX_VALUE && (alnddd.size() == 0 || (date.getTime() - alnddd.get(alnddd.size() - 1).getDate().getTime() > 1000L)))
+      if (!Double.isInfinite(value) && value != -Double.MAX_VALUE && (alnddd.size() == 0 || (date.getTime() - alnddd.get(alnddd.size() - 1).getDate().getTime() > MINIMUM_DELAY)))
         alnddd.add(new DatedData(date, value));
       while (alnddd.size() > maxDataLength)
         alnddd.remove(0);

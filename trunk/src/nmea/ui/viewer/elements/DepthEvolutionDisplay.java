@@ -51,6 +51,7 @@ public class DepthEvolutionDisplay
   private transient List<DatedData> aldd = null;
 
   private long maxDataLength = NMEAContext.DEFAULT_BUFFER_SIZE;
+  private final static long MINIMUM_DELAY = 100L;
 
   private double min = 0d, max = 100d;
   private double step = 10d;
@@ -200,7 +201,7 @@ public class DepthEvolutionDisplay
   {
     synchronized (aldd)
     {
-      if (!Double.isInfinite(value) && value != -Double.MAX_VALUE && (aldd.size() == 0 || (date.getTime() - aldd.get(aldd.size() - 1).getDate().getTime() > 1000L)))
+      if (!Double.isInfinite(value) && value != -Double.MAX_VALUE && (aldd.size() == 0 || (date.getTime() - aldd.get(aldd.size() - 1).getDate().getTime() > MINIMUM_DELAY)))
         aldd.add(new DatedData(date, value));
       while (aldd.size() > maxDataLength)
         aldd.remove(0);
