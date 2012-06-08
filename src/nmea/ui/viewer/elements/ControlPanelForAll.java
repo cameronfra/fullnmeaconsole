@@ -23,6 +23,9 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import nmea.event.NMEAListener;
+
+import nmea.server.constants.Constants;
 import nmea.server.ctx.NMEAContext;
 import nmea.server.ctx.NMEADataCache;
 
@@ -196,6 +199,10 @@ public class ControlPanelForAll
       });
     jLabel1.setText("Speed Scale:");
     scaleComboBox.removeAllItems();
+    for (NMEAContext.WindScale ws : NMEAContext.WindScale.values())
+      scaleComboBox.addItem(new ScaleForWind( ws.scale(), ws.label()));
+    
+    /*
     scaleComboBox.addItem(new ScaleForWind( 1.5f, "05 knots"));
     scaleComboBox.addItem(new ScaleForWind( 3,    "10 knots"));
     scaleComboBox.addItem(new ScaleForWind( 4.5f, "15 knots"));
@@ -205,6 +212,7 @@ public class ControlPanelForAll
     scaleComboBox.addItem(new ScaleForWind(12,    "40 knots"));
     scaleComboBox.addItem(new ScaleForWind(15,    "50 knots"));
     scaleComboBox.addItem(new ScaleForWind(18,    "60 knots"));
+    */
 
     float f = Float.parseFloat(System.getProperty("wind.scale", "-1"));
     for (int i=0; i<scaleComboBox.getItemCount(); i++)
@@ -222,7 +230,8 @@ public class ControlPanelForAll
       {
         public void actionPerformed(ActionEvent e)
         {
-          scaleComboBox_actionPerformed(e);
+          if (!NMEAContext.getInstance().isAutoScale())
+            scaleComboBox_actionPerformed(e);
         }
       });
 
@@ -316,6 +325,23 @@ public class ControlPanelForAll
       });
     replaySpeedSlider.setToolTipText("Replay Speed");
     replaySpeedSlider.setVisible(NMEAContext.getInstance().isFromFile());
+    
+    NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+      {
+        public void setWindScale(float f) 
+        {
+          for (int i=0; NMEAContext.getInstance().isAutoScale() && i<scaleComboBox.getItemCount(); i++)
+          {
+            ScaleForWind sfw = (ScaleForWind)scaleComboBox.getItemAt(i);
+            if (sfw.getScale() == f)
+            {
+              scaleComboBox.setSelectedIndex(i);
+              System.setProperty("wind.scale", Float.toString(f));
+              break;
+            }
+          }
+        }
+      });
   }
 
   private void bspCoeffTextField_actionPerformed(ActionEvent e)

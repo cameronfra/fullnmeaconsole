@@ -110,6 +110,7 @@ public class CurrentSituationPanel
   private ImageIcon right = new ImageIcon(this.getClass().getResource("elements/resources/shuttleRightAll.png"));
   
   private boolean jumbosOnTheRight = true;
+  private JCheckBox autoScaleCheckBox = new JCheckBox();
 
   public CurrentSituationPanel()
   {
@@ -167,6 +168,24 @@ public class CurrentSituationPanel
             try { setLWY(((Angle180LR)cache.get(NMEADataCache.LEEWAY)).getValue()); } catch (Exception ex) {}
             try { setCDR(((Angle360)cache.get(NMEADataCache.CDR)).getValue()); } catch (Exception ex) {}
             try { setCSP(((Speed)cache.get(NMEADataCache.CSP)).getValue()); } catch (Exception ex) {}
+            
+            if (NMEAContext.getInstance().isAutoScale())
+            {
+              double tws = ((TrueWindSpeed)cache.get(NMEADataCache.TWS)).getValue();
+              boolean found = false;
+              for (NMEAContext.WindScale ws : NMEAContext.WindScale.values())
+              {
+                if (ws.speed() > tws)
+                {
+                  if (NMEAContext.getInstance().getCurrentWindScale() != ws.scale())
+                    NMEAContext.getInstance().fireWindScale(ws.scale());
+                  found = true;
+                  break;
+                }
+              }
+              if (!found)
+                NMEAContext.getInstance().fireWindScale(NMEAContext.WindScale._50_60.scale());
+            }
           }
           repaint();
         } 
@@ -204,28 +223,37 @@ public class CurrentSituationPanel
     
     displayPanel.setLayout(gridBagLayout2);
     topDisplayPanel.setLayout(new GridBagLayout());
-    displayPanel.add(topDisplayPanel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 0), 0, 0));
+    displayPanel.add(topDisplayPanel, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.VERTICAL,
+          new Insets(0, 0, 0, 0), 0, 0));
 
     
-    displayPanel.add(showLeftPaneCheckBox, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 3, 0, 0), 0, 0));
-    displayPanel.add(miniMaxiCheckBox, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 3, 0, 0), 0, 0));
-    displayPanel.add(showTemperatureCheckBox, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 3, 0, 0), 0, 0));
-    displayPanel.add(displayCurrentCheckBox, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 3, 0, 0), 0, 0));
-    displayPanel.add(twsMethodPanel, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 3, 0, 0), 0, 0));
+    displayPanel.add(showLeftPaneCheckBox, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+          new Insets(0, 3, 0, 0), 0, 0));
+    displayPanel.add(miniMaxiCheckBox, new GridBagConstraints(0, 2, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+          new Insets(0, 3, 0, 0), 0, 0));
+    displayPanel.add(showTemperatureCheckBox, new GridBagConstraints(0, 3, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+          new Insets(0, 3, 0, 0), 0, 0));
+    displayPanel.add(displayCurrentCheckBox, new GridBagConstraints(0, 4, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+          new Insets(0, 3, 0, 0), 0, 0));
+    displayPanel.add(twsMethodPanel, new GridBagConstraints(0, 5, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+          new Insets(0, 3, 0, 0), 0, 0));
 
     JPanel buttonPanel = new JPanel();
     buttonPanel.add(freezeButton, null);
     buttonPanel.add(shiftLeftRightButton, null);
-    displayPanel.add(buttonPanel, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 3, 0, 0), 0, 0));
+    displayPanel.add(buttonPanel, new GridBagConstraints(0, 6, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+          new Insets(0, 3, 0, 0), 0, 0));
 
+    displayPanel.add(autoScaleCheckBox, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+          new Insets(0, 0, 0, 0), 0, 0));
     bspDisplay = new JumboDisplay("BSP", "00.00", "Boat Speed", basicJumboSize);
-    hdgDisplay = new JumboDisplay("HDG", "000",   "True Heading", basicJumboSize);
-    awaDisplay = new JumboDisplay("AWA", "000",   "Apparent Wind Angle", basicJumboSize);
+    hdgDisplay = new JumboDisplay("HDG", "000", "True Heading", basicJumboSize);
+    awaDisplay = new JumboDisplay("AWA", "000", "Apparent Wind Angle", basicJumboSize);
     awsDisplay = new JumboDisplay("AWS", "00.00", "Apparent Wind Speed", basicJumboSize);
     sogDisplay = new JumboDisplay("SOG", "00.00", "Speed Over Ground", basicJumboSize);
-    cogDisplay = new JumboDisplay("COG", "000",   "Course Over Ground", basicJumboSize);
+    cogDisplay = new JumboDisplay("COG", "000", "Course Over Ground", basicJumboSize);
 
-    twaDisplay = new JumboDisplay("TWA", "000",   "True Wind Angle", basicJumboSize);
+    twaDisplay = new JumboDisplay("TWA", "000", "True Wind Angle", basicJumboSize);
     twaDisplay.setDisplayColor(Color.cyan);
     twsDisplay = new JumboDisplay("TWS", "00.00", "True Wind Speed", basicJumboSize);
     twsDisplay.setDisplayColor(Color.cyan);
@@ -237,10 +265,10 @@ public class CurrentSituationPanel
 
     cspDisplay = new JumboDisplay("CSP", "00.00", "Current Speed", basicJumboSize);
     cspDisplay.setDisplayColor(Color.cyan);
-    cdrDisplay = new JumboDisplay("CDR", "000",   "Current Direction", basicJumboSize);
+    cdrDisplay = new JumboDisplay("CDR", "000", "Current Direction", basicJumboSize);
     cdrDisplay.setDisplayColor(Color.cyan);
-    
-    awDisplay      = new AWDisplay("Wind", "00.00", "Apparent Wind", basicJumboSize);
+
+    awDisplay = new AWDisplay("Wind", "00.00", "Apparent Wind", basicJumboSize);
     currentDisplay = new CurrentDisplay("Current", "00.00", "Current", basicJumboSize);
     currentDisplay.setDisplayColor(Color.cyan);
 
@@ -249,7 +277,7 @@ public class CurrentSituationPanel
 
     hdgLabel.setText("HDG (t):");
     cogLabel.setText("COG:");
-    
+
     showLeftPaneCheckBox.setText("Show 2D Pane");
     showLeftPaneCheckBox.setSelected(true);
     showLeftPaneCheckBox.addActionListener(new ActionListener()
@@ -269,9 +297,9 @@ public class CurrentSituationPanel
           miniMaxiCheckBox_actionPerformed(e);
         }
       });
-    
+
     showTemperatureCheckBox.setText("Show Water Temperature");
-    
+
     boolean dt = "true".equals(System.getProperty("display.temperature", "false"));
     showTemperatureCheckBox.setSelected(dt);
     drawingBoard.setShowTemperature(dt);
@@ -280,7 +308,7 @@ public class CurrentSituationPanel
         public void actionPerformed(ActionEvent e)
         {
           drawingBoard.setShowTemperature(showTemperatureCheckBox.isSelected());
-          System.setProperty("display.temperature", showTemperatureCheckBox.isSelected()?"true":"false");
+          System.setProperty("display.temperature", showTemperatureCheckBox.isSelected()? "true": "false");
         }
       });
     displayCurrentCheckBox.setText("Display Current");
@@ -292,7 +320,15 @@ public class CurrentSituationPanel
           displayCurrentCheckBox_actionPerformed(e);
         }
       });
-    
+
+    autoScaleCheckBox.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          NMEAContext.getInstance().setAutoScale(autoScaleCheckBox.isSelected());
+        }
+      });
+      
     twsMethodPanel.add(twLabel, null);
     twsMethodPanel.add(gpsMethod, null);
     twsMethodPanel.add(bspMethod, null);
@@ -302,26 +338,26 @@ public class CurrentSituationPanel
     bspMethod.setSelected(false);
     System.setProperty("use.gps.method", "true");
     gpsMethod.addActionListener(new ActionListener()
-                                {
-                                  public void actionPerformed(ActionEvent e)
-                                  {
-                                    if (gpsMethod.isSelected())
-                                      System.setProperty("use.gps.method", "true");
-                                    else
-                                      System.setProperty("use.gps.method", "false");
-                                  }
-                                });
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          if (gpsMethod.isSelected())
+            System.setProperty("use.gps.method", "true");
+          else
+            System.setProperty("use.gps.method", "false");
+        }
+      });
     bspMethod.addActionListener(new ActionListener()
-                                {
-                                  public void actionPerformed(ActionEvent e)
-                                  {
-                                    if (bspMethod.isSelected())
-                                      System.setProperty("use.gps.method", "false");
-                                    else
-                                      System.setProperty("use.gps.method", "true");
-                                  }
-                                });
-    
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          if (bspMethod.isSelected())
+            System.setProperty("use.gps.method", "false");
+          else
+            System.setProperty("use.gps.method", "true");
+        }
+      });
+
     freezeButton.setPreferredSize(new Dimension(24, 24));
     freezeButton.setBorderPainted(false);
     freezeButton.setIcon(pause);
@@ -333,7 +369,7 @@ public class CurrentSituationPanel
           freezeButton_actionPerformed(e);
         }
       });
-    
+
     shiftLeftRightButton.setPreferredSize(new Dimension(24, 24));
     shiftLeftRightButton.setBorderPainted(false);
     shiftLeftRightButton.setIcon(left);
@@ -360,26 +396,61 @@ public class CurrentSituationPanel
           }
         }
       });
-      
-    topDisplayPanel.add(bspDisplay, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0));
-    topDisplayPanel.add(hdgDisplay, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0));
-    topDisplayPanel.add(awaDisplay, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0));
-    topDisplayPanel.add(awsDisplay, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0));
-    topDisplayPanel.add(cogDisplay, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0));
-    topDisplayPanel.add(sogDisplay, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0));
-    topDisplayPanel.add(awDisplay, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0));
-    
-    topDisplayPanel.add(twdDisplay, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0));
-    topDisplayPanel.add(lwyDisplay, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0));
-    topDisplayPanel.add(twaDisplay, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0));
-    topDisplayPanel.add(twsDisplay, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0));
-    topDisplayPanel.add(cdrDisplay, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0));
-    topDisplayPanel.add(cspDisplay, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0));
-    topDisplayPanel.add(currentDisplay, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0));
 
-    topDisplayPanel.add(bspMinMaxPanel, new GridBagConstraints(2, 0, 1, 3, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0));
-    topDisplayPanel.add(beaufortDisplay, new GridBagConstraints(2, 3, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0));
-    topDisplayPanel.add(twsMinMaxPanel, new GridBagConstraints(2, 4, 1, 3, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.VERTICAL, new Insets(1, 1, 1, 1), 0, 0));
+    autoScaleCheckBox.setText("Wind Auto-Scale");
+    topDisplayPanel.add(bspDisplay,
+                        new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                                               new Insets(1, 1, 1, 1), 0, 0));
+    topDisplayPanel.add(hdgDisplay,
+                        new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                                               new Insets(1, 1, 1, 1), 0, 0));
+    topDisplayPanel.add(awaDisplay,
+                        new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                                               new Insets(1, 1, 1, 1), 0, 0));
+    topDisplayPanel.add(awsDisplay,
+                        new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                                               new Insets(1, 1, 1, 1), 0, 0));
+    topDisplayPanel.add(cogDisplay,
+                        new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                                               new Insets(1, 1, 1, 1), 0, 0));
+    topDisplayPanel.add(sogDisplay,
+                        new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                                               new Insets(1, 1, 1, 1), 0, 0));
+    topDisplayPanel.add(awDisplay,
+                        new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                                               new Insets(1, 1, 1, 1), 0, 0));
+
+    topDisplayPanel.add(twdDisplay,
+                        new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                                               new Insets(1, 1, 1, 1), 0, 0));
+    topDisplayPanel.add(lwyDisplay,
+                        new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                                               new Insets(1, 1, 1, 1), 0, 0));
+    topDisplayPanel.add(twaDisplay,
+                        new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                                               new Insets(1, 1, 1, 1), 0, 0));
+    topDisplayPanel.add(twsDisplay,
+                        new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                                               new Insets(1, 1, 1, 1), 0, 0));
+    topDisplayPanel.add(cdrDisplay,
+                        new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                                               new Insets(1, 1, 1, 1), 0, 0));
+    topDisplayPanel.add(cspDisplay,
+                        new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                                               new Insets(1, 1, 1, 1), 0, 0));
+    topDisplayPanel.add(currentDisplay,
+                        new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                                               new Insets(1, 1, 1, 1), 0, 0));
+
+    topDisplayPanel.add(bspMinMaxPanel,
+                        new GridBagConstraints(2, 0, 1, 3, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                                               new Insets(1, 1, 1, 1), 0, 0));
+    topDisplayPanel.add(beaufortDisplay,
+                        new GridBagConstraints(2, 3, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                                               new Insets(1, 1, 1, 1), 0, 0));
+    topDisplayPanel.add(twsMinMaxPanel,
+                        new GridBagConstraints(2, 4, 1, 3, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.VERTICAL,
+                                               new Insets(1, 1, 1, 1), 0, 0));
     // Init values
 //  hdgPanel.setHdg(53);
 //  cogPanel.setHdg(94);
