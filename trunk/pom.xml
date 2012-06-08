@@ -51,11 +51,11 @@
       <artifactId>ChartComponents</artifactId>
       <version>1.0</version>
     </dependency>
-    <dependency>
+    <!--dependency>
       <groupId>GeomUtil</groupId>
       <artifactId>GeomUtil</artifactId>
       <version>1.0</version>
-    </dependency>
+    </dependency-->
     <dependency>
       <groupId>CoreUtilities</groupId>
       <artifactId>CoreUtilities</artifactId>
@@ -79,5 +79,6 @@
     <groupId>OlivSoft</groupId>
     <artifactId>OlivSoft</artifactId>
     <version>1.0</version>
+    <relativePath>../weather-wizard.pom.xml</relativePath>
   </parent>
 </project>
