@@ -18,6 +18,8 @@ import java.util.List;
 
 import nmea.event.NMEAListener;
 
+import nmea.ui.viewer.elements.ControlPanelForAll;
+
 import oracle.xml.parser.v2.DOMParser;
 
 
@@ -26,6 +28,35 @@ import oracle.xml.parser.v2.DOMParser;
  */
 public class NMEAContext implements Serializable
 {
+  public static enum WindScale
+  {
+    _00_05( 1.5f,  5, "05 knots"),
+    _05_10( 3,    10, "10 knots"),
+    _10_15( 4.5f, 15, "15 knots"),
+    _15_20( 6,    20, "20 knots"),
+    _20_25( 7.5f, 25, "25 knots"),
+    _25_30( 9,    30, "30 knots"),
+    _30_40(12,    40, "40 knots"),
+    _40_50(15,    50, "50 knots"),
+    _50_60(18,    60, "60 knots");
+    
+    private final float scale;
+    private final double speed;
+    private final String label;
+    
+    WindScale(float scale, double speed, String label)
+    {
+      this.scale = scale;
+      this.speed = speed;
+      this.label = label;
+    }
+    
+    public float scale() { return scale; }
+    public double speed() { return speed; }
+    public String label() { return label; }
+    
+  }
+  
   private static NMEAContext applicationContext = null;  
   private transient List<NMEAListener> NMEAListeners = null;
   private NMEADataCache dataCache = null;
@@ -38,9 +69,12 @@ public class NMEAContext implements Serializable
   public final static int DEFAULT_BUFFER_SIZE = 3600;
   
   private boolean fromFile = false;
+  private boolean autoScale = false;
+  
+  private float currentWindScale = 0f;
   
   private transient DOMParser parser = null;
-  private transient Connection dbConnection = null;
+  private transient Connection dbConnection = null;  
   
   private NMEAContext()
   {
@@ -145,6 +179,7 @@ public class NMEAContext implements Serializable
   
   public void fireWindScale(float f)
   {
+    setCurrentWindScale(f);
     for (int i=0; i<NMEAListeners.size(); i++)
     {
       NMEAListener l = NMEAListeners.get(i);
@@ -331,5 +366,25 @@ public class NMEAContext implements Serializable
   public boolean isFromFile()
   {
     return fromFile;
+  }
+
+  public void setAutoScale(boolean autoScale)
+  {
+    this.autoScale = autoScale;
+  }
+
+  public boolean isAutoScale()
+  {
+    return autoScale;
+  }
+
+  public void setCurrentWindScale(float currentWindScale)
+  {
+    this.currentWindScale = currentWindScale;
+  }
+
+  public float getCurrentWindScale()
+  {
+    return currentWindScale;
   }
 }
