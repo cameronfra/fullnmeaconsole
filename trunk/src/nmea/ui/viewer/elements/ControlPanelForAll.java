@@ -17,6 +17,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
@@ -64,6 +65,7 @@ public class ControlPanelForAll
   private JLabel dampingLabel = new JLabel();
   private JSpinner dampingSpinner = new JSpinner();
   private JSlider replaySpeedSlider = new JSlider();
+  private JProgressBar fileProgress = new JProgressBar();
 
   public ControlPanelForAll(CurrentSituationPanel cp)
   {
@@ -324,7 +326,19 @@ public class ControlPanelForAll
         }
       });
     replaySpeedSlider.setToolTipText("Replay Speed");
-    replaySpeedSlider.setVisible(NMEAContext.getInstance().isFromFile());
+    replaySpeedSlider.setVisible(NMEAContext.getInstance().isFromFile());    
+    
+    this.add(fileProgress, new GridBagConstraints(0, 4, 9, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+          new Insets(5, 0, 0, 0), 0, 0));
+    fileProgress.setVisible(NMEAContext.getInstance().isFromFile());
+    if (NMEAContext.getInstance().isFromFile())
+    {
+      fileProgress.setMaximum(1000);
+      fileProgress.setMinimum(0);
+      fileProgress.setStringPainted(true);
+      fileProgress.setString("0%");
+      fileProgress.setValue(0);
+    }
     
     NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
@@ -341,6 +355,22 @@ public class ControlPanelForAll
             }
           }
         }
+        
+        public void dataUpdate() 
+        {
+          if (NMEAContext.getInstance().isFromFile())
+          {
+            long fileSize = NMEAContext.getInstance().getReplayFileSize();
+            if (fileSize > 0)
+            {
+              long filePos = NMEAContext.getInstance().getReplayFileRecNum();
+              double pos = 1000D * (double)filePos / (double)fileSize;
+              fileProgress.setValue((int)Math.round(pos));
+              fileProgress.setString(Long.toString(filePos) + "/" + Long.toString(fileSize));
+            }
+          }
+        }
+
       });
   }
 

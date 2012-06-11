@@ -23,7 +23,8 @@ import ocss.nmea.api.NMEAListener;
  */
 public class CustomFileReader extends NMEAReader implements DataReader
 {
-  File dataFile = null;
+  private File dataFile = null;
+  private long recNum = 0;
   public CustomFileReader(List<NMEAListener> al, File f)
   {
     super(al);
@@ -64,22 +65,30 @@ public class CustomFileReader extends NMEAReader implements DataReader
       {
         double size = Math.random();
         int dim = (int)(750 * size);
-        byte[] ba = new byte[dim];
-        int l = fis.read(ba);
-//      System.out.println("Read " + l);
-        if (l != -1 && dim > 0)
+        if (dim > 0)
         {
-          String nmeaContent = new String(ba);
-          super.fireDataRead(new NMEAEvent(this, nmeaContent));
-          try { Thread.sleep(sleepTime); } catch (Exception ignore) {}
+          byte[] ba = new byte[dim];
+          int l = fis.read(ba);
+  //      System.out.println("Read " + l);
+          if (l != -1)
+          {
+            String nmeaContent = new String(ba);
+            recNum += nbNMEASentences(nmeaContent);
+            NMEAContext.getInstance().setReplayFileRecNum(recNum);
+            super.fireDataRead(new NMEAEvent(this, nmeaContent));
+            try { Thread.sleep(sleepTime); } catch (Exception ignore) {}
+          }
+          else
+          {
+            System.out.println("===== Reseting Reader =====");
+            fis.close();
+            fis = new FileInputStream(dataFile);
+            recNum = 0;
+  //        fis = this.getClass().getResourceAsStream(fileName);
+          }
         }
-        else
-        {
-          System.out.println("===== Reseting Reader =====");
-          fis.close();
-          fis = new FileInputStream(dataFile);
-//        fis = this.getClass().getResourceAsStream(fileName);
-        }
+//      else
+//        System.out.println("======>>> dim = 0, continuing.");
       }
     }
     catch (Exception e)
@@ -88,6 +97,18 @@ public class CustomFileReader extends NMEAReader implements DataReader
     }
   }
 
+  private static int nbNMEASentences(String chunk)
+  {
+    int nbs = 0;
+    int idx = chunk.indexOf("$");
+    while (idx > -1)
+    {
+      nbs++;
+      idx = chunk.indexOf("$", idx + 1);
+    }    
+    return nbs;
+  }
+  
   public void closeReader() throws Exception
   {
     System.out.println("Stop reading Data File.");
@@ -113,4 +134,11 @@ public class CustomFileReader extends NMEAReader implements DataReader
   
   public void setTimeout(long timeout)
   { /* Not used for File Reader */  }
+  
+  public static void main4test(String[] args)
+  {
+    String s = "26.5,C*39$IIMWV,238,R,17.4,N,A*18$IIMWV,225,T,21.4,N,A*17$IIRMC,220712,A,0906.452,S,14012.516,W,06.6,227,211110,10,E,A*0B$IIVHW,,,220,M,06.1,N,,*63$IIVLW,03013,N,012.2,N*53$IIVWR,122,L,17.4,N,,,,*7C$IIDPT,000.9,+0.7,*49$IIGLL,0906.455,S,14012.519,W,220714,A,A*5D$IIHDG,221,,,10,E*12$IIMTW,+26.5,C*39$IIMWV,232,R,16.2,N,A*15$IIMWV,224,T,21.2,N,A*10$IIRMB,A,3.00,R,,RANGI   ,,,,,561.80,230,06.5,V,A*0F$IIRMC,220714,A,0906.455,S,14012.519,W,06.6,227,211110,10,E,A*05$IIVHW,,,221,M,06.0,N,,*63$IIVLW,03013,N,012.2,N*53$IIVWR,130,L,15.5,N,,,,*7C$IIDPT,000.9,+0.7,*49$IIGLL,0906.455,S,14012.519,W,220714,A,A*5D$IIHDG,220,,,10,E*13$IIMTW,+26.5,C*39$IIMWV,230,R,15.5,N,A*";
+    int nb = nbNMEASentences(s);
+    System.out.println("Found " + nb + " sentence(s).");
+  }
 }
