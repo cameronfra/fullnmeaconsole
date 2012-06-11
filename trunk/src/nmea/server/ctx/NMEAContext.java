@@ -294,6 +294,15 @@ public class NMEAContext implements Serializable
     }
   }  
 
+  public void fireJumpToOffset(long offset)
+  {
+    for (int i=0; i<NMEAListeners.size(); i++)
+    {
+      NMEAListener l = NMEAListeners.get(i);
+      l.jumpToOffset(offset);
+    }
+  }  
+
   public void fireDampingHasChanged(int val)
   {
     for (int i=0; i<NMEAListeners.size(); i++)

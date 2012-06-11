@@ -1,15 +1,26 @@
 package nmea.ui.viewer.elements;
 
+import chart.components.ui.ChartPanel;
+
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import java.awt.event.FocusAdapter;
 
 import java.awt.event.FocusEvent;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseMotionListener;
 
 import java.text.DecimalFormat;
 
@@ -38,6 +49,11 @@ import ocss.nmea.parser.Angle180EW;
 public class ControlPanelForAll
   extends JPanel
 {
+  Cursor closedHandCursor = null;
+  Cursor openHandCursor = null;
+  Cursor previousCursor = null;
+  private boolean onBorder = false;
+  
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private final static DecimalFormat DF22 = new DecimalFormat("00.00");
   private final static DecimalFormat DF24 = new DecimalFormat("00.0000");
@@ -83,6 +99,13 @@ public class ControlPanelForAll
   private void jbInit()
     throws Exception
   {
+    String imageFileName = "resources/closed.hand.png";
+    Image image = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource(imageFileName));
+    closedHandCursor = Toolkit.getDefaultToolkit().createCustomCursor(image , new Point(15,15), imageFileName);
+    imageFileName = "resources/open.hand.png";
+    image = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource(imageFileName));
+    openHandCursor = Toolkit.getDefaultToolkit().createCustomCursor(image , new Point(15,15), imageFileName);
+
     this.setLayout(gridBagLayout1);
 
     this.setSize(new Dimension(485, 123));
@@ -330,6 +353,86 @@ public class ControlPanelForAll
     
     this.add(fileProgress, new GridBagConstraints(0, 4, 9, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
           new Insets(5, 0, 0, 0), 0, 0));
+    fileProgress.addMouseListener(new MouseAdapter()
+      {
+        private int draggedFrom = -1;
+        
+        @Override
+        public void mousePressed(MouseEvent e)
+        {
+//        super.mousePressed(e);
+          if (onBorder)
+          {
+            fileProgress.setCursor(closedHandCursor);
+            draggedFrom = e.getX();
+          }
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e)
+        {
+//        super.mouseReleased(e);
+          fileProgress.setCursor(previousCursor);
+          if (draggedFrom != -1)
+          {
+            int width = fileProgress.getSize().width;
+//          System.out.println("Mouse released at " + e.getX() + "/" + width);
+            long fileSize = NMEAContext.getInstance().getReplayFileSize();
+            if (fileSize > 0)
+            {
+              int recOffset = (int)Math.round(fileSize * (double)(e.getX()) / (double)width); 
+              long filePos = recOffset; // NMEAContext.getInstance().getReplayFileRecNum();
+//            System.out.println("Record:" + recOffset);
+              NMEAContext.getInstance().fireJumpToOffset(filePos);
+              double pos = 1000D * (double)filePos / (double)fileSize;
+              fileProgress.setValue((int)Math.round(pos));
+              fileProgress.setString(Long.toString(filePos) + "/" + Long.toString(fileSize));
+            }
+          }
+          draggedFrom = -1;
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e)
+        {
+//        super.mouseEntered(e);
+          // Store Original Cursor
+          previousCursor = fileProgress.getCursor();
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e)
+        {
+          // Return Original Cursor
+          fileProgress.setCursor(previousCursor);
+        }
+      });
+    fileProgress.addMouseMotionListener(new MouseMotionAdapter()
+      {
+
+        @Override
+        public void mouseDragged(MouseEvent e)
+        {
+//        System.out.println("Dragged");
+        }
+
+        @Override
+        public void mouseMoved(MouseEvent e)
+        {
+//        super.mouseMoved(e);
+          int x = e.getX();
+//        System.out.println("X:" + x);
+          int width = fileProgress.getSize().width;
+          int value = fileProgress.getValue();
+          int offset = (int)Math.round((double)width * ((double)value / 1000D));
+          onBorder = (Math.abs(offset - x) < 3); // At 3 pixels or less
+          if (onBorder)
+            fileProgress.setCursor(openHandCursor);
+          else
+            fileProgress.setCursor(previousCursor);
+        }
+      });
+    
     fileProgress.setVisible(NMEAContext.getInstance().isFromFile());
     if (NMEAContext.getInstance().isFromFile())
     {

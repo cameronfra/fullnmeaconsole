@@ -30,6 +30,7 @@ public abstract class NMEAListener implements EventListener
   public void dataBufferSizeChanged(int size) {}
   
   public void stopReading() throws Exception {}
+  public void jumpToOffset(long recordOffset) {}
 
   public void refreshLogJournal() {}
   public void showRawData(boolean b) {}

@@ -1,6 +1,8 @@
 package nmea.server.datareader.specific;
 
 
+import java.io.BufferedReader;
+
 import nmea.server.ctx.NMEAContext;
 
 import java.io.File;
@@ -25,6 +27,9 @@ public class CustomFileReader extends NMEAReader implements DataReader
 {
   private File dataFile = null;
   private long recNum = 0;
+  
+  private long jumpToOffset = -1;
+  
   public CustomFileReader(List<NMEAListener> al, File f)
   {
     super(al);
@@ -46,6 +51,10 @@ public class CustomFileReader extends NMEAReader implements DataReader
         {
           closeReader();
         }
+        public void jumpToOffset(long recordOffset) 
+        {
+          jumpToOffset = recordOffset;
+        }
       });
   }
   
@@ -63,11 +72,30 @@ public class CustomFileReader extends NMEAReader implements DataReader
 //    assert fis != null;
       while (canRead())
       {
+        if (jumpToOffset != -1)
+        {
+          fis.close();
+          fis = new FileInputStream(dataFile);
+          recNum = 0;
+          byte[] ba = new byte[250];
+          while (recNum < jumpToOffset)
+          {
+            int l = fis.read(ba);
+            if (l != -1)
+            {
+              String nmeaContent = new String(ba);
+              recNum += nbNMEASentences(nmeaContent);
+            }
+          }
+          NMEAContext.getInstance().setReplayFileRecNum(recNum);
+          jumpToOffset = -1;
+        }
         double size = Math.random();
         int dim = (int)(750 * size);
         if (dim > 0)
         {
           byte[] ba = new byte[dim];
+          
           int l = fis.read(ba);
   //      System.out.println("Read " + l);
           if (l != -1)
