@@ -3,7 +3,9 @@ package nmea.server.ctx;
 
 import coreutilities.sql.SQLUtil;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.Serializable;
 
 import java.sql.Connection;
@@ -70,6 +72,9 @@ public class NMEAContext implements Serializable
   
   private boolean fromFile = false;
   private boolean autoScale = false;
+  private String replayFile = null;
+  private long replayFileRecNum = 0L;
+  private long replayFileSize = 0L;
   
   private float currentWindScale = 0f;
   
@@ -126,6 +131,63 @@ public class NMEAContext implements Serializable
     {
       System.out.println("Remaining: Listener belongs to group [" + listener.getGroupID() + "]");
     }
+  }
+
+  public void setReplayFile(final String replayFile)
+  {
+    this.replayFile = replayFile;
+    // Count the number of records in the file
+    Thread counter = new Thread()
+      {
+        public void run()
+        {
+          try
+          {
+            BufferedReader br = new BufferedReader(new FileReader(replayFile));
+            String l = "";
+            long nbRec = 0;
+            boolean b = true;
+            while (b)
+            {
+              l = br.readLine();
+              b = (l != null);
+              if (b)
+                nbRec++;
+            }
+            setReplayFileSize(nbRec);
+            br.close();
+          }
+          catch (Exception ex)
+          {
+            System.err.println(ex.getLocalizedMessage());
+          }
+        }
+      };
+    counter.start();
+  }
+
+  public String getReplayFile()
+  {
+    return replayFile;
+  }
+
+  public void setReplayFileSize(long replayFilesize)
+  {
+    this.replayFileSize = replayFilesize;
+  }
+
+  public long getReplayFileSize()
+  {
+    return replayFileSize;
+  }
+  public void setReplayFileRecNum(long replayFileRecNum)
+  {
+    this.replayFileRecNum = replayFileRecNum;
+  }
+
+  public long getReplayFileRecNum()
+  {
+    return replayFileRecNum;
   }
 
   public DOMParser getParser()

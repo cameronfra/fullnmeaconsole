@@ -34,6 +34,7 @@ import nmea.local.LogisailResourceBundle;
 
 import nmea.server.NMEAEventManager;
 import nmea.server.constants.Constants;
+import nmea.server.ctx.NMEADataCache;
 import nmea.server.datareader.CustomNMEAClient;
 
 import nmea.ui.calc.CalculatedDataTablePane;
@@ -43,6 +44,9 @@ import nmea.ui.journal.JournalPanel;
 import nmea.ui.viewer.BulkPanel;
 import nmea.ui.viewer.Full2DPanel;
 import nmea.ui.viewer.ViewerTablePane;
+
+import ocss.nmea.parser.SolarDate;
+import ocss.nmea.parser.UTCDate;
 
 
 public class NMEAMasterPanel
@@ -56,8 +60,10 @@ public class NMEAMasterPanel
   private long nbRec = 0L;
   private transient FileWriter fw = null;
   private long nbFSFile = 0L;
-  private DecimalFormat nf = new DecimalFormat("000000");
-  private SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss:");
+  private final static DecimalFormat NF = new DecimalFormat("000000");
+  private final static SimpleDateFormat SDF = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss:");
+  private final static SimpleDateFormat UTC_DATE_FORMAT = new SimpleDateFormat("EEE dd MMM yyyy HH:mm:ss 'UTC'");
+  private final static SimpleDateFormat SOLAR_DATE_FORMAT = new SimpleDateFormat("'Solar:' dd MMM yyyy HH:mm:ss");
   private static long nbRecToCommit = Long.MAX_VALUE; // 100L;
 
   private String pfile = "";
@@ -114,6 +120,8 @@ public class NMEAMasterPanel
     this.pfile = propertiesFile;
     if (data != null && data.trim().length() > 0)
       setLogMessage("Simulation:" + data);
+    if (NMEAContext.getInstance().isFromFile())
+      NMEAContext.getInstance().setReplayFile(fName);
     
     this.openSerialPort = openSerial;
     
@@ -192,9 +200,9 @@ public class NMEAMasterPanel
           if ((mask & MouseEvent.BUTTON2_MASK) != 0 || (mask & MouseEvent.BUTTON3_MASK) != 0)
           {
             String statusText = status.getText();
-            if (statusText.startsWith("Simulation:"))
+            if (NMEAContext.getInstance().isFromFile())
             {
-              String fileName = statusText.substring("Sumulation:".length());
+              String fileName = NMEAContext.getInstance().getReplayFile();
               File f = new File(fileName);
               if (f.exists())
               {
@@ -440,7 +448,7 @@ public class NMEAMasterPanel
               System.err.println("Cannot create directory " + _logDir);
               System.exit(1);
             }            
-            String fName = _logDir + File.separator + "data_" + nf.format(nbFSFile++) + ".nmea";
+            String fName = _logDir + File.separator + "data_" + NF.format(nbFSFile++) + ".nmea";
             File f = null;
             boolean ok = false;
             while (!ok)
@@ -449,7 +457,7 @@ public class NMEAMasterPanel
               if (!f.exists())
                 ok = true;
               else
-                fName = _logDir + File.separator + "data_" + nf.format(nbFSFile++) + ".nmea";
+                fName = _logDir + File.separator + "data_" + NF.format(nbFSFile++) + ".nmea";
             }
             fw = new FileWriter(f);
           }
@@ -465,7 +473,7 @@ public class NMEAMasterPanel
           if (false)
           {
             if (nbRecToCommit < Long.MAX_VALUE) // Old version
-              fw.write( (logWithDate?(sdf.format(new Date()) + "\t"):"") + payload + "\n");
+              fw.write( (logWithDate?(SDF.format(new Date()) + "\t"):"") + payload + "\n");
             else
             {                                   // New version (no date)
               fw.write(payload + "\n");
@@ -475,7 +483,7 @@ public class NMEAMasterPanel
           }
           else
           {
-            fw.write( (logWithDate?(sdf.format(new Date()) + "\t"):"") + payload + "\n");
+            fw.write( (logWithDate?(SDF.format(new Date()) + "\t"):"") + payload + "\n");
             if (nbRecToCommit % 500 == 0)
               fw.flush();
           }
@@ -498,6 +506,21 @@ public class NMEAMasterPanel
           fw = null;
           System.out.println("Committed " + Long.toString(nbRec) + " records");
         }
+      }
+    }
+    if (NMEAContext.getInstance().isFromFile())
+    {
+      UTCDate utcDate = (UTCDate)NMEAContext.getInstance().getCache().get(NMEADataCache.GPS_DATE_TIME);      
+      if (utcDate != null && utcDate.getValue() != null)
+      {
+        SolarDate solarDate = (SolarDate)NMEAContext.getInstance().getCache().get(NMEADataCache.GPS_SOLAR_TIME);
+        long fileSize = NMEAContext.getInstance().getReplayFileSize();
+        String message = "Simulation:" + NMEAContext.getInstance().getReplayFile() + 
+                      // ", rec #" + Long.toString(NMEAContext.getInstance().getReplayFileRecNum()) + (fileSize > 0L?"/" + Long.toString(fileSize):"") +  
+                         ", " + UTC_DATE_FORMAT.format(utcDate.getValue());
+        if (solarDate != null)
+          message += (" (" + SOLAR_DATE_FORMAT.format(solarDate.getValue()) + ")");
+        setLogMessage(message);
       }
     }
   }

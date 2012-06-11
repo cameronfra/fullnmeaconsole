@@ -31,7 +31,7 @@ public class NMEAConsole
 //private final static SimpleDateFormat dateFormat = new SimpleDateFormat("d-MMM-yyyy hh:mm:ss:");
   private final static SimpleDateFormat DATE_FMT = new SimpleDateFormat("HH:mm:ss");
   private static String pfile = Utils.PROPERTIES_FILE;
-
+  
   public NMEAConsole(boolean verb, 
                        String serial, 
                        int br, 
