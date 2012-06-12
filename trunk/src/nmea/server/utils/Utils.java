@@ -108,7 +108,7 @@ public class Utils
   public final static void displayHelpAbout(Component parent)
   {
     String helpContent = "NMEA Console.\n";
-    helpContent += "Displays NMEA Data read from some stream (Serial Port, TCP Port, UDP Port, Simualtion Data File)\n";
+    helpContent += "Displays NMEA Data read from some stream (Serial Port, TCP Port, UDP Port, RMI, Simualtion Data File)\n";
     helpContent += "Can log NMEA Data.\n";
     helpContent += "Can rebroadcast NMEA data to an HTTP port in XML format.\n";
     String hostname = "localhost";
