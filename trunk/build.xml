@@ -70,6 +70,7 @@
       <include name="**/*.tag"/>
       <include name="**/*.ttf"/>
       <include name="**/*.wav"/>
+      <include name="**/*.html"/>
     </patternset>
     <copy todir="${output.dir}">
       <fileset dir="src">
