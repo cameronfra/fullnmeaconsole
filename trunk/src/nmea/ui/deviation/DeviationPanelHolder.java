@@ -23,6 +23,8 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
+import java.util.List;
+
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
@@ -216,7 +218,7 @@ public class DeviationPanelHolder
       });
     NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
-        public void loadDataPointsForDeviation(ArrayList<double[]> dp) 
+        public void loadDataPointsForDeviation(List<double[]> dp) 
         {
           setDataPoint(dp);
         }
@@ -268,7 +270,7 @@ public class DeviationPanelHolder
     showHideDataPoints.setEnabled(b);                                 
   }
   
-  public void setDataPoint(ArrayList<double[]> dataPoint)
+  public void setDataPoint(List<double[]> dataPoint)
   {
     deviationPanel.setDataPoint(dataPoint);
     suggestButton.setEnabled(dataPoint != null);

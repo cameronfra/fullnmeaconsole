@@ -583,6 +583,13 @@ public class DeviationPanel
 //      System.out.println("Starting Delete Points process...");
         deleting = true;
       }
+      else if (sprayPoints && !deletePoints)
+      {
+        Point mouse = e.getPoint();
+        sprayPoints(mouse);
+        suggestCurve();
+        this.repaint();
+      }
     }
   }
   
@@ -628,19 +635,31 @@ public class DeviationPanel
 
   private static boolean showDuringDrag = true;
   
+  private void sprayPoints(Point mouse)
+  {
+    if (alSprayedPoints == null)
+      alSprayedPoints = new ArrayList<double[]>();
+    final int NB_SPAYED_POINTS = 50; // TODO Parameter
+    final int SPRAY_RADIUS     = 10; // TODO Parameter
+    for (int i=0; i<NB_SPAYED_POINTS; i++)
+    {
+      double rnd = (Math.random() * SPRAY_RADIUS) * (Math.random() > 0.5?1:-1);
+      double value = ((((double)mouse.x + rnd)/ xDataScale) - halfWidth) / widthFactor;  // Dev
+      rnd = (Math.random() * SPRAY_RADIUS) * (Math.random() > 0.5?1:-1);
+      double cm    = (((double)mouse.y + rnd)/ yDataScale) - extraVerticalOverlap;       // HDM
+      cm += ((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.HDG_OFFSET)).doubleValue();
+      while (cm < 0)   cm += 360;
+      while (cm > 360) cm -= 360;
+      alSprayedPoints.add(new double[] { cm, cm - value });
+    }
+  }
+  
   public void mouseDragged(MouseEvent e)
   {
     Point mouse = e.getPoint();
     if (sprayPoints && !deletePoints)
     {
-      if (alSprayedPoints == null)
-        alSprayedPoints = new ArrayList<double[]>();
-      double value = (((double)mouse.x / xDataScale) - halfWidth) / widthFactor;
-      double cm    = ((double)mouse.y / yDataScale) - extraVerticalOverlap;
-      cm += ((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.HDG_OFFSET)).doubleValue();
-      while (cm < 0)   cm += 360;
-      while (cm > 360) cm -= 360;
-      alSprayedPoints.add(new double[] { cm, cm - value });
+      sprayPoints(mouse);
       suggestCurve();
       this.repaint();
     }
@@ -699,15 +718,33 @@ public class DeviationPanel
         double minDev = (((double)minX / xDataScale) - halfWidth) / widthFactor;
         double maxDev = (((double)maxX / xDataScale) - halfWidth) / widthFactor;
         
-        String mess = "Deleting from\nhdg[" +
-                       DF22.format(minHdg) + ", " + DF22.format(maxHdg) + "]\ndev[" + 
+        String mess = "Deleting from\nHDG [" +
+                       DF22.format(minHdg) + ", " + DF22.format(maxHdg) + "]\nDEV [" + 
                        DF22.format(minDev) + ", " + DF22.format(maxDev) + "]";
 //      System.out.println(mess);
+        // Count the points to delete
+        double hdgOffset = ((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.HDG_OFFSET)).doubleValue();
+        int nbPtDeleted = 0;
+        for (double[] d : dataPoint)
+        {
+          double hdg = d[0], 
+                 cog = d[1];
+          double dev = (hdg - cog);
+          dev += hdgOffset;  
+          while (dev > 180) dev -= 360;
+          while (dev < -180) dev += 360;
+        //          System.out.println("Is " + DF22.format(hdg) + " in [" + DF22.format(minHdg) + ", " + DF22.format(maxHdg) + "] and\n" +
+        //                             "   " + DF22.format(dev) + " in [" +  DF22.format(minDev) + ", " + DF22.format(maxDev) + "] ?");
+          if (hdg >= minHdg && hdg <= maxHdg && dev >= minDev && dev <= maxDev)
+            nbPtDeleted++;
+        }
+        mess += ("\n\nWould delete " + Integer.toString(nbPtDeleted) + " point(s)");
+        // Prompt the user
         int resp = JOptionPane.showConfirmDialog(this, mess, "Deleting points", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
         if (resp == JOptionPane.OK_OPTION)
         {
-          int nbPtDeleted = 0;
-          double hdgOffset = ((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.HDG_OFFSET)).doubleValue();
+       /* int */ nbPtDeleted = 0;
+//        double hdgOffset = ((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.HDG_OFFSET)).doubleValue();
           List<double[]> newData = new ArrayList<double[]>();
           for (double[] d : dataPoint)
           {
