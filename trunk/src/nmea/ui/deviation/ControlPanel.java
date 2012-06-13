@@ -2,11 +2,16 @@ package nmea.ui.deviation;
 
 import coreutilities.Utilities;
 
+import java.awt.BorderLayout;
+
+import java.awt.Color;
+
 import nmea.server.ctx.NMEAContext;
 import nmea.server.ctx.NMEADataCache;
 import nmea.server.utils.Utils;
 
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
@@ -26,9 +31,14 @@ import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 
 public class ControlPanel
   extends JPanel
@@ -38,6 +48,12 @@ public class ControlPanel
   private JLabel deviationCurveName = new JLabel();
   private JButton loadDevCurveButton = new JButton();
   private JButton saveDevCurveButton = new JButton();
+
+  private JButton helpButton = new JButton();
+  
+  private JPanel leftPanel  = new JPanel();
+  private JPanel rightPanel = new JPanel();
+  private GridBagLayout gridBagLayout2 = new GridBagLayout();
 
   public ControlPanel()
   {
@@ -54,7 +70,9 @@ public class ControlPanel
   private void jbInit()
     throws Exception
   {
-    this.setLayout(gridBagLayout1);
+    this.setLayout(gridBagLayout2);
+    this.setSize(new Dimension(400, 95));
+    leftPanel.setLayout(gridBagLayout1);
     loadDataPointsButton.setIcon(new ImageIcon(this.getClass().getResource("importIcon.png")));
     loadDataPointsButton.setToolTipText("Load logged data points");
     loadDataPointsButton.setSize(new Dimension(24, 24));
@@ -90,10 +108,30 @@ public class ControlPanel
           saveDevCurveButton_actionPerformed(e);
         }
       });
-    this.add(loadDataPointsButton,     new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 0, 2, 0), 0, 0));
-    this.add(loadDevCurveButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 2, 2, 0), 0, 0));
-    this.add(saveDevCurveButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 2, 2, 0), 0, 0));
-    this.add(deviationCurveName, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(2, 2, 2, 0), 0, 0));
+    leftPanel.add(loadDataPointsButton,     new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 0, 2, 0), 0, 0));
+    leftPanel.add(loadDevCurveButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 2, 2, 0), 0, 0));
+    leftPanel.add(saveDevCurveButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 2, 2, 0), 0, 0));
+    leftPanel.add(deviationCurveName, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(2, 2, 2, 0), 0, 0));
+    
+    leftPanel.validate();
+    this.add(leftPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+          new Insets(0, 0, 0, 0), 0, 0));
+    
+    helpButton.setIcon(new ImageIcon(this.getClass().getResource("help.png")));
+    helpButton.setSize(new Dimension(24, 24));
+    helpButton.setPreferredSize(new Dimension(24, 24));
+    helpButton.setBorderPainted(false);    
+    helpButton.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          showHelp();
+        }
+      });
+    
+    rightPanel.add(helpButton, null);
+    this.add(rightPanel, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.EAST, GridBagConstraints.NONE,
+          new Insets(0, 0, 0, 0), 0, 0));
     
     this.validate();
   }
@@ -135,6 +173,32 @@ public class ControlPanel
       NMEAContext.getInstance().fireDeviationCurveChanged(Utils.loadDeviationHashtable(fName));
       NMEAContext.getInstance().getCache().put(NMEADataCache.DEVIATION_FILE, fName);
     }
+  }
+  
+  private void showHelp()
+  {
+    JPanel helpPanel = new JPanel();
+    helpPanel.setPreferredSize(new Dimension(500, 500));
+    JEditorPane jEditorPane = new JEditorPane();
+    JScrollPane jScrollPane = new JScrollPane();
+    helpPanel.setLayout(new BorderLayout());
+    jEditorPane.setEditable(false);
+    jEditorPane.setFocusable(false);
+    jEditorPane.setFont(new Font("Verdana", 0, 10));
+    jEditorPane.setBackground(Color.lightGray);
+    jScrollPane.getViewport().add(jEditorPane, null);
+
+    try
+    {
+      jEditorPane.setPage(this.getClass().getResource("deviation.help.html"));
+      jEditorPane.repaint();
+    }
+    catch (Exception ex)
+    {
+      ex.printStackTrace();
+    }
+    helpPanel.add(jScrollPane, BorderLayout.CENTER);
+    JOptionPane.showMessageDialog(this, helpPanel, "Deviation Curve Help", JOptionPane.PLAIN_MESSAGE); 
   }
   
   private String truncateFileName(String f)

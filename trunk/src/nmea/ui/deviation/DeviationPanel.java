@@ -78,6 +78,7 @@ public class DeviationPanel
   private List<double[]> dataPoint = null;
   private boolean showData = true;
   private boolean showCurvePoints = true;
+  private boolean suggestSmoothedCurve = false;
   
   private double widthFactor = 1d;  
   private double currentHDM  = 0d;
@@ -493,6 +494,14 @@ public class DeviationPanel
     }
   }
   
+  public void setSuggestSmoothedCurve(boolean b)
+  {
+    this.suggestSmoothedCurve = b;
+    if (b)
+      suggestCurve();
+    this.repaint();
+  }
+  
   public void suggestCurve()
   {
     double hdgOffset = ((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.HDG_OFFSET)).doubleValue();
@@ -615,7 +624,7 @@ public class DeviationPanel
 //      System.out.println("Starting Delete Points process...");
         deleting = true;
       }
-      else if (sprayPoints && !deletePoints)
+      else if (sprayPoints && !deletePoints && suggestSmoothedCurve)
       {
         Point mouse = e.getPoint();
         sprayPoints(mouse);
@@ -689,7 +698,7 @@ public class DeviationPanel
   public void mouseDragged(MouseEvent e)
   {
     Point mouse = e.getPoint();
-    if (sprayPoints && !deletePoints)
+    if (sprayPoints && !deletePoints && suggestSmoothedCurve)
     {
       sprayPoints(mouse);
       suggestCurve();
@@ -824,7 +833,8 @@ public class DeviationPanel
             }
             synchronized (alSprayedPoints) { alSprayedPoints = newData; }
           }
-          suggestCurve();
+          if (suggestSmoothedCurve)
+            suggestCurve();
 //        System.out.println("Deleted " + nbPtDeleted + " Pt(s).");
         }        
         draggedToX = -1;

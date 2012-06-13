@@ -3,6 +3,8 @@ package nmea.ui.deviation;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 
+import javax.swing.JToggleButton;
+
 import nmea.server.ctx.NMEAContext;
 import nmea.server.ctx.NMEADataCache;
 import nmea.server.utils.Utils;
@@ -37,7 +39,7 @@ public class DeviationPanelHolder
   private BorderLayout borderLayout1 = new BorderLayout();
   private DeviationPanel deviationPanel = new DeviationPanel();
   private JPanel bottomPanel = new JPanel();
-  private JButton suggestButton = new JButton();
+  private JCheckBox suggestCheckBox = new JCheckBox();
   private JCheckBox sprayCheckBox = new JCheckBox();
   private JCheckBox deleteCheckBox = new JCheckBox();
   private JButton resetButton = new JButton();
@@ -72,17 +74,18 @@ public class DeviationPanelHolder
     bottomPanel.setLayout(gridBagLayout1);
     this.add(deviationPanel, BorderLayout.CENTER);
     this.add(bottomPanel, BorderLayout.SOUTH);
-    suggestButton.setText("Suggest");
-    suggestButton.setToolTipText("From logged data");
-    bottomPanel.add(suggestButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+    suggestCheckBox.setText("Suggest");
+    suggestCheckBox.setToolTipText("From logged data");
+    bottomPanel.add(suggestCheckBox, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
           new Insets(2, 3, 0, 3), 0, 0));
-    suggestButton.setEnabled(false);
-    suggestButton.setVisible(false);
-    suggestButton.addActionListener(new ActionListener()
+    suggestCheckBox.setEnabled(false);
+    suggestCheckBox.setVisible(false);
+    suggestCheckBox.setSelected(false);
+    suggestCheckBox.addActionListener(new ActionListener()
       {
         public void actionPerformed(ActionEvent e)
         {
-          suggestButton_actionPerformed(e);
+          suggestCheckBox_actionPerformed(e);
         }
       });
     sprayCheckBox.setText("Spray");
@@ -170,7 +173,7 @@ public class DeviationPanelHolder
         public void actionPerformed(ActionEvent e)
         {
           deviationPanel.setShowData(showHideDataPoints.isSelected());
-          suggestButton.setVisible(showHideDataPoints.isSelected());
+          suggestCheckBox.setVisible(showHideDataPoints.isSelected());
           deviationPanel.repaint();
         }
       });
@@ -197,7 +200,7 @@ public class DeviationPanelHolder
           new Insets(2, 3, 0, 3), 0, 0));
     bottomPanel.add(printCheckBox, new GridBagConstraints(8, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
           new Insets(0, 0, 0, 0), 0, 0));
-    movePointsButton.setEnabled(true);
+    movePointsButton.setEnabled(false);
     movePointsButton.setVisible(true);
     movePointsButton.addActionListener(new ActionListener()
       {
@@ -223,7 +226,8 @@ public class DeviationPanelHolder
           setDataPoint(dp);
         }
       });
-    
+    suggestCheckBox.setModel(new JToggleButton.ToggleButtonModel());
+
   }
 
   public void paintComponent(Graphics g)
@@ -239,8 +243,8 @@ public class DeviationPanelHolder
 
     if (deviationPanel.getDataPoint() != null && showHideDataPoints.isSelected())
     {
-      suggestButton.setEnabled(true);
-      suggestButton.setVisible(true);
+      suggestCheckBox.setEnabled(true);
+      suggestCheckBox.setVisible(true);
 //    sprayCheckBox.setEnabled(true);      
 //    sprayCheckBox.setVisible(true);
 //    deleteCheckBox.setEnabled(true);
@@ -273,17 +277,18 @@ public class DeviationPanelHolder
   public void setDataPoint(List<double[]> dataPoint)
   {
     deviationPanel.setDataPoint(dataPoint);
-    suggestButton.setEnabled(dataPoint != null);
-    suggestButton.setVisible(dataPoint != null);
+    suggestCheckBox.setEnabled(dataPoint != null);
+    suggestCheckBox.setVisible(dataPoint != null);
     sprayCheckBox.setEnabled(dataPoint != null);
     sprayCheckBox.setVisible(dataPoint != null);
     deleteCheckBox.setEnabled(dataPoint != null);
     deleteCheckBox.setVisible(dataPoint != null);
   }
 
-  private void suggestButton_actionPerformed(ActionEvent e)
-  {
-    deviationPanel.suggestCurve();
+  private void suggestCheckBox_actionPerformed(ActionEvent e)
+  {    
+    deviationPanel.setSuggestSmoothedCurve(suggestCheckBox.isSelected());
+    movePointsButton.setEnabled(suggestCheckBox.isSelected());
   }
   
   private void resetButton_actionPerformed(ActionEvent e)

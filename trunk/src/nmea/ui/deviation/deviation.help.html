@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252"></meta>
+    <title>deviation.help</title>
+    <style type='text/css'>
+      body { background : #ffffff; color : #000000; font-size: 12pt; font-family: Arial, Helvetica, Geneva, Swiss, SunSans-Regular } 
+      h1 { color: white; font-style: italic; font-size: 14pt; font-family: Arial, Helvetica, Geneva, Swiss, SunSans-Regular; background-color: black; padding-left: 5pt } 
+      h2 { font-size: 12pt; font-family: Arial, Helvetica, Geneva, Swiss, SunSans-Regular } 
+      h3 { font-style: italic; font-weight: bold; font-size: 12pt; font-family: Arial, Helvetica, Geneva, Swiss, SunSans-Regular; font-weight: bold  } 
+      li { font-size: 12pt; font-family: Arial, Helvetica, Geneva, Swiss, SunSans-Regular } 
+      p { font-size: 12pt; font-family: Arial, Helvetica, Geneva, Swiss, SunSans-Regular } 
+      td { font-size: 12pt; font-family: Arial, Helvetica, Geneva, Swiss, SunSans-Regular } 
+      small { font-size: 10pt; font-family: Arial, Helvetica, Geneva, Swiss, SunSans-Regular } 
+      blockquote{ font-style: italic; font-size: 12pt; font-family: Arial, Helvetica, Geneva, Swiss, SunSans-Regular }--> 
+      em { font-size: 12pt; font-style: italic; font-weight: bold; font-family: Arial, Helvetica, Geneva, Swiss, SunSans-Regular } 
+      pre { font-size: 11pt; font-family: Courier New, Helvetica, Geneva, Swiss, SunSans-Regular } 
+      address { font-size: 12pt; font-family: Arial, Helvetica, Geneva, Swiss, SunSans-Regular } 
+      a:link { color : #000000}  
+      a:active { color: #000000}  
+      a:visited { color : #000000}
+    </style>  
+  </head>
+  <body>
+    <h1>Deviation Curve</h1>
+    <p>
+      The generic equation of a deviation curve is
+      <pre>
+ a + (b.sin(Z)) + (c.cos(Z)) + (d.sin(2.Z)) + (e.cos(2.Z))      
+      </pre>
+      where <b>Z</b> is the magnetic heading.
+    </p>
+    <p>
+      Use the icon <img src="open.png"> to open an already defined deviation curve.
+    </p>
+    <p>
+      <h2>To define your own deviation curve</h2>
+      Use the icon <img src="importIcon.png"> to load logged NMEA data.
+      <br>
+      The logged data points appear in yellow on the display. <i>Note:</i> The logged values for the heading are Integers.
+      <br>
+      The points in red are representing the <i>average</i> value of the deviation for each heading.
+      The red points are the points stored for the representation and definition of the deviation curve.
+    </p>
+    <p>
+      You can: 
+      <ul>
+        <li type="disc">Delete unwanted points. Check the "Del." check box, and use the mouse to drag a rectangle around the points you want to drop</li>
+        <li type="disc">Add more points. Check the "Spary" checkbox, and use the mouse (left-click) to spray points on the screen</li>
+        <li type="disc">Suggest a smoothed curve ("Suggest" checkbox)</li>
+      </ul>
+      When you hit the "Move points" button, you actually move the red points (defining the deviation curve) on the suggested curve.      
+    </p>
+    <hr>
+    <address>&copy; 2012, OlivSoft</address>
+  </body>
+</html>
