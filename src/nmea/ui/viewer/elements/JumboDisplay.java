@@ -2,6 +2,7 @@ package nmea.ui.viewer.elements;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Font;
 
@@ -212,7 +213,7 @@ public class JumboDisplay
     g2d.setPaint(null);
 
     g2d.setColor(darkColor);
-
+    
     int width  = bottomRight.x - topLeft.x;
     int height = bottomRight.y - topLeft.y;
 
@@ -229,6 +230,16 @@ public class JumboDisplay
     g2d.setPaint(gradient);
     int offset = (int)(width * 0.025);
     int arcRadius = 5;
-    g2d.fillRoundRect(topLeft.x + offset, topLeft.y + offset, (width - (2 * offset)), (height - (2 * offset)), 2 * arcRadius, 2 * arcRadius); 
+    g2d.fillRoundRect(topLeft.x + offset, topLeft.y + offset, (width - (2 * offset)), (height - (2 * offset)), 2 * arcRadius, 2 * arcRadius);
+    
+    g2d.setColor(Color.lightGray);
+    Composite comp = g2d.getComposite();
+    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.3f));
+    for (int n=1; n<4; n++)
+      g2d.drawLine(0, n * (height / 4), width, n * (height / 4));
+    for (int n=1; n<6; n++)
+      g2d.drawLine(n * (width / 6), 0, n * (width / 6), height);
+    
+    g2d.setComposite(comp);
   }
 }
