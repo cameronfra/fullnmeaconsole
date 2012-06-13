@@ -204,32 +204,44 @@ public class DeviationPanel
     
     // Painting deviation grid, vertical
     int minMax = (int)Math.round(Math.ceil(halfWidth)) + 2;
-    for (int i=(-minMax); i<minMax; i++)
+//  System.out.println("MinMax:" + minMax + ", width = " + w);
+    int incr = 1;
+    if ((w / minMax) < 50)
     {
-      int _x = (int)(((i * widthFactor)+ halfWidth) * xDataScale);
-      Color c = null;
+      incr = 10;
+      minMax = 10 * (minMax / 10);
+    }
+    for (int i=(-minMax); i<minMax; i+=incr) // Center Axis
+    {
+      int _x = (int)(((i * widthFactor) + halfWidth) * xDataScale);
+      Color c = g.getColor();
       if (i == 0)
       {
-        c = g.getColor();
         if (!printVersion)
           g.setColor(Color.red);
         else
           g.setColor(Color.black);
       }
       g.drawLine(_x, 0, _x, h);
-      g.drawString(Integer.toString(i), _x, 10);
+      g.setColor(Color.cyan);
+      String label = Integer.toString(i);
+      int strWidth  = g.getFontMetrics(g.getFont()).stringWidth(label);
+      g.drawString(label, _x - (strWidth / 2), 10);
       if (c != null)
         g.setColor(c);
     }
     // Painting horizontal lines
     for (double d=-extraVerticalOverlap; d<=(360.0 + extraVerticalOverlap); d+=30.0)
     {
+      Color c = g.getColor();
       int _y = (int)((d + extraVerticalOverlap) * yDataScale);
       g.drawLine(0, _y, w, _y);
       double _d = d;
       while (_d < 0) _d += 360d;
       while (_d > 360) _d -= 360d;
-      g.drawString(Integer.toString((int)_d), 2, _y);
+      g.setColor(Color.cyan);
+      g.drawString(Integer.toString((int)_d), 2, _y + (g.getFont().getSize() / 2));
+      g.setColor(c);
       if (_d == 0 || _d == 90 || _d == 180 || _d == 270 || _d == 360)
       {
         String card = "N";
