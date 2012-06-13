@@ -250,7 +250,7 @@ public class NMEAMasterPanel
 //  tabbedPane.add("Evolution", dataP);
     
     JPanel shifLeftPanel = new JPanel(new BorderLayout());
-    shifLeftPanel.add(new ControlPanel(), BorderLayout.WEST);
+    shifLeftPanel.add(new ControlPanel(), BorderLayout.NORTH); // BorderLayout.WEST);
     ep.add(shifLeftPanel, BorderLayout.NORTH);
     ep.add(new DeviationPanelHolder(), BorderLayout.CENTER);
     tabbedPane.add(LogisailResourceBundle.buildMessage("deviation-curve"), ep);
