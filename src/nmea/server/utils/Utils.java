@@ -1267,7 +1267,7 @@ public class Utils
       System.out.println("We have:");
       Set<String> keys = counter.keySet();
       for (String k : keys)
-        System.out.println(counter.get(k).intValue() + " " + k);
+        System.out.println(k + " " + counter.get(k).intValue());
       if (counter.get("RMC").intValue() == 0 &&
           counter.get("GLL").intValue() == 0 &&
           counter.get("VTG").intValue() == 0)

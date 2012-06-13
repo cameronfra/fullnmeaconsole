@@ -117,7 +117,7 @@ public class DeviationPanelHolder
       });
             
     resetButton.setText("Reset");
-    resetButton.setToolTipText("From the file");
+    resetButton.setToolTipText("From the deviation curve file");
     bottomPanel.add(resetButton, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
           new Insets(2, 3, 0, 3), 0, 0));
     resetButton.setEnabled(true);

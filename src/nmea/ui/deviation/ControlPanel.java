@@ -69,7 +69,7 @@ public class ControlPanel
       });
     deviationCurveName.setText(truncateFileName((String) NMEAContext.getInstance().getCache().get(NMEADataCache.DEVIATION_FILE)));
     loadDevCurveButton.setIcon(new ImageIcon(this.getClass().getResource("open.png")));
-    loadDevCurveButton.setToolTipText("Load deviation curve");
+    loadDevCurveButton.setToolTipText("Open deviation curve");
     loadDevCurveButton.setPreferredSize(new Dimension(24, 24));
     loadDevCurveButton.setBorderPainted(false);
     loadDevCurveButton.addActionListener(new ActionListener()

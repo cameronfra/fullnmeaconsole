@@ -485,17 +485,20 @@ public class DeviationPanel
           nbval++;
         }
       }
-      for (double[] da : alSprayedPoints)
+      if (alSprayedPoints != null)
       {
-        if (da[0] < (i+5) && da[0] > (i-5))
+        for (double[] da : alSprayedPoints)
         {
-          double hdg = da[0], cog = da[1];
-          double val = (hdg - cog);
-          val += hdgOffset;  
-          while (val > 180) val -= 360;
-          while (val < -180) val += 360;
-          value += val;
-          nbval++;
+          if (da[0] < (i+5) && da[0] > (i-5))
+          {
+            double hdg = da[0], cog = da[1];
+            double val = (hdg - cog);
+            val += hdgOffset;  
+            while (val > 180) val -= 360;
+            while (val < -180) val += 360;
+            value += val;
+            nbval++;
+          }
         }
       }
       Double dbl = new Double(value / (double)nbval);
