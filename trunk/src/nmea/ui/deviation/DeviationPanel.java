@@ -214,7 +214,7 @@ public class DeviationPanel
     int minMax = (int)Math.round(Math.ceil(halfWidth)) + 2;
 //  System.out.println("MinMax:" + minMax + ", width = " + w + ", widthFactor=" + widthFactor);
     int incr = 1;
-    if (((w * widthFactor) / minMax) < 50)
+    if (((w * widthFactor) / minMax) < 30)
     {
       incr = 10;
       minMax = 10 * (minMax / 10);
@@ -483,7 +483,7 @@ public class DeviationPanel
       if (draggedFromX != -1 && draggedFromY != -1 &&
           draggedToX != -1 && draggedToY != -1)
       {
-        g.setColor(Color.green);
+        g.setColor(Color.white);
         int topLeftX = Math.min(draggedFromX, draggedToX);
         int topLeftY = Math.min(draggedFromY, draggedToY);
         int width  = Math.abs(draggedFromX - draggedToX);
