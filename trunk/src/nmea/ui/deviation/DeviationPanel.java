@@ -117,15 +117,23 @@ public class DeviationPanel
     setHtDeviationCurve(Utils.loadDeviationCurve(NMEAContext.getInstance().getDeviation()));
     NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
+        @Override
         public void dataUpdate() 
         {
           currentHDM = ((Angle360) NMEAContext.getInstance().getCache().get(NMEADataCache.HDG_COMPASS)).getValue();
           repaint();
         }
 
+        @Override
         public void deviationCurveChanged(Hashtable<Double, Double> devCurve) 
         {
           setHtDeviationCurve(devCurve);
+          repaint();
+        }
+
+        @Override
+        public void loadDataPointsForDeviation(List<double[]> dp)
+        {
           repaint();
         }
       });
@@ -204,14 +212,14 @@ public class DeviationPanel
     
     // Painting deviation grid, vertical
     int minMax = (int)Math.round(Math.ceil(halfWidth)) + 2;
-//  System.out.println("MinMax:" + minMax + ", width = " + w);
+//  System.out.println("MinMax:" + minMax + ", width = " + w + ", widthFactor=" + widthFactor);
     int incr = 1;
-    if ((w / minMax) < 50)
+    if (((w * widthFactor) / minMax) < 50)
     {
       incr = 10;
       minMax = 10 * (minMax / 10);
     }
-    for (int i=(-minMax); i<minMax; i+=incr) // Center Axis
+    for (int i=(-minMax); i<=minMax; i+=incr) // Center Axis
     {
       int _x = (int)(((i * widthFactor) + halfWidth) * xDataScale);
       Color c = g.getColor();
@@ -226,7 +234,7 @@ public class DeviationPanel
       g.setColor(Color.cyan);
       String label = Integer.toString(i);
       int strWidth  = g.getFontMetrics(g.getFont()).stringWidth(label);
-      g.drawString(label, _x - (strWidth / 2), 10);
+      g.drawString(label, _x - (strWidth / 2), g.getFont().getSize() + 2);
       if (c != null)
         g.setColor(c);
     }
@@ -384,16 +392,25 @@ public class DeviationPanel
       try
       {
         // Dislay smoothed one, based on (possibly) suggested one
-        double[] f = DeviationCurve.calculateCurve(htDeviationCurve); // TODO Dont re-smooth everytime...
+        double[] f = DeviationCurve.calculateCurve(htDeviationCurve); 
         if (!printVersion)
         {
           g.setColor(lineColor3);
           // Display coefficients
           Font font = g.getFont();
-          int fSize = 10;
+          int fSize = 12;
           g.setFont(font.deriveFont(fSize));
           for (int i=0; i<f.length; i++)
-            g.drawString("coef[" + i + "]=" + Double.toString(f[i]), 5, this.getHeight() - ((f.length - i - 1) * (fSize + 2)) - 2);
+            g.drawString("coef[" + i + "]=" + Double.toString(f[i]), 20, this.getHeight() - ((f.length - i + 1) * (fSize + 2)) - 2);
+          // Full equation
+          String equ = "d=" +
+          Double.toString(f[0]) + " + (" + 
+          Double.toString(f[1]) + " . sin(Z)) + (" + 
+          Double.toString(f[2]) + " . cos(Z)) + (" +  
+          Double.toString(f[3]) + " . sin(2.Z)) + (" + 
+          Double.toString(f[4]) + " . cos(2.Z)) "; 
+          g.drawString(equ, 20, this.getHeight() - 4);
+          
           g.setFont(font);
         }
         else
@@ -790,20 +807,23 @@ public class DeviationPanel
           }
           */
           newData = new ArrayList<double[]>();
-          for (double[] da : alSprayedPoints)
+          if (alSprayedPoints != null)
           {
-            double hdg = da[0], 
-                   cog = da[1];
-            double dev = (hdg - cog);
-            dev += hdgOffset;  
-            while (dev > 180) dev -= 360;
-            while (dev < -180) dev += 360;
-            if (hdg >= minHdg && hdg <= maxHdg && dev >= minDev && dev <= maxDev)
-              nbPtDeleted++;
-            else
-              newData.add(da);
+            for (double[] da : alSprayedPoints)
+            {
+              double hdg = da[0], 
+                     cog = da[1];
+              double dev = (hdg - cog);
+              dev += hdgOffset;  
+              while (dev > 180) dev -= 360;
+              while (dev < -180) dev += 360;
+              if (hdg >= minHdg && hdg <= maxHdg && dev >= minDev && dev <= maxDev)
+                nbPtDeleted++;
+              else
+                newData.add(da);
+            }
+            synchronized (alSprayedPoints) { alSprayedPoints = newData; }
           }
-          synchronized (alSprayedPoints) { alSprayedPoints = newData; }
           suggestCurve();
 //        System.out.println("Deleted " + nbPtDeleted + " Pt(s).");
         }        
