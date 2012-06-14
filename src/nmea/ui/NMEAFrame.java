@@ -175,6 +175,7 @@ public class NMEAFrame
         public void actionPerformed(ActionEvent ae)
         {
           Utils.writeNMEAParameters();
+          JOptionPane.showMessageDialog(instance, "Configuration saved.", "NMEA Config", JOptionPane.INFORMATION_MESSAGE);
         }
       });
     menuBar.add(menuHelp); 

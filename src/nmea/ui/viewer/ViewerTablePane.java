@@ -36,6 +36,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -189,6 +190,7 @@ public class ViewerTablePane
          {
            if (((Boolean) data[i][SELECTED_POS]).booleanValue())
              values += ((values.length()==0?"":",") + ((String)data[i][SENTENCE_ID_POS]));
+//         System.out.println("Values [" + values + "]");
          }
          // Look for such an exiting config
          if (userConfig.containsValue(values))
@@ -264,6 +266,7 @@ public class ViewerTablePane
     
     setupConfigList();    
 
+    bottomPanel.add(new JLabel("Config:"), null);
     bottomPanel.add(predefList, null);
     bottomPanel.add(applyButton, null);
     bottomPanel.add(revertButton, null);
