@@ -254,7 +254,10 @@ public class DeviationPanel
           g.setColor(Color.black);
       }
       g.drawLine(_x, 0, _x, h);
-      g.setColor(Color.cyan);
+      if (!printVersion)
+        g.setColor(Color.cyan);
+      else
+        g.setColor(Color.gray);
       String label = Integer.toString(i);
       int strWidth  = g.getFontMetrics(g.getFont()).stringWidth(label);
       g.drawString(label, _x - (strWidth / 2), g.getFont().getSize() + 2);
@@ -270,7 +273,10 @@ public class DeviationPanel
       double _d = d;
       while (_d < 0) _d += 360d;
       while (_d > 360) _d -= 360d;
-      g.setColor(Color.cyan);
+      if (!printVersion)
+        g.setColor(Color.cyan);
+      else
+        g.setColor(Color.gray);
       g.drawString(Integer.toString((int)_d), 2, _y + (g.getFont().getSize() / 2));
       g.setColor(c);
       if (_d == 0 || _d == 90 || _d == 180 || _d == 270 || _d == 360)
