@@ -61,11 +61,12 @@ public class DeviationPanel
   
   private boolean dragged  = false;
   private boolean mouseDraggedEnabled = true;
-  private double[] draggedPoint = null;
+  private transient DoublePoint draggedPoint = null;
   
   private boolean sprayPoints = false;
   private boolean deletePoints = false;
   private boolean deleting = false;
+  private boolean autoSetRedPoints = false;
 
   private Color bgColor    = Color.black;
   private Color gridColor  = Color.green;
@@ -78,7 +79,6 @@ public class DeviationPanel
   private List<double[]> dataPoint = null;
   private boolean showData = true;
   private boolean showCurvePoints = true;
-  private boolean suggestSmoothedCurve = false;
   
   private double widthFactor = 1d;  
   private double currentHDM  = 0d;
@@ -148,6 +148,12 @@ public class DeviationPanel
   
   private boolean printVersion = false;
 
+  public void setAutoSet(boolean b)
+  {
+    this.autoSetRedPoints = b;
+    this.repaint();
+  }
+
   public void paintComponent(Graphics g)
   {
     ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
@@ -156,6 +162,8 @@ public class DeviationPanel
                                      RenderingHints.VALUE_ANTIALIAS_ON);      
     int w = this.getSize().width;
     int h = this.getSize().height;
+    
+    // Print or regular
     if (!printVersion)
     {
       GradientPaint gradient = new GradientPaint(0, 0, 
@@ -173,7 +181,21 @@ public class DeviationPanel
     else
       g.setColor(Color.gray);
     
-    // Find boundaries
+    // Display dragged point, if -Ddebug=true
+    if ("true".equals(System.getProperty("debug", "false")) && draggedPoint != null)
+      System.out.println("Displaying dragged point " + draggedPoint.getX() + "/" + draggedPoint.getY());
+    boolean showDraggedPoint = true;
+    if (showDraggedPoint && draggedPoint != null)
+    {
+      Color c = g.getColor();
+      g.setColor(Color.white);
+      double dev = draggedPoint.getX();
+      int _x = (int)(((dev * widthFactor) + halfWidth) * xDataScale);
+      int _y = (int)((extraVerticalOverlap + draggedPoint.getY()) * yDataScale);
+      g.fillOval(_x - 5, _y - 5, 10, 10);
+      g.setColor(c);
+    }
+    // Find boundaries, in the curve (red)
     double min = Double.MAX_VALUE;
     double max = -min;
     for (Double d : htDeviationCurve.keySet())
@@ -282,7 +304,7 @@ public class DeviationPanel
         g.setColor(origColor);
       }
     }
-    // Current Heading
+    // Current Heading, blue stripe
     if (!printVersion)
     {
       g.setColor(Color.cyan);
@@ -298,6 +320,15 @@ public class DeviationPanel
       }
 //    else
       g.drawLine(0, _y, w, _y);
+      // TODO Display current d value, current, and actual (based on red, based on yellow).
+      try
+      {
+        double[] f = DeviationCurve.calculateCurve(htDeviationCurve); // Red 
+      }
+      catch (Exception ex)
+      {
+        System.err.println(ex.getLocalizedMessage());
+      }
     }
     // Painting data points if any
     Point previousPoint = null;
@@ -352,20 +383,23 @@ public class DeviationPanel
         }
       }
       g.setColor(Color.yellow);
-      for (double[] da : dataPoint)
+      if (dataPoint != null) // Logged points (imported)
       {
-        double hdg = da[0], 
-               cog = da[1];
-        double dev = (hdg - cog);
-        dev += hdgOffset;  
-        while (dev > 180) dev -= 360;
-        while (dev < -180) dev += 360;
-        
-//      System.out.println("For hdg:" + hdg + ", dev=" + val);        
-        // Rounding might look weird, because HDG and COG are int values. Thus dev is also an int.
-        int _x = (int)(((dev * widthFactor) + halfWidth) * xDataScale);
-        int _y = (int)((extraVerticalOverlap + hdg) * yDataScale);
-        g.fillOval(_x-1, _y-1, 2, 2);
+        for (double[] da : dataPoint)
+        {
+          double hdg = da[0], 
+                 cog = da[1];
+          double dev = (hdg - cog);
+          dev += hdgOffset;  
+          while (dev > 180) dev -= 360;
+          while (dev < -180) dev += 360;
+          
+  //      System.out.println("For hdg:" + hdg + ", dev=" + val);        
+          // Rounding might look weird, because HDG and COG are int values. Thus dev is also an int.
+          int _x = (int)(((dev * widthFactor) + halfWidth) * xDataScale);
+          int _y = (int)((extraVerticalOverlap + hdg) * yDataScale);
+          g.fillOval(_x-1, _y-1, 2, 2);
+        }
       }
       if (alSprayedPoints != null)
       {
@@ -383,8 +417,7 @@ public class DeviationPanel
           g.fillOval(_x-1, _y-1, 2, 2);
         }
       }      
-    }
-    
+    }    
     // Paint original deviation curve
     previousPoint = null;
     if (htDeviationCurve != null)
@@ -416,6 +449,7 @@ public class DeviationPanel
         }
         else
           g.setColor(Color.darkGray);
+        // Plot the smoothed curve (yellow)
         for (int cm=-30; cm<=390; cm += 5)
         {
           double dev = DeviationCurve.devFunc(f, cm);
@@ -432,7 +466,7 @@ public class DeviationPanel
         ex.printStackTrace();
       }
     }
-        
+    
     if (!printVersion)
       g.setColor(lineColor2);
     else
@@ -479,6 +513,10 @@ public class DeviationPanel
     }    
     ((Graphics2D)g).setStroke(origStroke);  
     
+    // With logged & sprayed points => set the red
+    if (autoSetRedPoints)
+      autoSetCurvePoints();
+            
     if (deleting)
     {
       if (draggedFromX != -1 && draggedFromY != -1 &&
@@ -494,33 +532,29 @@ public class DeviationPanel
     }
   }
   
-  public void setSuggestSmoothedCurve(boolean b)
-  {
-    this.suggestSmoothedCurve = b;
-    if (b)
-      suggestCurve();
-    this.repaint();
-  }
-  
-  public void suggestCurve()
+  private void autoSetCurvePoints()
   {
     double hdgOffset = ((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.HDG_OFFSET)).doubleValue();
     Hashtable<Double, Double> suggestedCurve = new Hashtable<Double, Double>(); 
+    
     for (int i=5; i<=355; i+=10)
     {
       double value = 0d;
       int nbval = 0;
-      for (double[] da : dataPoint)
+      if (dataPoint != null)
       {
-        if (da[0] < (i+5) && da[0] > (i-5))
+        for (double[] da : dataPoint)
         {
-          double hdg = da[0], cog = da[1];
-          double val = (hdg - cog);
-          val += hdgOffset;  
-          while (val > 180) val -= 360;
-          while (val < -180) val += 360;
-          value += val;
-          nbval++;
+          if (da[0] < (i+5) && da[0] > (i-5))
+          {
+            double hdg = da[0], cog = da[1];
+            double val = (hdg - cog);
+            val += hdgOffset;  
+            while (val > 180) val -= 360;
+            while (val < -180) val += 360;
+            value += val;
+            nbval++;
+          }
         }
       }
       if (alSprayedPoints != null)
@@ -539,10 +573,13 @@ public class DeviationPanel
           }
         }
       }
-      Double dbl = new Double(value / (double)nbval);
-      if (dbl.equals(Double.NaN))
-        dbl = new Double(0d);
-      suggestedCurve.put(new Double(i), dbl);
+      if (nbval > 0)
+      {
+        Double dbl = new Double(value / (double)nbval);
+        if (dbl.equals(Double.NaN))
+          dbl = new Double(0d);
+        suggestedCurve.put(new Double(i), dbl);
+      }
     }
     htDeviationCurve = suggestedCurve;
     List<double[]> ald = Utils.loadDeviationCurve(htDeviationCurve);
@@ -577,7 +614,6 @@ public class DeviationPanel
     }
   }
   
-  // Tooltip
   public void mouseMoved(MouseEvent e)
   {
     Point mouse = e.getPoint();
@@ -585,11 +621,12 @@ public class DeviationPanel
     int cm       = (int)Math.round(((double)mouse.y / yDataScale) - extraVerticalOverlap);
     while (cm < 0)   cm += 360;
     while (cm > 360) cm -= 360;
+    // Tooltip
     this.setToolTipText("<html>d=" + 
                           DF22.format(value) + "\272<br>Z=" + 
                           Integer.toString(cm) + "\272" +
                         "</html>");
-    if (findClosest(mouse) != null)
+    if (!deletePoints && findClosest(mouse) != null)
       this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     else    
       this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -598,7 +635,6 @@ public class DeviationPanel
   public void mouseClicked(MouseEvent e)
   {
     e.consume();
-    // TASK delete point?
 //  int x = e.getX();
 //  int y = e.getY();
 //  String mess = "Pos:" + Integer.toString(x) + ", " + Integer.toString(y);
@@ -611,11 +647,11 @@ public class DeviationPanel
     {
       draggedFromX = e.getX();
       draggedFromY = e.getY();
-      if (!dragged)
+      if (!dragged && !deletePoints)
         draggedPoint = findClosest(e.getPoint());
       if (draggedPoint != null)
       {
-//      System.out.println("Found! " + draggedPoint[0] + ":" + draggedPoint[1]);
+        System.out.println("Found (pressed) ! " + draggedPoint.getX() + ":" + draggedPoint.getY());
         // Change the component's cursor to another shape
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
       }
@@ -624,28 +660,27 @@ public class DeviationPanel
 //      System.out.println("Starting Delete Points process...");
         deleting = true;
       }
-      else if (sprayPoints && !deletePoints && suggestSmoothedCurve)
+      else if (sprayPoints && !deletePoints)
       {
         Point mouse = e.getPoint();
         sprayPoints(mouse);
-        suggestCurve();
+        if (autoSetRedPoints)
+          autoSetCurvePoints();
         this.repaint();
       }
     }
   }
   
-  private double[] findClosest(Point p)
+  private DoublePoint findClosest(Point p)
   {
-    double[] ret = null;
+    DoublePoint ret = null;
     double value = (((double)p.x / xDataScale) - halfWidth) / widthFactor;
-    int cm       = (int)Math.round(((double)p.y / yDataScale) - extraVerticalOverlap);
+    int cm       = (int)Math.round(((double)p.y/ yDataScale) - extraVerticalOverlap);
     
     Double found = htDeviationCurve.get(cm);
     if (found != null && found.doubleValue() == value)
     {
-      ret = new double[2];
-      ret[0] = cm;
-      ret[1] = value;
+      ret = new DoublePoint(value, cm);
     }
     else
     {
@@ -655,9 +690,7 @@ public class DeviationPanel
         if ((Math.abs(value - val) < 0.5) &&
             (Math.abs(cm - d.doubleValue()) < 2.0))
         {
-          ret = new double[2];
-          ret[0] = d.doubleValue();
-          ret[1] = val;
+          ret = new DoublePoint(val, d.doubleValue());
         }
       }      
     }    
@@ -698,10 +731,11 @@ public class DeviationPanel
   public void mouseDragged(MouseEvent e)
   {
     Point mouse = e.getPoint();
-    if (sprayPoints && !deletePoints && suggestSmoothedCurve)
+    if (sprayPoints && !deletePoints)
     {
       sprayPoints(mouse);
-      suggestCurve();
+      if (autoSetRedPoints)
+        autoSetCurvePoints();
       this.repaint();
     }
 
@@ -714,10 +748,11 @@ public class DeviationPanel
         {
           // Show New data, even during drag
           double value = (((double)e.getPoint().x / xDataScale) - halfWidth) / widthFactor;
-          int cm       =  (int)Math.round((double)e.getPoint().y / yDataScale);
-  //      int cm       =  (int)draggedPoint[0]; // Horizontal only
+  //      int cm       = (int)Math.round(((double)e.getPoint().y / yDataScale) - extraVerticalOverlap);      
+          int cm       =  (int)draggedPoint.getY(); // Horizontal only
           // Remove previous one
-          htDeviationCurve.remove(draggedPoint[0]);
+          htDeviationCurve.remove(draggedPoint.getX());
+          draggedPoint = new DoublePoint(value, cm);
           // Add new one
           htDeviationCurve.put((double)cm, value);  // Only if moved.
         }  
@@ -738,11 +773,12 @@ public class DeviationPanel
     {
       // New data
       double value = (((double)e.getPoint().x / xDataScale) - halfWidth) / widthFactor;
-      int cm       = (int)Math.round(((double)e.getPoint().y / yDataScale) - extraVerticalOverlap);      
       if (draggedPoint != null)
       {
+  //    int cm       = (int)Math.round(((double)e.getPoint().y / yDataScale) - extraVerticalOverlap);      
+        int cm       =  (int)draggedPoint.getY(); // Horizontal only
         // Remove previous one
-        htDeviationCurve.remove(draggedPoint[0]);
+        htDeviationCurve.remove(draggedPoint.getX());
         // Add new one
         htDeviationCurve.put((double)cm, value);  // Only if moved.
       } 
@@ -759,9 +795,10 @@ public class DeviationPanel
         double minDev = (((double)minX / xDataScale) - halfWidth) / widthFactor;
         double maxDev = (((double)maxX / xDataScale) - halfWidth) / widthFactor;
         
-        String mess = "Deleting from\nHDG [" +
-                       DF22.format(minHdg) + ", " + DF22.format(maxHdg) + "]\nDEV [" + 
-                       DF22.format(minDev) + ", " + DF22.format(maxDev) + "]";
+        String mess = "Deleting from\n" + 
+                      "HDG [" + DF22.format(minHdg) + ", " + DF22.format(maxHdg) + "]\n" + 
+                      "DEV [" + DF22.format(minDev) + ", " + DF22.format(maxDev) + "]";
+        
 //      System.out.println(mess);
         // Count the points to delete
         double hdgOffset = ((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.HDG_OFFSET)).doubleValue();
@@ -833,14 +870,15 @@ public class DeviationPanel
             }
             synchronized (alSprayedPoints) { alSprayedPoints = newData; }
           }
-          if (suggestSmoothedCurve)
-            suggestCurve();
+          if (autoSetRedPoints)
+            autoSetCurvePoints();
 //        System.out.println("Deleted " + nbPtDeleted + " Pt(s).");
         }        
         draggedToX = -1;
         draggedToY = -1;
       }
       dragged = false;
+      draggedPoint = null;
 //    System.out.println("Moved from " + draggedFromX + "/" + draggedFromY + 
 //                       " to " + e.getX() + "/" + e.getY() +
 //                       " -> " + pp.getTwa() + "/" + pp.getBsp());
@@ -960,6 +998,27 @@ public class DeviationPanel
   public void setDeletePoints(boolean deletePoints)
   {
     this.deletePoints = deletePoints;
-    setMouseDraggedEnabled(deletePoints);
+//  setMouseDraggedEnabled(!deletePoints);
+  }
+  
+  private class DoublePoint
+  {
+    double x = 0d, y = 0d;
+    
+    private DoublePoint(double x, double y)
+    {
+      this.x = x;
+      this.y = y;
+    }
+
+    public double getX()
+    {
+      return x;
+    }
+
+    public double getY()
+    {
+      return y;
+    }
   }
 }

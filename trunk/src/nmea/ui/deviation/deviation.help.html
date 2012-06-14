@@ -34,14 +34,20 @@
       Use the icon <img src="open.png"> to open an already defined deviation curve.
     </p>
     <p>
+      The red points on the screen are the one stored as the deviatiopn curve.
+      <br>
+      You can drag the points horizontally on the screen.
+    </p>
+    <p>
       <h2>To define your own deviation curve</h2>
-      Use the icon <img src="importIcon.png"> to load logged NMEA data.
+      Use the icon <img src="importIcon.png"> to load logged NMEA data. The points must have been looged in a sheltered place, with no current,
+      to make sure that the difference between the Course Over Ground (COG) and Magnetic Heading (HDG) will be the value of the compass deviation (d).
       <br>
       The logged data points appear in yellow on the display. <i>Note:</i> The logged values for the heading are Integers.
       <br>
-      The points in red are representing the <i>average</i> value of the deviation for each heading.
+      When the "Auto Set" box is cheched, the points in red are representing the <i>average</i> value of the deviation for each heading.
       <br>
-      The red points are the points stored for the representation and definition of the deviation curve.
+      Again, the red points are the points stored for the representation and definition of the deviation curve.
       <br>
       The red points can be dragged with the mouse (the pointer's shape will change when the point is draggable i.e. when the mouse is on a draggable point).
     </p>
@@ -50,9 +56,14 @@
       <ul>
         <li type="disc">Delete unwanted points. Check the "Del." check box, and use the mouse to drag a rectangle around the points you want to drop</li>
         <li type="disc">Add more points. Check the "Spray" checkbox, and use the mouse (left-click) to spray points on the screen</li>
-        <li type="disc">Suggest a smoothed curve ("Suggest" checkbox)</li>
+        <li type="disc">Suggest a smoothed curve ("Auto Set." checkbox)</li>
       </ul>
-      When you hit the "Move points" button, you actually move the red points (defining the deviation curve) on the suggested curve.      
+      When you hit the "Move points" button, you actually move the red points (defining the deviation curve) on the smoothed curve.      
+    </p>
+    <p>
+      <i>Note</i>
+      <br>
+      The boxes "Auto Set", "Spray" and "Del." are visible and available only when logged data have been imported.
     </p>
     <p>
       <p>

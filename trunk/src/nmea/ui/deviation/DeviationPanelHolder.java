@@ -39,7 +39,7 @@ public class DeviationPanelHolder
   private BorderLayout borderLayout1 = new BorderLayout();
   private DeviationPanel deviationPanel = new DeviationPanel();
   private JPanel bottomPanel = new JPanel();
-  private JCheckBox suggestCheckBox = new JCheckBox();
+  private JCheckBox autoSetCheckBox = new JCheckBox();
   private JCheckBox sprayCheckBox = new JCheckBox();
   private JCheckBox deleteCheckBox = new JCheckBox();
   private JButton resetButton = new JButton();
@@ -74,20 +74,23 @@ public class DeviationPanelHolder
     bottomPanel.setLayout(gridBagLayout1);
     this.add(deviationPanel, BorderLayout.CENTER);
     this.add(bottomPanel, BorderLayout.SOUTH);
-    suggestCheckBox.setText("Suggest");
-    suggestCheckBox.setToolTipText("From logged data");
-    bottomPanel.add(suggestCheckBox, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+    
+    autoSetCheckBox.setText("Auto Set");
+    autoSetCheckBox.setToolTipText("Auto set the red points, based on logged and sprayed points");
+    bottomPanel.add(autoSetCheckBox, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
           new Insets(2, 3, 0, 3), 0, 0));
-    suggestCheckBox.setEnabled(false);
-    suggestCheckBox.setVisible(false);
-    suggestCheckBox.setSelected(false);
-    suggestCheckBox.addActionListener(new ActionListener()
+    autoSetCheckBox.setSelected(false);
+    autoSetCheckBox.setEnabled(false);
+    autoSetCheckBox.setVisible(false);
+    autoSetCheckBox.addActionListener(new ActionListener()
       {
         public void actionPerformed(ActionEvent e)
         {
-          suggestCheckBox_actionPerformed(e);
+          movePointsButton.setEnabled(!autoSetCheckBox.isSelected());
+          deviationPanel.setAutoSet(autoSetCheckBox.isSelected());
         }
       });
+    
     sprayCheckBox.setText("Spray");
     sprayCheckBox.setToolTipText("Spray more points...");
     bottomPanel.add(sprayCheckBox, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
@@ -173,7 +176,7 @@ public class DeviationPanelHolder
         public void actionPerformed(ActionEvent e)
         {
           deviationPanel.setShowData(showHideDataPoints.isSelected());
-          suggestCheckBox.setVisible(showHideDataPoints.isSelected());
+          autoSetCheckBox.setVisible(showHideDataPoints.isSelected());
           deviationPanel.repaint();
         }
       });
@@ -189,7 +192,7 @@ public class DeviationPanelHolder
         public void actionPerformed(ActionEvent e)
         {
           deviationPanel.setShowCurveData(showHideCurvePoints.isSelected());
-          movePointsButton.setEnabled(showHideCurvePoints.isSelected());
+//        movePointsButton.setEnabled(showHideCurvePoints.isSelected());
           deviationPanel.repaint();
         }
       });
@@ -200,7 +203,7 @@ public class DeviationPanelHolder
           new Insets(2, 3, 0, 3), 0, 0));
     bottomPanel.add(printCheckBox, new GridBagConstraints(8, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
           new Insets(0, 0, 0, 0), 0, 0));
-    movePointsButton.setEnabled(false);
+    movePointsButton.setEnabled(true);
     movePointsButton.setVisible(true);
     movePointsButton.addActionListener(new ActionListener()
       {
@@ -226,8 +229,6 @@ public class DeviationPanelHolder
           setDataPoint(dp);
         }
       });
-    suggestCheckBox.setModel(new JToggleButton.ToggleButtonModel());
-
   }
 
   public void paintComponent(Graphics g)
@@ -243,12 +244,12 @@ public class DeviationPanelHolder
 
     if (deviationPanel.getDataPoint() != null && showHideDataPoints.isSelected())
     {
-      suggestCheckBox.setEnabled(true);
-      suggestCheckBox.setVisible(true);
-//    sprayCheckBox.setEnabled(true);      
-//    sprayCheckBox.setVisible(true);
-//    deleteCheckBox.setEnabled(true);
-//    deleteCheckBox.setVisible(true);
+      autoSetCheckBox.setEnabled(true);
+      autoSetCheckBox.setVisible(true);
+      deleteCheckBox.setEnabled(true);
+      deleteCheckBox.setVisible(true);
+      sprayCheckBox.setEnabled(!deleteCheckBox.isSelected());      
+      sprayCheckBox.setVisible(true);
     }
     
     else
@@ -277,20 +278,14 @@ public class DeviationPanelHolder
   public void setDataPoint(List<double[]> dataPoint)
   {
     deviationPanel.setDataPoint(dataPoint);
-    suggestCheckBox.setEnabled(dataPoint != null);
-    suggestCheckBox.setVisible(dataPoint != null);
+    autoSetCheckBox.setEnabled(dataPoint != null);
+    autoSetCheckBox.setVisible(dataPoint != null);
     sprayCheckBox.setEnabled(dataPoint != null);
     sprayCheckBox.setVisible(dataPoint != null);
     deleteCheckBox.setEnabled(dataPoint != null);
     deleteCheckBox.setVisible(dataPoint != null);
   }
 
-  private void suggestCheckBox_actionPerformed(ActionEvent e)
-  {    
-    deviationPanel.setSuggestSmoothedCurve(suggestCheckBox.isSelected());
-    movePointsButton.setEnabled(suggestCheckBox.isSelected());
-  }
-  
   private void resetButton_actionPerformed(ActionEvent e)
   {
     String deviationFileName = (String) NMEAContext.getInstance().getCache().get(NMEADataCache.DEVIATION_FILE);
