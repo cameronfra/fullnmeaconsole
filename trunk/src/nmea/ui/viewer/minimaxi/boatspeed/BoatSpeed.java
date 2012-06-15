@@ -5,7 +5,7 @@ import nmea.server.ctx.NMEADataCache;
 
 import nmea.event.NMEAListener;
 
-import nmea.ui.viewer.elements.JumboDisplay;
+import coreutilities.gui.JumboDisplay;
 import nmea.ui.viewer.minimaxi.GaugePanel;
 import nmea.ui.viewer.minimaxi.MinMaxPanelInterface;
 

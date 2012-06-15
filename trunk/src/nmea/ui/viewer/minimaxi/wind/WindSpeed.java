@@ -1,23 +1,11 @@
 package nmea.ui.viewer.minimaxi.wind;
 
-import nmea.server.ctx.NMEAContext;
-
-import nmea.server.ctx.NMEADataCache;
-
-import nmea.event.NMEAListener;
-
-import nmea.ui.viewer.elements.JumboDisplay;
-
-import nmea.ui.viewer.minimaxi.MinMaxPanelInterface;
-
-import nmea.ui.viewer.minimaxi.GaugePanel;
+import coreutilities.gui.JumboDisplay;
 
 import java.awt.BorderLayout;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-
 import java.awt.Graphics2D;
 
 import java.text.DecimalFormat;
@@ -26,11 +14,18 @@ import java.util.Date;
 
 import javax.swing.JPanel;
 
-import nmea.server.constants.Constants;
+import nmea.event.NMEAListener;
 
-import ocss.nmea.parser.Speed;
+import nmea.server.constants.Constants;
+import nmea.server.ctx.NMEAContext;
+import nmea.server.ctx.NMEADataCache;
+
+import nmea.ui.viewer.minimaxi.GaugePanel;
+import nmea.ui.viewer.minimaxi.MinMaxPanelInterface;
+
 import ocss.nmea.parser.TrueWindSpeed;
 import ocss.nmea.utils.WindUtils;
+
 
 public class WindSpeed
   extends JPanel

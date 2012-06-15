@@ -20,7 +20,7 @@ import nmea.server.constants.Constants;
 
 import nmea.ui.viewer.elements.DirectionEvolutionDisplay;
 
-import nmea.ui.viewer.elements.HeadingPanel;
+import coreutilities.gui.HeadingPanel;
 
 import ocss.nmea.parser.Angle180;
 import ocss.nmea.parser.Angle360;

@@ -32,8 +32,8 @@ import nmea.server.constants.Constants;
 import nmea.ui.viewer.elements.AWDisplay;
 import nmea.ui.viewer.elements.CurrentDisplay;
 import nmea.ui.viewer.elements.DrawingBoard;
-import nmea.ui.viewer.elements.HeadingPanel;
-import nmea.ui.viewer.elements.JumboDisplay;
+import coreutilities.gui.HeadingPanel;
+import coreutilities.gui.JumboDisplay;
 import nmea.ui.viewer.minimaxi.boatspeed.BoatSpeed;
 import nmea.ui.viewer.minimaxi.wind.WindSpeed;
 
