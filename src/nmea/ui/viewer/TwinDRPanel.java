@@ -31,7 +31,7 @@ import nmea.server.constants.Constants;
 import nmea.ui.viewer.elements.CurrentDisplay;
 import nmea.ui.viewer.elements.DrawingBoard;
 
-import nmea.ui.viewer.elements.JumboDisplay;
+import coreutilities.gui.JumboDisplay;
 
 import ocss.nmea.parser.Angle180;
 import ocss.nmea.parser.Angle360;
