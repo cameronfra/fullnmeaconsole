@@ -249,6 +249,15 @@ public class NMEAContext implements Serializable
     }
   }
   
+  public void fireAutoScale(boolean b)
+  {
+    for (int i=0; i<NMEAListeners.size(); i++)
+    {
+      NMEAListener l = NMEAListeners.get(i);
+      l.setAutoScale(b);
+    }
+  }
+  
   public void fireSetMessage(String s)
   {
     for (int i=0; i<NMEAListeners.size(); i++)

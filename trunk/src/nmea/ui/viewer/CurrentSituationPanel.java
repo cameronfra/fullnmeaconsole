@@ -326,6 +326,7 @@ public class CurrentSituationPanel
         public void actionPerformed(ActionEvent e)
         {
           NMEAContext.getInstance().setAutoScale(autoScaleCheckBox.isSelected());
+          NMEAContext.getInstance().fireAutoScale(autoScaleCheckBox.isSelected());
         }
       });
       

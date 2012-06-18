@@ -1,11 +1,21 @@
 package nmea.server.datareader.specific;
 
+import java.io.BufferedReader;
+
+import java.io.DataOutputStream;
+
 import nmea.server.ctx.NMEAContext;
 
 import java.io.InputStream;
 
+import java.io.InputStreamReader;
+
 import java.net.InetAddress;
 import java.net.Socket;
+
+import java.net.SocketException;
+
+import java.util.ArrayList;
 import java.util.Date;
 
 import java.util.List;
@@ -18,7 +28,9 @@ import ocss.nmea.api.NMEAEvent;
 import ocss.nmea.api.NMEAListener;
 import ocss.nmea.api.NMEAParser;
 import ocss.nmea.api.NMEAReader;
-
+/**
+ * Works with SailMail rebroadcast
+ */
 public class CustomTCPReader extends NMEAReader implements DataReader
 {
   private int tcpport     = 80;
@@ -75,10 +87,8 @@ public class CustomTCPReader extends NMEAReader implements DataReader
     try
     {
       InetAddress address = InetAddress.getByName(hostName);
-      System.out.println("INFO:" + hostName + " (" + address.toString() + ")" + " is" + (address.isMulticastAddress() ? "" : " NOT") + " a multicast address");
-
+//    System.out.println("INFO:" + hostName + " (" + address.toString() + ")" + " is" + (address.isMulticastAddress() ? "" : " NOT") + " a multicast address");
       skt = new Socket(address, tcpport);
-      
       
       InputStream theInput = skt.getInputStream();
       byte buffer[] = new byte[4096];
@@ -117,10 +127,19 @@ public class CustomTCPReader extends NMEAReader implements DataReader
       System.out.println("Stop Reading TCP port.");
       theInput.close();
     }
+    catch (SocketException se)
+    {
+//    se.printStackTrace();
+      if (se.getMessage().indexOf("Connection refused") > -1)
+        System.out.println("Refused (1)");
+      else if (se.getMessage().indexOf("Connection reset") > -1)
+        System.out.println("Reset (2)");
+      else
+        manageError(se);
+    }
     catch(Exception e)
     {
 //    e.printStackTrace();
-//    JOptionPane.showMessageDialog(null, "No such TCP port " + tcpport + "!", "Error opening port", JOptionPane.ERROR_MESSAGE);
       manageError(e);
     }
   }
@@ -150,4 +169,33 @@ public class CustomTCPReader extends NMEAReader implements DataReader
 
   public void setTimeout(long timeout)
   { /* Not used for TCP */  }
+  
+  public static void main(String[] args)
+  {
+    try
+    {
+      List<NMEAListener> ll = new ArrayList<NMEAListener>();
+      NMEAListener nl = new NMEAListener()
+        {
+
+        @Override
+        public void dataRead(NMEAEvent nmeaEvent)
+        {
+          System.out.println(nmeaEvent.getContent());
+        }
+      };
+      ll.add(nl);
+      
+//    CustomTCPReader ctcpr = new CustomTCPReader(ll, "192.168.0.124", 2947);
+      CustomTCPReader ctcpr = new CustomTCPReader(ll, "localhost", 2947);
+      // Works fine with the SailMail rebroadcast
+//    CustomTCPReader ctcpr = new CustomTCPReader(ll, "theketch-lap.mshome.net", 7001);
+      ctcpr.read();
+    }
+    catch (Exception e)
+    {
+      // TODO: Add catch code
+      e.printStackTrace();
+    }
+  }
 }

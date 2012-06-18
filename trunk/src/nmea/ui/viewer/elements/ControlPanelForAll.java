@@ -22,6 +22,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+
 import java.text.DecimalFormat;
 
 import javax.swing.JComboBox;
@@ -61,17 +64,17 @@ public class ControlPanelForAll
 
   private CurrentSituationPanel parent = null;
 
-  private JLabel jLabel2 = new JLabel();
+  private JLabel bspCoeffLabel = new JLabel();
   private JFormattedTextField bspCoeffTextField = new JFormattedTextField(DF24);
-  private JLabel jLabel4 = new JLabel();
+  private JLabel hdgOffsetLabel = new JLabel();
   private JFormattedTextField hdgOffsetTextField = new JFormattedTextField(DF3);
-  private JLabel jLabel5 = new JLabel();
+  private JLabel awsCoeffLabel = new JLabel();
   private JFormattedTextField awsCoeffTextField = new JFormattedTextField(DF24);
-  private JLabel jLabel6 = new JLabel();
+  private JLabel awaOffsetLabel = new JLabel();
   private JFormattedTextField awaOffsetTextField = new JFormattedTextField(DF3);
-  private JLabel jLabel9 = new JLabel();
+  private JLabel maxLeewayLabel = new JLabel();
   private JFormattedTextField maxLeewayTextField = new JFormattedTextField();
-  private JLabel jLabel1 = new JLabel();
+  private JLabel windScaleLabel = new JLabel();
   private JComboBox scaleComboBox = new JComboBox();
   
 //private boolean frozen = false;
@@ -109,12 +112,12 @@ public class ControlPanelForAll
     this.setLayout(gridBagLayout1);
 
     this.setSize(new Dimension(485, 123));
-    jLabel2.setText("BSP Coeff:");
+    bspCoeffLabel.setText("BSP Coeff:");
     bspCoeffTextField.setPreferredSize(new Dimension(40, 20));
     bspCoeffTextField.setHorizontalAlignment(JTextField.TRAILING);
     double bspCoeff = 1d;
     try { bspCoeff = ((Double) NMEAContext.getInstance().getDataCache(NMEADataCache.BSP_FACTOR)).doubleValue(); } catch (Exception ex) {}
-    bspCoeffTextField.setText(DF24.format(bspCoeff));
+    bspCoeffTextField.setText(bspCoeffTextField.getFormatter().valueToString(bspCoeff));
     bspCoeffTextField.setMinimumSize(new Dimension(35, 20));
     bspCoeffTextField.setSize(new Dimension(40, 20));
     bspCoeffTextField.addActionListener(new ActionListener()
@@ -131,7 +134,7 @@ public class ControlPanelForAll
           bspCoeffTextField_focusLost(e);
         }
       });
-    jLabel4.setText("HDG Offset:");
+    hdgOffsetLabel.setText("HDG Offset:");
     hdgOffsetTextField.setPreferredSize(new Dimension(40, 20));
     hdgOffsetTextField.setHorizontalAlignment(JTextField.TRAILING);
     hdgOffsetTextField.setToolTipText("in degrees");
@@ -154,11 +157,11 @@ public class ControlPanelForAll
           hdgOffsetTextField_focusLost(e);
         }
       });
-    jLabel5.setText("AWS Coeff:");
+    awsCoeffLabel.setText("AWS Coeff:");
     awsCoeffTextField.setPreferredSize(new Dimension(40, 20));
     double awsCoeff = 1d;
     try { awsCoeff = ((Double) NMEAContext.getInstance().getDataCache(NMEADataCache.AWS_FACTOR)).doubleValue(); } catch (Exception ex) {}
-    awsCoeffTextField.setText(DF22.format(awsCoeff));
+    awsCoeffTextField.setText(awsCoeffTextField.getFormatter().valueToString(awsCoeff));
     awsCoeffTextField.setHorizontalAlignment(JTextField.RIGHT);
     awsCoeffTextField.setMinimumSize(new Dimension(35, 20));
     awsCoeffTextField.setSize(new Dimension(40, 20));
@@ -176,7 +179,7 @@ public class ControlPanelForAll
           awsCoeffTextField_focusLost(e);
         }
       });
-    jLabel6.setText("AWA Offset:");
+    awaOffsetLabel.setText("AWA Offset:");
     awaOffsetTextField.setPreferredSize(new Dimension(40, 20));
     double awaOffset = 0d;
     try { awaOffset = ((Double) NMEAContext.getInstance().getDataCache(NMEADataCache.AWA_OFFSET)).doubleValue(); } catch (Exception ex) {}
@@ -199,7 +202,7 @@ public class ControlPanelForAll
           awaOffsetTextField_focusLost(e);
         }
       });
-    jLabel9.setText("Max Leeway:");
+    maxLeewayLabel.setText("Max Leeway:");
     maxLeewayTextField.setPreferredSize(new Dimension(40, 20));
     double mlw = 0d;
     try { mlw = ((Double) NMEAContext.getInstance().getDataCache(NMEADataCache.MAX_LEEWAY)).doubleValue(); } catch (Exception ex) {}
@@ -222,7 +225,7 @@ public class ControlPanelForAll
           maxLeewayTextField_focusLost(e);
         }
       });
-    jLabel1.setText("Speed Scale:");
+    windScaleLabel.setText("Speed Scale:");
     scaleComboBox.removeAllItems();
     for (NMEAContext.WindScale ws : NMEAContext.WindScale.values())
       scaleComboBox.addItem(new ScaleForWind( ws.scale(), ws.label()));
@@ -291,7 +294,7 @@ public class ControlPanelForAll
     dampingSpinner.setMinimumSize(new Dimension(35, 20));
     dampingSpinner.setPreferredSize(new Dimension(40, 20));
     dampingSpinner.setSize(new Dimension(40, 20));
-    dampingSpinner.setToolTipText("In number of points");
+    dampingSpinner.setToolTipText("<html>In number of points<br>(use the mouse wheel to change value)<html>");
     NMEAContext.getInstance().getCache().setDampingSize(dv);
     dampingSpinner.addChangeListener(new ChangeListener()
     {
@@ -314,18 +317,27 @@ public class ControlPanelForAll
         }
       }
     });
+    dampingSpinner.addMouseWheelListener(new MouseWheelListener()
+      {
+        public void mouseWheelMoved(MouseWheelEvent e)
+        {
+          int notches = e.getWheelRotation();
+          Integer ds = (Integer)dampingSpinner.getValue();
+          dampingSpinner.setValue(new Integer(ds.intValue() + (notches * -1)));
+        }
+      });
 
-    this.add(jLabel2, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    this.add(bspCoeffLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     this.add(bspCoeffTextField, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-    this.add(jLabel4, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
+    this.add(hdgOffsetLabel, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
     this.add(hdgOffsetTextField, new GridBagConstraints(3, 0, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-    this.add(jLabel5, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    this.add(awsCoeffLabel, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     this.add(awsCoeffTextField, new GridBagConstraints(5, 0, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-    this.add(jLabel6, new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
+    this.add(awaOffsetLabel, new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
     this.add(awaOffsetTextField, new GridBagConstraints(7, 0, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-    this.add(jLabel9, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 0, 0), 0, 0));
+    this.add(maxLeewayLabel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 0, 0), 0, 0));
     this.add(maxLeewayTextField, new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, 0), 0, 0));
-    this.add(jLabel1, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 0, 0, 0), 0, 0));
+    this.add(windScaleLabel, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 0, 0, 0), 0, 0));
     this.add(scaleComboBox, new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, 0), 0, 0));
 
     this.add(defaultDeclinationLabel, new GridBagConstraints(4, 1, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 3, 0, 0), 0, 0));
@@ -445,6 +457,7 @@ public class ControlPanelForAll
     
     NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
+        @Override
         public void setWindScale(float f) 
         {
           for (int i=0; NMEAContext.getInstance().isAutoScale() && i<scaleComboBox.getItemCount(); i++)
@@ -459,6 +472,14 @@ public class ControlPanelForAll
           }
         }
         
+        @Override
+        public void setAutoScale(boolean b)
+        {
+          scaleComboBox.setEnabled(!b);
+          windScaleLabel.setEnabled(!b);
+        }
+        
+        @Override
         public void dataUpdate() 
         {
           if (NMEAContext.getInstance().isFromFile())
