@@ -508,7 +508,7 @@ public class ControlPanelForAll
   }
   private void bspCoefChanged()
   {
-    System.out.println("BSP Coeff changed");
+    System.out.println("BSP Coeff changed?");
     double d = Double.parseDouble(bspCoeffTextField.getText());
     NMEAContext.getInstance().putDataCache(NMEADataCache.BSP_FACTOR, d);
     if (NMEAContext.getInstance().getFrozenDataCache() != null)
@@ -527,7 +527,7 @@ public class ControlPanelForAll
   }
   private void hdgOffsetChanged()
   {
-    System.out.println("HDG Offset changed");
+    System.out.println("HDG Offset changed?");
     double d = Double.parseDouble(hdgOffsetTextField.getText());
     NMEAContext.getInstance().putDataCache(NMEADataCache.HDG_OFFSET, d);
     if (NMEAContext.getInstance().getFrozenDataCache() != null)
@@ -546,7 +546,7 @@ public class ControlPanelForAll
   }
   private void awsCoeffChanged()
   {
-    System.out.println("AWS Coeff changed");
+    System.out.println("AWS Coeff changed?");
     double d = Double.parseDouble(awsCoeffTextField.getText());
     NMEAContext.getInstance().putDataCache(NMEADataCache.AWS_FACTOR, d);
     if (NMEAContext.getInstance().getFrozenDataCache() != null)
@@ -565,7 +565,7 @@ public class ControlPanelForAll
   }
   private void awaOffsetChanged()
   {
-    System.out.println("AWA Offset changed");
+    System.out.println("AWA Offset changed?");
     double d = Double.parseDouble(awaOffsetTextField.getText());
     NMEAContext.getInstance().putDataCache(NMEADataCache.AWA_OFFSET, d);
     if (NMEAContext.getInstance().getFrozenDataCache() != null)
