@@ -53,8 +53,8 @@ public class CurrentSituationPanel
   private JPanel drawingPlusCompass = new JPanel();
   private DrawingBoard drawingBoard = new DrawingBoard();
   private JPanel compasPanel = new JPanel();
-  private HeadingPanel hdgPanel = new HeadingPanel();
-  private HeadingPanel cogPanel = new HeadingPanel();
+  private HeadingPanel hdgPanel = new HeadingPanel(true);
+  private HeadingPanel cogPanel = new HeadingPanel(true);
   private JScrollPane rightScrollPane = null;
   private JPanel rightPanel = new JPanel();
   private JPanel displayPanel = new JPanel();
