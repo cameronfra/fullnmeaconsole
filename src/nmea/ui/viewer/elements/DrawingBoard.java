@@ -329,22 +329,19 @@ public class DrawingBoard
     String hdgMess = "";
     if (Utils.isHdtPresent())
     {
-      hdgMess = "HDG (corrected) :" + DF31.format(hdg + hdgOffset) + "\272 (Using HDT)";
-      dataTable.add(new Object[] {"HDG (corrected)", DF31.format(hdg + hdgOffset) + "\272 (Using HDT)", new Color(0, 142, 0) });
+      hdgMess = /*"HDG (corrected) :" + */ DF31.format(hdg + hdgOffset) + "\272 (Using HDT)";
+      dataTable.add(new Object[] {"HDG (corrected)", hdgMess, new Color(0, 142, 0) });
     }
     else
     {
-      hdgMess = "HDG (corrected) :" + DF31.format(hdg + hdgOffset) + "\272 (Decl.= " + 
+      double d = ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEVIATION)).getValue();
+      hdgMess = /*"HDG (corrected) :" +*/ DF31.format(hdg + hdgOffset) + "\272 (Decl.= " + 
                   dec.toFormattedString() +
                   ", dev.= " + 
                   ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEVIATION)).toFormattedString() +
-                  ", Var.= " + (dec.getValue() >=0 ? "E " : "W ") + DF31.format(Math.abs(dec.getValue() + ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEVIATION)).getValue())) + "\272" +
+                  ", Var.= " + ((d == -Double.MAX_VALUE)?"- ":(dec.getValue() >=0 ? "E " : "W ") + DF31.format(Math.abs(dec.getValue() + ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEVIATION)).getValue())) + "\272") +
                   ")";
-      dataTable.add(new Object[] {"HDG (corrected)",  DF31.format(hdg + hdgOffset) + "\272 (Decl.= " + dec.toFormattedString() +
-                                                      ", dev.= " + ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEVIATION)).toFormattedString() +
-                                                      ", Var.= " + (dec.getValue() >=0 ? "E " : "W ") + DF31.format(Math.abs(dec.getValue() + ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEVIATION)).getValue())) + "\272" +
-                                                      ")", new Color(0, 142, 0) }
-                    );
+      dataTable.add(new Object[] {"HDG (corrected)",  hdgMess, new Color(0, 142, 0) });
     }
     if (aws != -Double.MAX_VALUE)
     {
