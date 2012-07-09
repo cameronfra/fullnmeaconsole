@@ -614,10 +614,13 @@ public class ControlPanelForAll
 
   private void scaleComboBox_actionPerformed(ActionEvent e)
   {
-    float f = ((ScaleForWind)scaleComboBox.getSelectedItem()).getScale();
-//  parent.setWindScale(f);
-    NMEAContext.getInstance().fireWindScale(f);
-    System.setProperty("wind.scale", Float.toString(f));
+    if (scaleComboBox.isEnabled()) // ie not in auto-scale mode
+    {
+      float f = ((ScaleForWind)scaleComboBox.getSelectedItem()).getScale();
+  //  parent.setWindScale(f);
+      NMEAContext.getInstance().fireWindScale(f);
+      System.setProperty("wind.scale", Float.toString(f));
+    }
   }
 
   class ScaleForWind
