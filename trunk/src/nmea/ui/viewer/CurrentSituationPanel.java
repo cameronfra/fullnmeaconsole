@@ -197,9 +197,13 @@ public class CurrentSituationPanel
     hdgPanel.setSize(new Dimension(428, 40));
     hdgPanel.setPreferredSize(new Dimension(200, 30));
     hdgPanel.setMinimumSize(new Dimension(200, 30));
+    hdgPanel.setRoseWidth(160);
+    
     cogPanel.setPreferredSize(new Dimension(200, 30));
     cogPanel.setMinimumSize(new Dimension(200, 30));
     cogPanel.setWhiteOnBlack(false);
+    cogPanel.setRoseWidth(160);
+
     drawingPlusCompass.add(drawingBoard, BorderLayout.CENTER);
     
     compasPanel.add(hdgPanel, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,

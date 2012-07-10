@@ -15,12 +15,9 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
-
 import java.util.List;
 
 import nmea.event.NMEAListener;
-
-import nmea.ui.viewer.elements.ControlPanelForAll;
 
 import oracle.xml.parser.v2.DOMParser;
 

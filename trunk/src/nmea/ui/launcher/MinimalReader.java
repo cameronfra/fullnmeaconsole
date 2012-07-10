@@ -14,6 +14,7 @@ import nmea.server.datareader.CustomClient;
 
 import java.io.File;
 
+@Deprecated
 public class MinimalReader
   implements NMEAEventManager
 {

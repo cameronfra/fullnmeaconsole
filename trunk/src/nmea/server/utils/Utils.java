@@ -13,6 +13,10 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+
 import java.io.BufferedReader;
 
 import java.io.BufferedWriter;
@@ -96,6 +100,8 @@ public class Utils
   public final static String USER_CONFIG     = "user-nmea-config.xml";
   public final static String LOGISAIL_NS     = "urn:logisail-nmea";
   public final static String PARAMETER_FILE  = "nmea-prms.properties";
+  
+  private static boolean speakUp = true;
     
   public final static NSResolver LgSlResolver = new NSResolver()
     {
@@ -264,7 +270,7 @@ public class Utils
       System.out.println("Rejecting [" + value + "]");
       return;
     }
-    // Put the last valid NMEA Value in the cache
+    // Put the last valid NMEA Value in the cache, it's for RMI broadcating protocol.
     NMEAContext.getInstance().putDataCache(NMEADataCache.LAST_NMEA_SENTENCE, value);
     
     String sentenceId = key.substring(2);
@@ -430,32 +436,38 @@ public class Utils
           ndc.putAll(map);
       }
     }
-    else if ("GLL".equals(sentenceId) && !rmcPresent) // Lat & Long, UTC (No date)
+    else if ("GLL".equals(sentenceId)) // Lat & Long, UTC (No date, just time)
     {
-      Object[] obj = StringParsers.parseGLL(value);
-      if (obj != null)
+      if (!rmcPresent)        
       {
-        GeoPos pos = (GeoPos)obj[StringParsers.GP_in_GLL];
-        if (pos != null)
+//      System.out.println("Using GLL");
+        Object[] obj = StringParsers.parseGLL(value);
+        if (obj != null)
         {
-          if (ndc == null)
-            NMEAContext.getInstance().putDataCache(NMEADataCache.POSITION, pos);
-          else
-            ndc.put(NMEADataCache.POSITION, pos);
-        }
-        Date date = (Date)obj[StringParsers.DATE_in_GLL];
-        if (date != null)
-        {
-          NMEAContext.getInstance().putDataCache(NMEADataCache.GPS_TIME, new UTCTime(date));
-//        System.out.println("GLL:" + SDF.format(date));
-          long solarTime = date.getTime() + longitudeToTime(pos.lng);        
-          Date solarDate = new Date(solarTime);
-          if (ndc == null)
-            NMEAContext.getInstance().putDataCache(NMEADataCache.GPS_SOLAR_TIME, new SolarDate(solarDate));
-          else
-            ndc.put(NMEADataCache.GPS_SOLAR_TIME, new SolarDate(solarDate));
+          GeoPos pos = (GeoPos)obj[StringParsers.GP_in_GLL];
+          if (pos != null)
+          {
+            if (ndc == null)
+              NMEAContext.getInstance().putDataCache(NMEADataCache.POSITION, pos);
+            else
+              ndc.put(NMEADataCache.POSITION, pos);
+          }
+          Date date = (Date)obj[StringParsers.DATE_in_GLL];
+          if (date != null)
+          {
+            NMEAContext.getInstance().putDataCache(NMEADataCache.GPS_TIME, new UTCTime(date));
+  //        System.out.println("GLL:" + SDF.format(date));
+            long solarTime = date.getTime() + longitudeToTime(pos.lng);        
+            Date solarDate = new Date(solarTime);
+            if (ndc == null)
+              NMEAContext.getInstance().putDataCache(NMEADataCache.GPS_SOLAR_TIME, new SolarDate(solarDate));
+            else
+              ndc.put(NMEADataCache.GPS_SOLAR_TIME, new SolarDate(solarDate));
+          }
         }
       }
+//    else
+//      System.out.println("NOT using GLL");
     }
     else if ("HDM".equals(sentenceId)) // Heading, magnetic
     {
@@ -660,7 +672,7 @@ public class Utils
     
     double bsp = 0d;
     double maxLeeway = 0d;
-    try { maxLeeway = ((Double)cache.get(NMEADataCache.MAX_LEEWAY)).doubleValue(); } catch (Exception ex) { System.out.println("MaxLeeway not available:" + ex.toString());}
+    try { maxLeeway = ((Double)cache.get(NMEADataCache.MAX_LEEWAY)).doubleValue(); } catch (Exception ex) { if (speakUp) System.out.println("MaxLeeway not available:" + ex.toString());}
     double leeway = getLeeway(awa, maxLeeway);
     cache.put(NMEADataCache.LEEWAY, new Angle180LR(leeway));
     double cmg = heading + leeway;
@@ -1562,27 +1574,10 @@ public class Utils
     }
   }
   
-  public static void main2(String[] args) throws Exception
-  {
-    BufferedReader br = new BufferedReader(new FileReader("nmea.data"));
-    BufferedWriter bw = new BufferedWriter(new FileWriter("nmea.out"));
-    String line = "";
-    boolean go = true;
-    while (go)
-    {
-      line = br.readLine();
-      if (line == null)
-        go = false;
-      else
-      {
-        bw.write(line.substring(22) + "\n");
-      }
-    }
-    br.close();
-    bw.close();
-  }
+  private final static long SUSPICIOUS_GAP = 50000L;
+  private final static long ONE_DAY_MS     = 1000L * 3600L * 24L;
   
-  public static void dsiplayNMEADetails(String fName)
+  public static void displayNMEADetails(String fName)
   {
     String message = ""; // The one to display
     try
@@ -1601,23 +1596,31 @@ public class Utils
 
       NMEADataCache ndc = new NMEADataCache();
       
-      double maxLeeway = 0d; // Max Leeway
+      double maxLeeway = 0.0; 
+      double awsFactor = 1.0;
+      double awaOffset = 0.0;
+      double bspFactor = 1.0;
+      double hdgOffset = 0.0;
       try 
       { 
-        maxLeeway = ((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.MAX_LEEWAY)).doubleValue();
+        try { maxLeeway = ((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.MAX_LEEWAY)).doubleValue(); } catch (NullPointerException npe) { if (speakUp) System.err.println(npe.getLocalizedMessage()); }
+        try { awsFactor = ((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.AWS_FACTOR)).doubleValue(); } catch (NullPointerException npe) { if (speakUp) System.err.println(npe.getLocalizedMessage()); }
+        try { awaOffset = ((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.AWA_OFFSET)).doubleValue(); } catch (NullPointerException npe) { if (speakUp) System.err.println(npe.getLocalizedMessage()); }
+        try { bspFactor = ((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.BSP_FACTOR)).doubleValue(); } catch (NullPointerException npe) { if (speakUp) System.err.println(npe.getLocalizedMessage()); }
+        try { hdgOffset = ((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.HDG_OFFSET)).doubleValue(); } catch (NullPointerException npe) { if (speakUp) System.err.println(npe.getLocalizedMessage()); }
         ndc.put(NMEADataCache.MAX_LEEWAY, new Double(maxLeeway));
-
-        ndc.put(NMEADataCache.AWS_FACTOR,  new Double(((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.AWS_FACTOR)).doubleValue()));
-        ndc.put(NMEADataCache.AWA_OFFSET,  new Double(((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.AWA_OFFSET)).doubleValue()));
-        ndc.put(NMEADataCache.BSP_FACTOR,  new Double(((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.BSP_FACTOR)).doubleValue()));
-        ndc.put(NMEADataCache.HDG_OFFSET,  new Double(((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.HDG_OFFSET)).doubleValue()));
+        ndc.put(NMEADataCache.AWS_FACTOR,  new Double(awsFactor));
+        ndc.put(NMEADataCache.AWA_OFFSET,  new Double(awaOffset));
+        ndc.put(NMEADataCache.BSP_FACTOR,  new Double(bspFactor));
+        ndc.put(NMEADataCache.HDG_OFFSET,  new Double(hdgOffset));
       }
       catch (Exception ex)
       {
         ex.printStackTrace();
       }
       
-      String anomalyMess = "";
+      StringBuffer anomalyMess = new StringBuffer();
+      int nbAnomaly = 0;
       boolean keepReading = true;
       while (keepReading)
       {
@@ -1627,6 +1630,8 @@ public class Utils
         else
         {
           nbRec++;
+          if (nbRec % 5000 == 0)
+            System.out.println("- " + fName + ", record " + nbRec);
           // Analyze here
           if (line.startsWith("$") && line.length() > 6)
           {
@@ -1634,29 +1639,42 @@ public class Utils
             {
               String key = line.substring(1, 6);
               try { Utils.parseAndCalculate(key, line, ndc); } 
-              catch (Exception ex) { System.err.println("Oops (" + key + "):" + ex.toString()); }
+              catch (Exception ex) 
+              { 
+                if (speakUp)
+                  System.err.println("Oops (" + key + "):" + ex.toString()); 
+              }
               // Get values for statistics
-              UTCDate utcDate = (UTCDate)ndc.get(NMEADataCache.GPS_DATE_TIME);
-  
+              UTCDate utcDate = (UTCDate)ndc.get(NMEADataCache.GPS_DATE_TIME, false);  
               if (utcDate != null && utcDate.getValue() != null)
               {
-  //            System.out.println("displayNMEADetails:" + SDF.format(utcDate.getValue()) + " from [" + line + "]");
-                long time = utcDate.getValue().getTime();                        
-                long timeDiff = time - timeMax;
-                if (Math.abs(timeDiff) > 50000)
+//              System.out.println("displayNMEADetails:" + SDF.format(utcDate.getValue()) + " from [" + line + "]");
+                long time = utcDate.getValue().getTime();
+                if (timeMax != Long.MIN_VALUE)
                 {
-//                System.out.println("Record " + nbRec + ", Time diff:" + timeDiff);
-                  anomalyMess = "Suspicious time gap at record " + nbRec + "\n" +
-                                "From " + SDF.format(new Date(timeMax)) + " to " + SDF.format(new Date(time)) + "\n" +
-                                "----------------------------------------------\n";
+                  long timeDiff = time - timeMax;
+                  if (Math.abs(timeDiff) > SUSPICIOUS_GAP) //  && Math.abs(timeDiff) < ONE_DAY_MS) // To avoid the gap between GLL & RMC
+                  {
+  //                System.out.println("Record " + nbRec + ", Time diff:" + timeDiff);
+                    anomalyMess.append("Suspicious time gap at record #" + nbRec + " (" + Long.toString(timeDiff) + " ms)\n" +
+                                       "From " + SDF.format(new Date(timeMax)) + " to " + SDF.format(new Date(time)) + "\n" +
+                                       "----------------------------------------------\n");
+                    nbAnomaly++;
+                    timeMax = time;
+                  }
                 }
-                timeDiff = time - timeMin;
-                if (Math.abs(timeDiff) > 50000)
+                if (false && timeMin != Long.MAX_VALUE)
                 {
-//                System.out.println("Record " + nbRec + ", Time diff:" + timeDiff);
-                  anomalyMess = "Suspicious time gap at record " + nbRec + "\n" +
-                                "From " + SDF.format(new Date(timeMin)) + " to " + SDF.format(new Date(time)) + "\n" +
-                                "----------------------------------------------\n";
+                  long timeDiff = time - timeMin;
+                  if (Math.abs(timeDiff) > SUSPICIOUS_GAP) // 50 seconds
+                  {
+  //                System.out.println("Record " + nbRec + ", Time diff:" + timeDiff);
+                    anomalyMess.append("Suspicious time gap at record #" + nbRec + " (" + Long.toString(timeDiff) + " ms)\n" +
+                                       "From " + SDF.format(new Date(timeMin)) + " to " + SDF.format(new Date(time)) + "\n" +
+                                       "----------------------------------------------\n");
+                    nbAnomaly++;
+                    timeMin = time;
+                  }
                 }
                 timeMax = Math.max(timeMax, time);
                 timeMin = Math.min(timeMin, time);
@@ -1710,8 +1728,20 @@ public class Utils
       message += (Integer.toString(nbRec) + " record(s).");
       message += ("\n" + SDF.format(new Date(timeMin)) + " to " + SDF.format(new Date(timeMax)));
       message += ("\n" + duration(timeMin, timeMax));
-      if (anomalyMess.trim().length() > 0)
-        message += ("\n" + anomalyMess);
+      if (anomalyMess.length() > 0)
+      {
+        message += ("\n\n" + Integer.toString(nbAnomaly) + " anomaly(ies):");
+        String anomaly = anomalyMess.toString();
+        if (anomaly.length() > 500)
+        {
+          anomaly = anomaly.substring(0, 500) + "... (full anomaly stack is in the clipboard)\n\n";
+          // Clipboard
+          Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+          StringSelection stringSelection = new StringSelection(anomalyMess.toString());
+          clipboard.setContents(stringSelection, null);    
+        }
+        message += ("\n" + anomaly);
+      }
       message += ("\nLatitude between " + GeomUtil.decToSex(north, GeomUtil.SWING, GeomUtil.NS, GeomUtil.LEADING_SIGN) +
                   " and " + GeomUtil.decToSex(south, GeomUtil.SWING, GeomUtil.NS, GeomUtil.LEADING_SIGN));
       message += ("\nLongitude between " + GeomUtil.decToSex(east, GeomUtil.SWING, GeomUtil.EW, GeomUtil.LEADING_SIGN) +
@@ -1764,14 +1794,40 @@ public class Utils
     return mess;
   }
   
+  public static boolean isHdtPresent()
+  {
+    return hdtPresent;
+  }
+  
   public static void main1(String[] args)
   {
     for (int i=0; i<360; i++)
       System.out.println(Integer.toString(i) + ":" + WindUtils.getRoseDir((double)i));
   }
 
-  public static boolean isHdtPresent()
+  public static void main2(String[] args) throws Exception
   {
-    return hdtPresent;
+    BufferedReader br = new BufferedReader(new FileReader("nmea.data"));
+    BufferedWriter bw = new BufferedWriter(new FileWriter("nmea.out"));
+    String line = "";
+    boolean go = true;
+    while (go)
+    {
+      line = br.readLine();
+      if (line == null)
+        go = false;
+      else
+      {
+        bw.write(line.substring(22) + "\n");
+      }
+    }
+    br.close();
+    bw.close();
+  }
+  
+  public static void main(String[] args)
+  {
+    speakUp = false;
+    displayNMEADetails("D:\\OlivSoft\\all-scripts\\logged-data\\2011-01-29.strait.to.tongareva.for.DR.small.nmea");
   }
 }

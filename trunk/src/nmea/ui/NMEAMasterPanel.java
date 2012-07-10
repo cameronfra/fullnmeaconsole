@@ -638,7 +638,7 @@ public class NMEAMasterPanel
           {
             public void run()
             {
-              Utils.dsiplayNMEADetails(fileName);
+              Utils.displayNMEADetails(fileName);
             }
           };
         detailThread.start();

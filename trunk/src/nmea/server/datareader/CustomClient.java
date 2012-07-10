@@ -17,6 +17,7 @@ import ocss.nmea.api.NMEAEvent;
  * @deprecated
  * @see CustomNMEAClient
  */
+@Deprecated
 public class CustomClient extends NMEAClient
 {
   private NMEAEventManager parent;
