@@ -350,7 +350,7 @@ public class DrawingBoard
     dataTable.add(new Object[] { "AWA (corrected)", DF3.format(awa + awaOffset) + "\272", new Color(0, 142, 0) });
     dataTable.add(new Object[] { "BSP Coeff", DF33.format(bspCoeff), Color.red });
     dataTable.add(new Object[] { "HDG Offset", DF3.format(hdgOffset) + "\272", Color.red });
-    dataTable.add(new Object[] { "AWS Coeff", DF32.format(awsCoeff), Color.red });
+    dataTable.add(new Object[] { "AWS Coeff", DF33.format(awsCoeff), Color.red });
     dataTable.add(new Object[] { "AWA Offset", DF3.format(awaOffset) + "\272", Color.red });
     if (tws != -Double.MAX_VALUE && !Double.isInfinite(tws) && !Double.isNaN(tws))
     {
