@@ -17,6 +17,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 
+import java.util.TimeZone;
+
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -64,6 +66,11 @@ public class NMEAMasterPanel
   private final static SimpleDateFormat SDF = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss:");
   private final static SimpleDateFormat UTC_DATE_FORMAT = new SimpleDateFormat("EEE dd MMM yyyy HH:mm:ss 'UTC'");
   private final static SimpleDateFormat SOLAR_DATE_FORMAT = new SimpleDateFormat("'Solar:' dd MMM yyyy HH:mm:ss");
+  static
+  {
+    UTC_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("Etc/UTC"));
+    SOLAR_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("Etc/UTC"));
+  }
   private static long nbRecToCommit = Long.MAX_VALUE; // 100L;
 
   private String pfile = "";

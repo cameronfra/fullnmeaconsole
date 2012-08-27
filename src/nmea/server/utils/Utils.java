@@ -37,6 +37,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 
 import java.text.SimpleDateFormat;
@@ -52,6 +53,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+
+import java.util.TimeZone;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -94,7 +97,17 @@ import user.util.GeomUtil;
 
 public class Utils
 {
-  private final static SimpleDateFormat SDF = new SimpleDateFormat("EEE dd-MMM-yyyy HH:mm:ss");
+  private final static SimpleDateFormat SDF = new SimpleDateFormat("EEE dd-MMM-yyyy HH:mm:ss (z)");
+  static
+  {
+    SDF.setTimeZone(TimeZone.getTimeZone("Etc/UTC"));
+  }
+  private final static DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
+  static 
+  {
+    symbols.setGroupingSeparator(' ');
+  }
+  private final static NumberFormat REC_FMT = new DecimalFormat("###,###,###,###,##0", symbols);
   
   public final static String PROPERTIES_FILE = "nmea-config.properties";
   public final static String USER_CONFIG     = "user-nmea-config.xml";
@@ -369,8 +382,8 @@ public class Utils
     {
       double[] d = StringParsers.parseVLW(value);
       HashMap<String, Object> map = new HashMap<String, Object>(2);
-      map.put(NMEADataCache.LOG      , new Distance(d[0]));
-      map.put(NMEADataCache.DAILY_LOG, new Distance(d[1]));
+      map.put(NMEADataCache.LOG      , new Distance(d[StringParsers.LOG_in_VLW]));
+      map.put(NMEADataCache.DAILY_LOG, new Distance(d[StringParsers.DAILYLOG_in_VLW]));
 
       if (ndc == null)
         NMEAContext.getInstance().putDataCache(map);
@@ -577,6 +590,7 @@ public class Utils
   {
     computeAndSendValuesToCache(cache, false);
   }
+  
   public static void computeAndSendValuesToCache(NMEADataCache cache, boolean isHDTPresent)
   {
     double heading = 0d;
@@ -1577,6 +1591,11 @@ public class Utils
   private final static long SUSPICIOUS_GAP = 50000L;
   private final static long ONE_DAY_MS     = 1000L * 3600L * 24L;
   
+  private final static int MIN_MAX_LIMIT    = 1;
+  private final static int FIRST_LAST_LIMIT = 2;
+  
+  private final static int LIMIT_OPTION = FIRST_LAST_LIMIT;
+  
   public static void displayNMEADetails(String fName)
   {
     String message = ""; // The one to display
@@ -1621,6 +1640,7 @@ public class Utils
       
       StringBuffer anomalyMess = new StringBuffer();
       int nbAnomaly = 0;
+      boolean firstDate = true;
       boolean keepReading = true;
       while (keepReading)
       {
@@ -1630,8 +1650,8 @@ public class Utils
         else
         {
           nbRec++;
-          if (nbRec % 5000 == 0)
-            System.out.println("- " + fName + ", record " + nbRec);
+          if (speakUp && nbRec % 5000 == 0)
+            System.out.println("- Analyzing [" + fName + "], record " + nbRec);
           // Analyze here
           if (line.startsWith("$") && line.length() > 6)
           {
@@ -1648,44 +1668,38 @@ public class Utils
               UTCDate utcDate = (UTCDate)ndc.get(NMEADataCache.GPS_DATE_TIME, false);  
               if (utcDate != null && utcDate.getValue() != null)
               {
+                if (firstDate)
+                {
+                  if (speakUp)
+                    System.out.println("- First Date:" + SDF.format(utcDate.getValue()));
+                  if (LIMIT_OPTION == FIRST_LAST_LIMIT)
+                    timeMin = utcDate.getValue().getTime();
+                  firstDate = false;
+                }
 //              System.out.println("displayNMEADetails:" + SDF.format(utcDate.getValue()) + " from [" + line + "]");
                 long time = utcDate.getValue().getTime();
+                boolean ok = true;
                 if (timeMax != Long.MIN_VALUE)
                 {
                   long timeDiff = time - timeMax;
                   if (Math.abs(timeDiff) > SUSPICIOUS_GAP) //  && Math.abs(timeDiff) < ONE_DAY_MS) // To avoid the gap between GLL & RMC
                   {
   //                System.out.println("Record " + nbRec + ", Time diff:" + timeDiff);
-                    anomalyMess.append("Suspicious time gap at record #" + nbRec + " (" + Long.toString(timeDiff) + " ms)\n" +
+                    anomalyMess.append("Suspicious time gap at record #" + REC_FMT.format(nbRec) + " (" + Long.toString(timeDiff) + " ms)\n" +
                                        "From " + SDF.format(new Date(timeMax)) + " to " + SDF.format(new Date(time)) + "\n" +
                                        "----------------------------------------------\n");
                     nbAnomaly++;
-                    timeMax = time;
+                    if (Math.abs(timeDiff) >= (ONE_DAY_MS - 10))
+                      ok = false;
+                    else if (LIMIT_OPTION == MIN_MAX_LIMIT)
+                      timeMax = time;                    
                   }
                 }
-                if (false && timeMin != Long.MAX_VALUE)
+                if (ok && LIMIT_OPTION == MIN_MAX_LIMIT)
                 {
-                  long timeDiff = time - timeMin;
-                  if (Math.abs(timeDiff) > SUSPICIOUS_GAP) // 50 seconds
-                  {
-  //                System.out.println("Record " + nbRec + ", Time diff:" + timeDiff);
-                    anomalyMess.append("Suspicious time gap at record #" + nbRec + " (" + Long.toString(timeDiff) + " ms)\n" +
-                                       "From " + SDF.format(new Date(timeMin)) + " to " + SDF.format(new Date(time)) + "\n" +
-                                       "----------------------------------------------\n");
-                    nbAnomaly++;
-                    timeMin = time;
-                  }
-                }
-                timeMax = Math.max(timeMax, time);
-                timeMin = Math.min(timeMin, time);
-                              
-                if (false)
-                {
-                  GregorianCalendar gc = new GregorianCalendar();
-                  gc.setTime(new Date(timeMax));
-                  if (gc.get(Calendar.DAY_OF_MONTH) == 7)
-                    System.out.println("Ooch");
-                }
+                  timeMax = Math.max(timeMax, time);
+                  timeMin = Math.min(timeMin, time);
+                }              
               }
               Speed bsp = (Speed)ndc.get(NMEADataCache.BSP);
               if (bsp != null)
@@ -1725,9 +1739,34 @@ public class Utils
         }
       }
       br.close();
-      message += (Integer.toString(nbRec) + " record(s).");
-      message += ("\n" + SDF.format(new Date(timeMin)) + " to " + SDF.format(new Date(timeMax)));
-      message += ("\n" + duration(timeMin, timeMax));
+
+      UTCDate utcDate = (UTCDate)ndc.get(NMEADataCache.GPS_DATE_TIME, false);  
+      if (utcDate != null && utcDate.getValue() != null)
+      {
+        if (speakUp)
+          System.out.println("- Last Date:" + SDF.format(utcDate.getValue()));
+        if (LIMIT_OPTION == FIRST_LAST_LIMIT)
+        {
+          timeMax = utcDate.getValue().getTime();
+          while (timeMax < timeMin) // Ugly and weird
+            timeMax += ONE_DAY_MS;
+        }
+      }       
+      
+      message += (REC_FMT.format(nbRec) + " record(s).\n");
+
+      Calendar from = GregorianCalendar.getInstance();
+//    from.setTimeZone(TimeZone.getTimeZone("Etc/UTC"));
+      from.setTimeInMillis(timeMin);
+      
+      Calendar to = GregorianCalendar.getInstance();
+//    to.setTimeZone(TimeZone.getTimeZone("Etc/UTC"));
+      to.setTimeInMillis(timeMax);
+
+      message += ("\n" + SDF.format(from.getTime()) + " to " + SDF.format(to.getTime()));
+      SDF.setTimeZone(TimeZone.getDefault());
+      message += ("\nSystem Time:\n" + SDF.format(from.getTime()) + " to " + SDF.format(to.getTime()));
+      message += ("\n" + duration(timeMin, timeMax) + "\n");
       if (anomalyMess.length() > 0)
       {
         message += ("\n\n" + Integer.toString(nbAnomaly) + " anomaly(ies):");
@@ -1750,6 +1789,11 @@ public class Utils
       message += ("\nSOG between " + NMEAContext.DF22.format(sogMin) + " and " + NMEAContext.DF22.format(sogMax));
       message += ("\nTWS between " + NMEAContext.DF22.format(twsMin) + " and " + NMEAContext.DF22.format(twsMax));
       message += ("\nAWS between " + NMEAContext.DF22.format(awsMin) + " and " + NMEAContext.DF22.format(awsMax));
+
+      // Local Display
+//    SDF.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+      SDF.setTimeZone(TimeZone.getDefault());
+      System.out.println("from " + SDF.format(from.getTime()) + " to " + SDF.format(to.getTime()));
     }
     catch (Exception ex)
     {
@@ -1828,6 +1872,10 @@ public class Utils
   public static void main(String[] args)
   {
     speakUp = false;
-    displayNMEADetails("D:\\OlivSoft\\all-scripts\\logged-data\\2011-01-29.strait.to.tongareva.for.DR.small.nmea");
+//  displayNMEADetails("D:\\OlivSoft\\all-scripts\\logged-data\\2011-01-29.strait.to.tongareva.for.DR.small.nmea");  
+//  displayNMEADetails("D:\\OlivSoft\\all-scripts\\logged-data\\2012-06-10.china.camp-oyster.point.nmea");
+//  displayNMEADetails("D:\\OlivSoft\\all-scripts\\logged-data\\2010-11-08.Nuku-Hiva-Tuamotu.nmea");
+//  displayNMEADetails("D:\\OlivSoft\\all-scripts\\logged-data\\2012-08-12.OysterPoint.ChinaCamp.nmea");
+    displayNMEADetails("D:\\OlivSoft\\all-scripts\\logged-data\\2012-08-12.OysterPoint.ChinaCamp.valid.nmea");
   }
 }
