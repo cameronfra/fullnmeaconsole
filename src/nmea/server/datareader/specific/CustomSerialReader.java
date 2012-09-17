@@ -18,6 +18,8 @@ import gnu.io.PortInUseException;
 
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import nmea.server.constants.Constants;
 
 import nmea.server.datareader.DataReader;
@@ -107,7 +109,7 @@ public class CustomSerialReader
     {
 //    piue.printStackTrace();
 //    System.err.println(this.getClass().getName() + ":read() - Port In Use");
-//    JOptionPane.showMessageDialog(null, comPort + " in use!", "Error opening port", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, comPort + " in use.\n" + piue.getLocalizedMessage(), "Error opening port", JOptionPane.ERROR_MESSAGE);
       manageError(piue);
 //    throw new RuntimeException(piue);
       return;
