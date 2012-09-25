@@ -81,7 +81,8 @@ public class CustomSerialReader
 
   public void read()
   {
-    if (System.getProperty("verbose", "false").equals("true")) System.out.println("read() - From " + this.getClass().getName() + " Reading Serial Port " + comPort);
+    if (System.getProperty("verbose", "false").equals("true")) 
+      System.out.println("read() - From " + this.getClass().getName() + " Reading Serial Port " + comPort + ":" + Integer.toString(this.br));
     super.enableReading();
     CommPortIdentifier com = null;
     try
@@ -180,7 +181,8 @@ public class CustomSerialReader
         }
         else
         {
-          if (verbose) System.out.println("Reading serial port with timeout (" + timeout + " ms)");
+          if (verbose) 
+            System.out.println("Reading serial port (" + comPort + ":" + Integer.toString(br) + ") with timeout (" + timeout + " ms)");
           // Wait here.
           Thread waiter = Thread.currentThread();
           SerialReceiveThread drt = new SerialReceiveThread(theInput, waiter, this);
@@ -195,19 +197,26 @@ public class CustomSerialReader
                 waiter.wait(timeout);  
               else
                 waiter.wait();
-              long after = System.currentTimeMillis();
-              if (verbose) System.out.println("- (Serial) Done waiting (" + Long.toString(after - before) + " vs " + Long.toString(timeout) + ")");
+              long after = System.currentTimeMillis(); 
+              if (verbose) 
+              {
+                System.out.println("- (Serial " + comPort + ":" + Integer.toString(br) + ") Done waiting (" + Long.toString(after - before) + " vs " + Long.toString(timeout) + ")");
+                System.out.println("    -> data read " + (dataRead==null?"[null]":Integer.toString(dataRead.length()) + " byte(s) [" + dataRead + "]"));
+              }
               if (drt.isAlive())
               {
   //            System.out.println("Interrupting the DatagramReceiveThread");
                 drt.interrupt(); 
-                if (timeout != -1 && (after - before) >= timeout)
-                  throw new RuntimeException("Serial reader took too long.");
+//              if (timeout != -1 && (after - before) >= timeout)
+//                throw new RuntimeException("Serial reader on " + comPort + ":" + Integer.toString(br) + "took too long (" + Long.toString(after - before) + ").");
               }
+              if (timeout != -1 && (after - before) >= timeout)
+                throw new RuntimeException("Serial reader on " + comPort + ":" + Integer.toString(br) + "took too long (" + Long.toString(after - before) + ").");
             }
             catch (InterruptedException ie) 
             { 
-              if (verbose) System.out.println("Waiter Interrupted! (before end of wait, good)");              
+              if (verbose) 
+                System.out.println("Waiter Interrupted! (before end of wait, good)");              
             }
           }    
         }
