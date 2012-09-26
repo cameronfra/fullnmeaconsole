@@ -17,9 +17,9 @@ import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -957,7 +957,7 @@ public class HTTPServer
       }
       else if (key.substring(2).equals("GSV") || key.equals("GSV"))
       {
-        HashMap<Integer, SVData> map = null;
+        Map<Integer, SVData> map = null;
         try 
         { 
           map = StringParsers.parseGSV(nmea);        
