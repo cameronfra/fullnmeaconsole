@@ -56,6 +56,9 @@ public class NMEAMasterPanel
   implements NMEAFrameInterface, 
              NMEAEventManager
 {
+  @SuppressWarnings("compatibility:-469133995607650775")
+  public final static long serialVersionUID = 1L;
+
   private boolean verbose = false;
   private boolean goLog = false;
   private boolean logWithDate = true;
@@ -77,12 +80,12 @@ public class NMEAMasterPanel
 
   private BorderLayout borderLayout  = new BorderLayout();
   private JPanel bottomPanel         = new JPanel();
-  private BulkPanel               bp = new BulkPanel();
-  private ViewerTablePane         vp = new ViewerTablePane(this);
-  private CalculatedDataTablePane cp = new CalculatedDataTablePane(this);
+  private BulkPanel               bp = new BulkPanel();                   // As they are, as a stream
+  private ViewerTablePane         vp = new ViewerTablePane(this);         // As they are, in a table
+  private CalculatedDataTablePane cp = new CalculatedDataTablePane(this); // Parsed data, in a table
   private JTabbedPane nmeaTabbedPane = new JTabbedPane();
 
-  private Full2DPanel            f2d = new Full2DPanel();
+  private Full2DPanel            f2d = new Full2DPanel();                 // 2D Graphical Display
   
   private JPanel                  ep = new JPanel(new BorderLayout());
   
@@ -400,7 +403,7 @@ public class NMEAMasterPanel
   {
     if (verbose)
       System.out.println("Read from NMEA :[" + payload + "]");
-    NMEAContext.getInstance().fireNMEAString(payload);    // TODO Only id you own the NMEA port
+    NMEAContext.getInstance().fireNMEAString(payload);
   }
 
   private void dispatchData(String payload)
@@ -521,9 +524,8 @@ public class NMEAMasterPanel
       if (utcDate != null && utcDate.getValue() != null)
       {
         SolarDate solarDate = (SolarDate)NMEAContext.getInstance().getCache().get(NMEADataCache.GPS_SOLAR_TIME);
-        long fileSize = NMEAContext.getInstance().getReplayFileSize();
         String message = "Simulation:" + NMEAContext.getInstance().getReplayFile() + 
-                      // ", rec #" + Long.toString(NMEAContext.getInstance().getReplayFileRecNum()) + (fileSize > 0L?"/" + Long.toString(fileSize):"") +  
+                      // ", rec #" + Long.toString(NMEAContext.getInstance().getReplayFileRecNum()) + (fileSize > 0L?"/" + Long.toString(NMEAContext.getInstance().getReplayFileSize()):"") +  
                          ", " + UTC_DATE_FORMAT.format(utcDate.getValue());
         if (solarDate != null)
           message += (" (" + SOLAR_DATE_FORMAT.format(solarDate.getValue()) + ")");
@@ -617,10 +619,13 @@ public class NMEAMasterPanel
     return vp;
   }
 
-  class LoggingDetailsPopup extends JPopupMenu
-                         implements ActionListener,
-                                    PopupMenuListener
+  static class LoggingDetailsPopup extends JPopupMenu
+                                implements ActionListener,
+                                           PopupMenuListener
   {
+    @SuppressWarnings("compatibility:1443743705366716038")
+    public final static long serialVersionUID = 1L;
+
     private JMenuItem details;
     private String fileName;
 
