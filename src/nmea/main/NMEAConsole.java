@@ -33,13 +33,13 @@ public class NMEAConsole
   private static String pfile = Utils.PROPERTIES_FILE;
   
   public NMEAConsole(boolean verb, 
-                       String serial, 
-                       int br, 
-                       int option,
-                       String tcp, 
-                       String host,
-                       String data, 
-                       String prmfile)
+                     String serial, 
+                     int br, 
+                     int option,
+                     String tcp, 
+                     String host,
+                     String data, 
+                     String prmfile)
   {
     String lnf = System.getProperty("swing.defaultlaf");
     //  System.out.println("LnF:" + lnf);

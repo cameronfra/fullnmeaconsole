@@ -126,10 +126,11 @@ public class Utils
   
   public final static void displayHelpAbout(Component parent)
   {
-    String helpContent = "NMEA Console.\n";
-    helpContent += "Displays NMEA Data read from some stream (Serial Port, TCP Port, UDP Port, RMI, Simualtion Data File)\n";
+    String helpContent = "NMEA Reader and Console.\n";
+    helpContent += "Displays NMEA Data read from some stream (Serial Port, TCP Port, UDP Port, RMI, Logged Data File)\n";
     helpContent += "Can log NMEA Data.\n";
-    helpContent += "Can rebroadcast NMEA data to an HTTP port in XML format.\n";
+    helpContent += "Can rebroadcast NMEA data to an HTTP port in XML format, TCP, UDP, RMI, GPSd.\n";
+    
     String hostname = "localhost";
     String ip       = "127.0.0.1";
     try 
@@ -147,7 +148,7 @@ public class Utils
     } 
     catch (UnknownHostException e) { }           
     
-    helpContent += ("Default URL would be http://" + hostname + ":6666/ or http://" + ip + ":6666/\n");
+    helpContent += ("Default URL (form XML) would be http://" + hostname + ":6666/ or http://" + ip + ":6666/\n");
     
     JOptionPane.showMessageDialog(parent, helpContent, "NMEA Console", JOptionPane.INFORMATION_MESSAGE);
   }
@@ -155,7 +156,7 @@ public class Utils
   private final static long SEC  = 1000L;
   private final static long MIN  = 60 * SEC;
   private final static long HOUR = 60 * MIN;
-  private final static long DAY  = 24 * HOUR;
+  private final static long DAY  = 24 * HOUR; // in ms
   
   public static String setRange(long sec)
   {

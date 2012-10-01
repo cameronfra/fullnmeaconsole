@@ -27,6 +27,9 @@ import nmea.server.datareader.CustomNMEAClient;
 
 import nmea.ui.widgets.BeaufortPanel;
 
+/**
+ * @deprecated Use NMEAInternalFrame instead
+ */
 public class NMEAFrame 
      extends JFrame
 {
