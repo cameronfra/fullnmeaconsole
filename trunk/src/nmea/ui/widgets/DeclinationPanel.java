@@ -13,6 +13,7 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.text.NumberFormatter;
 
 public class DeclinationPanel
   extends JPanel
@@ -39,7 +40,7 @@ public class DeclinationPanel
   {
     this.setLayout(gridBagLayout1);
     declinationTextField.setPreferredSize(new Dimension(60, 20));
-    declinationTextField.setText("00.00");
+    declinationTextField.setText(((NumberFormatter)declinationTextField.getFormatter()).getFormat().format(0.0));
     declinationTextField.setHorizontalAlignment(JTextField.CENTER);
     degreeLabel.setText("\272");
     ewComboBox.setPreferredSize(new Dimension(40, 20));
@@ -53,7 +54,7 @@ public class DeclinationPanel
   
   public void setDeclinationValue(double d)
   {    
-    declinationTextField.setText(Double.toString(Math.abs(d)));
+    declinationTextField.setText(((NumberFormatter)declinationTextField.getFormatter()).getFormat().format(Math.abs(d)));
     if (d < 0)
       ewComboBox.setSelectedItem("W");
   }
@@ -61,7 +62,7 @@ public class DeclinationPanel
   public double getDeclinationValue()
   {
     double d = 0;
-    try { d = Double.parseDouble(declinationTextField.getText()); } catch (Exception ex) {}
+    try { d = ((DecimalFormat)((NumberFormatter)declinationTextField.getFormatter()).getFormat()).parse(declinationTextField.getText()).doubleValue(); } catch (Exception ex) {}
     return d;
   }
 }
