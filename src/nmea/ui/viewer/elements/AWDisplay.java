@@ -28,6 +28,7 @@ import java.text.NumberFormat;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 public class AWDisplay
   extends JPanel
@@ -48,6 +49,7 @@ public class AWDisplay
                  origValue = "00.00";
   
   private double awa = 0d;
+  private double prevAwa = 0d;
   
   private int graphicXOffset = 0;
   private int graphicYOffset = 0;
