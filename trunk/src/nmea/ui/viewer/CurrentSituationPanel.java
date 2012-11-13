@@ -34,6 +34,8 @@ import nmea.ui.viewer.elements.CurrentDisplay;
 import nmea.ui.viewer.elements.DrawingBoard;
 import coreutilities.gui.HeadingPanel;
 import coreutilities.gui.JumboDisplay;
+import coreutilities.gui.SpeedoPanel;
+
 import nmea.ui.viewer.minimaxi.boatspeed.BoatSpeed;
 import nmea.ui.viewer.minimaxi.wind.WindSpeed;
 
@@ -73,6 +75,12 @@ public class CurrentSituationPanel
   private JumboDisplay sogDisplay = null;
   private JumboDisplay beaufortDisplay = null;
   
+  private SpeedoPanel bspSpeedoPanel = null;
+  private SpeedoPanel twsSpeedoPanel = null;
+  
+  private JPanel speedoPanel = null;
+  private JPanel speedoPanelHolder = null;
+  
   private int basicJumboSize = 24;
   
   private AWDisplay awDisplay           = null;
@@ -92,6 +100,7 @@ public class CurrentSituationPanel
   private JCheckBox showLeftPaneCheckBox = new JCheckBox();
   private JCheckBox miniMaxiCheckBox = new JCheckBox();
   private JCheckBox showTemperatureCheckBox = new JCheckBox();
+  private JCheckBox analogDisplayCheckBox = new JCheckBox();
 
   private JCheckBox displayCurrentCheckBox = new JCheckBox();
   
@@ -233,7 +242,9 @@ public class CurrentSituationPanel
     
     displayPanel.add(showLeftPaneCheckBox, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
           new Insets(0, 3, 0, 0), 0, 0));
-    displayPanel.add(miniMaxiCheckBox, new GridBagConstraints(0, 2, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+    displayPanel.add(miniMaxiCheckBox, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+          new Insets(0, 3, 0, 0), 0, 0));    
+    displayPanel.add(analogDisplayCheckBox, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
           new Insets(0, 3, 0, 0), 0, 0));
     displayPanel.add(showTemperatureCheckBox, new GridBagConstraints(0, 3, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
           new Insets(0, 3, 0, 0), 0, 0));
@@ -248,8 +259,8 @@ public class CurrentSituationPanel
     displayPanel.add(buttonPanel, new GridBagConstraints(0, 6, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
           new Insets(0, 3, 0, 0), 0, 0));
 
-    displayPanel.add(autoScaleCheckBox, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
-          new Insets(0, 0, 0, 0), 0, 0));
+    displayPanel.add(autoScaleCheckBox, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+          new Insets(0, 3, 0, 0), 0, 0));
     bspDisplay = new JumboDisplay("BSP", "00.00", "Boat Speed", basicJumboSize);
     hdgDisplay = new JumboDisplay("HDG", "000", "True Heading", basicJumboSize);
     awaDisplay = new JumboDisplay("AWA", "000", "Apparent Wind Angle", basicJumboSize);
@@ -302,6 +313,16 @@ public class CurrentSituationPanel
         }
       });
 
+    analogDisplayCheckBox.setText("Show analog displays");
+    analogDisplayCheckBox.setSelected(true);
+    analogDisplayCheckBox.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          analogDisplayCheckBox_actionPerformed(e);
+        }
+      });
+    
     showTemperatureCheckBox.setText("Show Water Temperature");
 
     boolean dt = "true".equals(System.getProperty("display.temperature", "false"));
@@ -334,6 +355,17 @@ public class CurrentSituationPanel
         }
       });
       
+    bspSpeedoPanel = new SpeedoPanel(10d, 0.25, 1, false);
+    bspSpeedoPanel.setPreferredSize(new Dimension(200, 120));
+    bspSpeedoPanel.setLabel("STW");
+
+    speedoPanel = new JPanel(new GridBagLayout());
+    speedoPanelHolder = new JPanel(new BorderLayout());
+    
+    twsSpeedoPanel = new SpeedoPanel(50d, false);
+    twsSpeedoPanel.setPreferredSize(new Dimension(200, 120));
+    twsSpeedoPanel.setLabel("TWS");
+    
     twsMethodPanel.add(twLabel, null);
     twsMethodPanel.add(gpsMethod, null);
     twsMethodPanel.add(bspMethod, null);
@@ -455,7 +487,16 @@ public class CurrentSituationPanel
                                                new Insets(1, 1, 1, 1), 0, 0));
     topDisplayPanel.add(twsMinMaxPanel,
                         new GridBagConstraints(2, 4, 1, 3, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.VERTICAL,
-                                               new Insets(1, 1, 1, 1), 0, 0));
+                                               new Insets(1, 1, 1, 1), 0, 0));      
+    // Gauges
+    speedoPanelHolder.add(speedoPanel, BorderLayout.NORTH);
+    speedoPanel.add(bspSpeedoPanel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+          new Insets(1, 1, 1, 1), 0, 0));
+    speedoPanel.add(twsSpeedoPanel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+          new Insets(1, 1, 1, 1), 0, 0));    
+    topDisplayPanel.add(speedoPanelHolder, new GridBagConstraints(3, 0, 1, 7, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+          new Insets(1, 1, 1, 1), 0, 0));
+    
     // Init values
 //  hdgPanel.setHdg(53);
 //  cogPanel.setHdg(94);
@@ -484,7 +525,13 @@ public class CurrentSituationPanel
   private void setBSP(double d)
   {
     if (d != -Double.MAX_VALUE)
-      bspDisplay.setValue(df22.format(d));
+    {
+      if (bspDisplay.isVisible() || bspSpeedoPanel.isVisible())
+      {
+        bspDisplay.setValue(df22.format(d));
+        bspSpeedoPanel.setSpeed(d);
+      }
+    }
   }
 
   private void setHDG(double d)
@@ -527,8 +574,12 @@ public class CurrentSituationPanel
   {
     if (d != -Double.MAX_VALUE && !Double.isInfinite(d) && !Double.isNaN(d))
     {
-      twsDisplay.setValue(df22.format(d));
-      beaufortDisplay.setValue("F " + df2.format(WindUtils.getBeaufort(d)));
+      if (twsDisplay.isVisible() || twsSpeedoPanel.isVisible() || beaufortDisplay.isVisible())
+      {
+        twsDisplay.setValue(df22.format(d));
+        beaufortDisplay.setValue("F " + df2.format(WindUtils.getBeaufort(d)));
+        twsSpeedoPanel.setSpeed(d);
+      }
     }
   }
 
@@ -581,6 +632,12 @@ public class CurrentSituationPanel
     bspMinMaxPanel.setVisible(miniMaxiCheckBox.isSelected());
     twsMinMaxPanel.setVisible(miniMaxiCheckBox.isSelected());
     beaufortDisplay.setVisible(miniMaxiCheckBox.isSelected());
+  }
+  
+  private void analogDisplayCheckBox_actionPerformed(ActionEvent e)
+  {
+    bspSpeedoPanel.setVisible(analogDisplayCheckBox.isSelected());
+    twsSpeedoPanel.setVisible(analogDisplayCheckBox.isSelected());
   }
   
   private void showLeftPaneCheckBox_actionPerformed(ActionEvent e)
