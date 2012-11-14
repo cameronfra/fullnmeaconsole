@@ -118,6 +118,9 @@ public class CurrentSituationPanel
   private ImageIcon left  = new ImageIcon(this.getClass().getResource("elements/resources/shuttleLeftAll.png"));
   private ImageIcon right = new ImageIcon(this.getClass().getResource("elements/resources/shuttleRightAll.png"));
   
+  private JButton resetMinMaxButton = new JButton();
+  private JCheckBox withMinMaxJCheckBox = new JCheckBox("With Min & Max");
+  
   private boolean jumbosOnTheRight = true;
   private JCheckBox autoScaleCheckBox = new JCheckBox();
 
@@ -434,6 +437,29 @@ public class CurrentSituationPanel
         }
       });
 
+    resetMinMaxButton.setText("Reset Min & Max");
+    resetMinMaxButton.setToolTipText("Reset Min & Max Speeds");
+    resetMinMaxButton.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          bspSpeedoPanel.resetMinMax();
+          twsSpeedoPanel.resetMinMax();
+          bspMinMaxPanel.reset();
+          twsMinMaxPanel.reset();
+        }
+      });
+    withMinMaxJCheckBox.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          bspSpeedoPanel.setWithMinMax(withMinMaxJCheckBox.isSelected());
+          twsSpeedoPanel.setWithMinMax(withMinMaxJCheckBox.isSelected());
+          resetMinMaxButton.setEnabled(withMinMaxJCheckBox.isSelected());
+        }
+      });
+    withMinMaxJCheckBox.setSelected(true);
+    
     autoScaleCheckBox.setText("Wind Auto-Scale");
     topDisplayPanel.add(bspDisplay,
                         new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
@@ -493,7 +519,12 @@ public class CurrentSituationPanel
     speedoPanel.add(bspSpeedoPanel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
           new Insets(1, 1, 1, 1), 0, 0));
     speedoPanel.add(twsSpeedoPanel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-          new Insets(1, 1, 1, 1), 0, 0));    
+          new Insets(1, 1, 1, 1), 0, 0));     
+    speedoPanel.add(resetMinMaxButton, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+          new Insets(10, 1, 1, 1), 0, 0));     
+    speedoPanel.add(withMinMaxJCheckBox, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+          new Insets(10, 3, 1, 1), 0, 0)); 
+    
     topDisplayPanel.add(speedoPanelHolder, new GridBagConstraints(3, 0, 1, 7, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
           new Insets(1, 1, 1, 1), 0, 0));
     
