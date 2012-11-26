@@ -25,7 +25,7 @@ public class NMEAServer
   extends UnicastRemoteObject
   implements RemoteNMEAInterface
 {
-  private List<Notifiable> listeners = new ArrayList<Notifiable>(1);
+  private transient List<Notifiable> listeners = new ArrayList<Notifiable>(1);
   private String name = null;
   
   public NMEAServer() throws RemoteException
