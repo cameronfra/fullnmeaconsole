@@ -85,7 +85,7 @@ public class DirectionEvolutionDisplay
   
   public DirectionEvolutionDisplay(String name, String ttText, int basicSize, int compassType)
   {
-    headingPanel = new HeadingPanel(compassType);
+    headingPanel = new HeadingPanel(compassType, true);
     this.name = name;
     toolTipText = ttText;
     this.jumboFontSize = basicSize;
