@@ -357,15 +357,19 @@ public class CurrentSituationPanel
           NMEAContext.getInstance().fireAutoScale(autoScaleCheckBox.isSelected());
         }
       });
-      
-    bspSpeedoPanel = new SpeedoPanel(10d, 0.25, 1, false);
+    
+    double maxBSP = Double.parseDouble(System.getProperty("max.analog.bsp", "10"));  
+    System.out.println("Setting MAX BSP to " + maxBSP);
+    bspSpeedoPanel = new SpeedoPanel(maxBSP, 0.25, 1, false);
     bspSpeedoPanel.setPreferredSize(new Dimension(200, 120));
     bspSpeedoPanel.setLabel("STW");
 
     speedoPanel = new JPanel(new GridBagLayout());
     speedoPanelHolder = new JPanel(new BorderLayout());
     
-    twsSpeedoPanel = new SpeedoPanel(50d, false);
+    double maxTWS = Double.parseDouble(System.getProperty("max.analog.tws", "50"));  
+    System.out.println("Setting MAX BSP to " + maxTWS);
+    twsSpeedoPanel = new SpeedoPanel(maxTWS, false);
     twsSpeedoPanel.setPreferredSize(new Dimension(200, 120));
     twsSpeedoPanel.setLabel("TWS");
     

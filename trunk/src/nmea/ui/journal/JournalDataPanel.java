@@ -16,6 +16,7 @@ import java.io.FileWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 
@@ -312,7 +313,7 @@ public class JournalDataPanel
             double d = 0;
             try { d = details.getDouble(1); }
             catch (Exception ex)
-            {  System.err.println(ex.getLocalizedMessage()); }
+            {  System.err.println("Managed:" + ex.getLocalizedMessage()); }
             if (journalNames[i].equals("BSP") ||
                 journalNames[i].equals("SOG") ||
                 journalNames[i].equals("TWS") ||
@@ -443,7 +444,8 @@ public class JournalDataPanel
         while (details.next())
         {
           String dataId = details.getString(1);
-          double data   = details.getDouble(2);
+          double data   = 0;
+          try { data = details.getDouble(2); } catch (SQLException sqle) { System.err.println("Managed (2):" + sqle.getLocalizedMessage()); }
           sb.append("      <data id='" + dataId + "'>" + Double.toString(data) + "</data>\n");
         }
         details.close();
