@@ -101,6 +101,7 @@ public class CurrentSituationPanel
   private JCheckBox miniMaxiCheckBox = new JCheckBox();
   private JCheckBox showTemperatureCheckBox = new JCheckBox();
   private JCheckBox analogDisplayCheckBox = new JCheckBox();
+  private JCheckBox perimeterTicksCheckBox = new JCheckBox();
 
   private JCheckBox displayCurrentCheckBox = new JCheckBox();
   
@@ -154,7 +155,7 @@ public class CurrentSituationPanel
               setHDG(hdg);               
               hdgPanel.setValue(hdg);
             } 
-            catch (Exception ex) {}
+            catch (Exception ex) { System.err.println(ex.toString()); }
             try { setBSP(((Speed)cache.get(NMEADataCache.BSP)).getValue() * ((Double)cache.get(NMEADataCache.BSP_FACTOR)).doubleValue()); } catch (Exception ex) {}
             try { setSOG(((Speed)cache.get(NMEADataCache.SOG)).getValue()); } catch (Exception ex) {}
             try 
@@ -253,6 +254,8 @@ public class CurrentSituationPanel
           new Insets(0, 3, 0, 0), 0, 0));
     displayPanel.add(displayCurrentCheckBox, new GridBagConstraints(0, 4, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
           new Insets(0, 3, 0, 0), 0, 0));
+    displayPanel.add(perimeterTicksCheckBox, new GridBagConstraints(1, 4, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+          new Insets(0, 3, 0, 0), 0, 0));
     displayPanel.add(twsMethodPanel, new GridBagConstraints(0, 5, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
           new Insets(0, 3, 0, 0), 0, 0));
 
@@ -326,6 +329,17 @@ public class CurrentSituationPanel
         }
       });
     
+    
+    perimeterTicksCheckBox.setText("Perimeter Ticks");
+    perimeterTicksCheckBox.setSelected(true);
+    perimeterTicksCheckBox.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          perimeterTicksCheckBox_actionPerformed(e);
+        }
+      });
+      
     showTemperatureCheckBox.setText("Show Water Temperature");
 
     boolean dt = "true".equals(System.getProperty("display.temperature", "false"));
@@ -673,6 +687,12 @@ public class CurrentSituationPanel
   {
     bspSpeedoPanel.setVisible(analogDisplayCheckBox.isSelected());
     twsSpeedoPanel.setVisible(analogDisplayCheckBox.isSelected());
+  }
+    
+  private void perimeterTicksCheckBox_actionPerformed(ActionEvent e)
+  {
+    drawingBoard.setShowPerimeterTicks(perimeterTicksCheckBox.isSelected());
+    drawingBoard.repaint();
   }
   
   private void showLeftPaneCheckBox_actionPerformed(ActionEvent e)
