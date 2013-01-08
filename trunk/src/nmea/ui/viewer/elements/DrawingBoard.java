@@ -22,6 +22,9 @@ import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 
+import java.awt.font.TextAttribute;
+
+import java.text.AttributedString;
 import java.text.DecimalFormat;
 
 import java.util.ArrayList;
@@ -80,6 +83,7 @@ public class DrawingBoard
   private boolean displayCurrent = true;
   private boolean freeze         = false;
   private boolean showTemperature = false;
+  private boolean showPerimeterTicks = true;
   
   public DrawingBoard()
   {
@@ -158,13 +162,28 @@ public class DrawingBoard
       drawGlossyRectangularDisplay((Graphics2D) gr, 
                                    new Point(0, 0),
                                    new Point(this.getWidth(), this.getHeight()), 
-                                   Color.white, 
+                                   Color.black,              // Color.white, 
                                    new Color(225, 225, 225), // Color.lightGray, 
-                                   1f);      
+                                   1f,
+                                   DOWN);      
     }
 
     double bspLengthAt10 = 1d * this.getWidth() / speedScale; // 3d;
     
+    // Draw ticks on the perimeter
+    if (showPerimeterTicks)
+    {
+      for (int d=0; d<360; d+=1)
+      {
+        if (d % 10 == 0)
+          gr.setColor(Color.black);
+        else
+          gr.setColor(Color.gray);
+        
+        Point[] tick = getPerimeterTickCoordinates(d, this.getWidth(), this.getHeight(), 10);
+        gr.drawLine(tick[0].x, tick[0].y, tick[1].x, tick[1].y);
+      }
+    }
     // Draw speed circles
     for (int w=1; w<=60; w++)
     {
@@ -369,7 +388,10 @@ public class DrawingBoard
     dataTable.add(new Object[] { "leeway", DF31.format(leeway) + "\272 (on " + DF31.format(maxLeeway) + "\272)", Color.blue });
     dataTable.add(new Object[] { "CMG", DF31.format(hdg + hdgOffset + leeway) + "\272", Color.blue });
     // Now displaying data
+    Font f = gr.getFont();
+    gr.setFont(f.deriveFont(Font.BOLD));
     drawDataTable(dataTable, gr);
+    gr.setFont(f);
     
     // Leeway indicator
     if (Math.abs(leeway) > 0) // Indicator not shown if no leeway
@@ -486,7 +508,7 @@ public class DrawingBoard
         ((Graphics2D)gr).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
         gr.setColor(Color.red);
         String value = DF31.format(wt) + "\272C";
-        Font f = gr.getFont();
+     /* Font */ f = gr.getFont();
         gr.setFont(f.deriveFont(Font.BOLD));
         int l = gr.getFontMetrics(gr.getFont()).stringWidth(value);
         gr.drawString(value, midThermometer - (l / 2), this.getHeight() - 10);
@@ -495,8 +517,63 @@ public class DrawingBoard
     }
   }
 
+  private Point[] getPerimeterTickCoordinates(double _angle, int _w, int _h, int borderThickness)
+  {
+    int w = _w;
+    int h = _h;
+    double angle = _angle % 90.0;
+    double xOffset = Math.tan(Math.toRadians(angle)) * (h / 2);
+    if (xOffset > w / 2)
+      xOffset = w / 2; 
+    if (xOffset < -w / 2)
+      xOffset = -w / 2;
+    if (Math.cos(Math.toRadians(_angle)) >= 0)
+      xOffset = Math.abs(xOffset);
+    else
+      xOffset = -Math.abs(xOffset);
+    
+    double yOffset = (1d / Math.tan(Math.toRadians(angle))) * (w / 2);
+    if (yOffset > h / 2)
+      yOffset = h / 2;
+    if (yOffset < -h / 2)
+      yOffset = -h / 2;
+    if (Math.sin(Math.toRadians(_angle)) >= 0)
+      yOffset = Math.abs(yOffset);
+    else
+      yOffset = -Math.abs(yOffset);
+    
+    Point from = new Point((_w / 2) + (int)Math.round(xOffset), (_h / 2) - (int)Math.round(yOffset));
+    
+    w -= (2 * borderThickness);
+    h -= (2 * borderThickness);
+    xOffset = Math.tan(Math.toRadians(angle)) * (h / 2);
+    if (xOffset > w / 2)
+      xOffset = w / 2; 
+    if (xOffset < -w / 2)
+      xOffset = -w / 2;
+    if (Math.cos(Math.toRadians(_angle)) >= 0)
+      xOffset = Math.abs(xOffset);
+    else
+      xOffset = -Math.abs(xOffset);
+    
+    yOffset = (1d / Math.tan(Math.toRadians(angle))) * (w / 2);
+    if (yOffset > h / 2)
+      yOffset = h / 2;
+    if (yOffset < -h / 2)
+      yOffset = -h / 2;
+    if (Math.sin(Math.toRadians(_angle)) >= 0)
+      yOffset = Math.abs(yOffset);
+    else
+      yOffset = -Math.abs(yOffset);
+
+    Point to = new Point((_w / 2) + (int)Math.round(xOffset), (_h / 2) - (int)Math.round(yOffset));
+    
+    return new Point[] { from, to };
+  }
+
   private void drawDataTable(List<Object[]> data, Graphics gr)
   {
+    int x = 14;
     // Determine biggest title width
     int maxLen = 0;
     for (Object[] sa : data)
@@ -507,13 +584,20 @@ public class DrawingBoard
     }
     Font f = gr.getFont();
     int fontSize = f.getSize();
-    int y = fontSize;
+    int y = fontSize * 2;
     for (Object[] sa : data)
     {
+      AttributedString asLeft  = new AttributedString((String)sa[0]);
+      AttributedString asRight = new AttributedString((String)sa[1]);
+      asLeft.addAttribute(TextAttribute.FONT, f.deriveFont(f.BOLD));
+      asRight.addAttribute(TextAttribute.FONT, f.deriveFont(f.BOLD));
+//    asLeft.addAttribute(TextAttribute.BACKGROUND, Color.WHITE);
+//    asRight.addAttribute(TextAttribute.BACKGROUND, Color.WHITE);
+      
       gr.setColor((Color)sa[2]);
-      gr.drawString((String)sa[0], 10, y);
-      gr.drawString((String)sa[1], maxLen + 5 + 10, y);
-      y += fontSize;
+      gr.drawString(asLeft.getIterator(), x, y);
+      gr.drawString(asRight.getIterator(), maxLen + 5 + x, y);
+      y += (fontSize + 2);
     }
   }
   
@@ -650,7 +734,24 @@ public class DrawingBoard
     this.showTemperature = showTemperature;
   }
 
-  private static void drawGlossyRectangularDisplay(Graphics2D g2d, Point topLeft, Point bottomRight, Color lightColor, Color darkColor, float transparency)
+  private final static int UP   = 0;
+  private final static int DOWN = 1;
+  private static void drawGlossyRectangularDisplay(Graphics2D g2d, 
+                                                   Point topLeft, 
+                                                   Point bottomRight, 
+                                                   Color lightColor, 
+                                                   Color darkColor, 
+                                                   float transparency)
+  {
+    drawGlossyRectangularDisplay(g2d, topLeft, bottomRight, lightColor, darkColor, transparency, UP);
+  }
+  private static void drawGlossyRectangularDisplay(Graphics2D g2d, 
+                                                   Point topLeft, 
+                                                   Point bottomRight, 
+                                                   Color lightColor, 
+                                                   Color darkColor, 
+                                                   float transparency,
+                                                   int orientation)
   {
     g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, transparency));
     g2d.setPaint(null);
@@ -662,17 +763,40 @@ public class DrawingBoard
 
     g2d.fillRoundRect(topLeft.x , topLeft.y, width, height, 10, 10);
 
-    Point gradientOrigin = new Point(topLeft.x + (width) / 2,
-                                     topLeft.y);
-    GradientPaint gradient = new GradientPaint(gradientOrigin.x, 
-                                               gradientOrigin.y, 
-                                               lightColor, 
-                                               gradientOrigin.x, 
-                                               gradientOrigin.y + (height / 3), 
-                                               darkColor); // vertical, light on top
+    GradientPaint gradient = null;
+    if (orientation == UP)
+    {
+      Point gradientOrigin = new Point(topLeft.x + (width) / 2,
+                                       topLeft.y);
+      gradient = new GradientPaint(gradientOrigin.x, 
+                                   gradientOrigin.y, 
+                                   lightColor, 
+                                   gradientOrigin.x, 
+                                   gradientOrigin.y + (height / 3), 
+                                   darkColor); // vertical, light on top
+    }
+    else if (orientation == DOWN)
+    {
+      Point gradientOrigin = new Point(bottomRight.x + (width) / 2,
+                                       bottomRight.y);
+      gradient = new GradientPaint(gradientOrigin.x, 
+                                   gradientOrigin.y, 
+                                   lightColor, 
+                                   gradientOrigin.x, 
+                                   gradientOrigin.y - (height / 3), 
+                                   darkColor); // vertical, light on top
+    }
+    else
+      throw new RuntimeException("Illegal Orientation. Must be UP or DOWN.");
+    
     g2d.setPaint(gradient);
     int offset = 3;
     int arcRadius = 5;
     g2d.fillRoundRect(topLeft.x + offset, topLeft.y + offset, (width - (2 * offset)), (height - (2 * offset)), 2 * arcRadius, 2 * arcRadius); 
+  }
+
+  public void setShowPerimeterTicks(boolean showPerimeterTicks)
+  {
+    this.showPerimeterTicks = showPerimeterTicks;
   }
 }
