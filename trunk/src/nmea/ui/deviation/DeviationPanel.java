@@ -33,10 +33,15 @@ import java.text.DecimalFormat;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Hashtable;
+import java.util.HashMap;
 
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
+
+import java.util.SortedMap;
+
+import java.util.TreeMap;
 
 import javax.swing.JOptionPane;
 
@@ -147,6 +152,7 @@ public class DeviationPanel
   double extraVerticalOverlap = 30d;
   
   private boolean printVersion = false;
+  private boolean withDevsOnMH = true;
 
   public void setAutoSet(boolean b)
   {
@@ -455,16 +461,41 @@ public class DeviationPanel
         }
         else
           g.setColor(Color.darkGray);
-        // Plot the smoothed curve (yellow)
-        for (int cm=-30; cm<=390; cm += 5)
+        
+        SortedMap<Double, Double> devOnCM = new TreeMap<Double, Double>();
+        // Plot the smoothed curve (yellow). Devs on Compass Heading
+        for (int cc=-30; cc<=390; cc += 5)
         {
-          double dev = DeviationCurve.devFunc(f, cm);
+          double dev = DeviationCurve.devFunc(f, cc);
+          devOnCM.put(cc - dev, dev);
           int _x = (int)(((dev * widthFactor) + halfWidth) * xDataScale);
-          int _y = (int)((extraVerticalOverlap + cm) * yDataScale);
+          int _y = (int)((extraVerticalOverlap + cc) * yDataScale);
           Point p = new Point(_x, _y);
           if (previousPoint != null)
             g.drawLine(previousPoint.x, previousPoint.y, p.x, p.y);
           previousPoint = p;
+        }
+        
+        // Plot devs and Magnetic Headings
+        if (!printVersion)
+          g.setColor(Color.cyan);
+        else
+          g.setColor(Color.gray);
+        
+        if (withDevsOnMH)
+        {
+          Set<Double> keys = devOnCM.keySet();
+          previousPoint = null;
+          for (Double cm : keys)
+          {
+            double dev = devOnCM.get(cm).doubleValue();
+            int _x = (int)(((dev * widthFactor) + halfWidth) * xDataScale);
+            int _y = (int)((extraVerticalOverlap + cm.doubleValue()) * yDataScale);
+            Point p = new Point(_x, _y);
+            if (previousPoint != null)
+              g.drawLine(previousPoint.x, previousPoint.y, p.x, p.y);
+            previousPoint = p;
+          }
         }
       }
       catch (Exception ex)
@@ -1006,7 +1037,12 @@ public class DeviationPanel
     this.deletePoints = deletePoints;
 //  setMouseDraggedEnabled(!deletePoints);
   }
-  
+
+  public void setWithDevsOnMH(boolean withDevsOnMH)
+  {
+    this.withDevsOnMH = withDevsOnMH;
+  }
+
   private class DoublePoint
   {
     double x = 0d, y = 0d;
