@@ -148,4 +148,30 @@ public class DeviationCurve
        (f[4] * Math.cos(2 * Math.toRadians(r)));    
     return d;
   }
+
+  public static double devFuncComponent(int component, double[] f, double r)
+  {
+    double d = 0d;
+    switch (component)
+    {
+      case 0:
+        d = f[0];
+        break;
+      case 1:
+        d = (f[1] * Math.sin(Math.toRadians(r)));
+        break;
+      case 2:
+        d = (f[2] * Math.cos(Math.toRadians(r)));
+        break;
+      case 3:
+        d = (f[3] * Math.sin(2 * Math.toRadians(r)));
+        break;
+      case 4:
+        d = (f[4] * Math.cos(2 * Math.toRadians(r)));
+        break;
+      default:
+        break;        
+    }
+    return d;
+  }
 }
