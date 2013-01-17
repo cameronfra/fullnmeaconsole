@@ -93,35 +93,40 @@ public class CustomTCPReader extends NMEAReader implements DataReader
       InputStream theInput = skt.getInputStream();
       byte buffer[] = new byte[4096];
       String s;
+      int nbReadTest = 0;
       while (canRead())
       {
         int bytesRead = theInput.read(buffer);
-        if(bytesRead == -1)
+        if (bytesRead == -1)
         {
           System.out.println("Nothing to read...");
-          break;
+          if (nbReadTest++ > 10)
+            break;
         }
-        if (false /* verbose */)
+        else
         {
-          System.out.println("# Read " + bytesRead + " characters");
-          System.out.println("# " + (new Date()).toString());
+          if (false /* verbose */)
+          {
+            System.out.println("# Read " + bytesRead + " characters");
+            System.out.println("# " + (new Date()).toString());
+          }
+          int nn = bytesRead;
+          for(int i = 0; i < Math.min(buffer.length, bytesRead); i++)
+          {
+            if(buffer[i] != 0)
+              continue;
+            nn = i;
+            break;
+          }
+  
+          byte toPrint[] = new byte[nn];
+          for(int i = 0; i < nn; i++)
+            toPrint[i] = buffer[i];
+  
+          s = new String(toPrint) + NMEAParser.getEOS();
+  //      System.out.println("TCP:" + s);
+          super.fireDataRead(new NMEAEvent(this, s));
         }
-        int nn = bytesRead;
-        for(int i = 0; i < Math.min(buffer.length, bytesRead); i++)
-        {
-          if(buffer[i] != 0)
-            continue;
-          nn = i;
-          break;
-        }
-
-        byte toPrint[] = new byte[nn];
-        for(int i = 0; i < nn; i++)
-          toPrint[i] = buffer[i];
-
-        s = new String(toPrint) + NMEAParser.getEOS();
-//      System.out.println("TCP:" + s);
-        super.fireDataRead(new NMEAEvent(this, s));
       }
 
       System.out.println("Stop Reading TCP port.");

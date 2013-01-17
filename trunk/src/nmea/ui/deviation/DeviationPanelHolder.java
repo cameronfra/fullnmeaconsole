@@ -53,6 +53,7 @@ public class DeviationPanelHolder
   
   private boolean printVersion = false;
   private JCheckBox devsOnCmCheckBox = new JCheckBox();
+  private JCheckBox decomposeCheckBox = new JCheckBox();
 
   public DeviationPanelHolder()
   {
@@ -200,12 +201,14 @@ public class DeviationPanelHolder
 
     movePointsButton.setText("Move Points");
     movePointsButton.setToolTipText("<html>Move the points of the deviation curve (red)<br>on the calculated one (yellow)</html>");
-    bottomPanel.add(movePointsButton, new GridBagConstraints(10, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+    bottomPanel.add(movePointsButton, new GridBagConstraints(11, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
           new Insets(2, 3, 0, 3), 0, 0));
-    bottomPanel.add(printCheckBox, new GridBagConstraints(8, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+    bottomPanel.add(printCheckBox, new GridBagConstraints(9, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
           new Insets(0, 5, 0, 0), 0, 0));
-    bottomPanel.add(devsOnCmCheckBox, new GridBagConstraints(9, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+    bottomPanel.add(devsOnCmCheckBox, new GridBagConstraints(10, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
           new Insets(0, 5, 0, 0), 0, 0));
+    bottomPanel.add(decomposeCheckBox, new GridBagConstraints(8, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+          new Insets(2, 3, 0, 3), 0, 0));
     movePointsButton.setEnabled(true);
     movePointsButton.setVisible(true);
     movePointsButton.addActionListener(new ActionListener()
@@ -232,6 +235,14 @@ public class DeviationPanelHolder
         public void actionPerformed(ActionEvent e)
         {
           devsOnCmCheckBox_actionPerformed(e);
+        }
+      });
+    decomposeCheckBox.setText("Decompose");
+    decomposeCheckBox.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          decomposeCheckBox_actionPerformed(e);
         }
       });
     NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
@@ -318,6 +329,12 @@ public class DeviationPanelHolder
   private void devsOnCmCheckBox_actionPerformed(ActionEvent e)
   { 
     deviationPanel.setWithDevsOnMH(devsOnCmCheckBox.isSelected());
+    deviationPanel.repaint();
+  }
+
+  private void decomposeCheckBox_actionPerformed(ActionEvent e)
+  {
+    deviationPanel.setDecompose(decomposeCheckBox.isSelected());
     deviationPanel.repaint();
   }
 }

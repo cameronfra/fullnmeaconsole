@@ -153,6 +153,7 @@ public class DeviationPanel
   
   private boolean printVersion = false;
   private boolean withDevsOnMH = true;
+  private boolean decompose    = false;
 
   public void setAutoSet(boolean b)
   {
@@ -434,20 +435,62 @@ public class DeviationPanel
     previousPoint = null;
     if (htDeviationCurve != null)
     {
+      Font font = g.getFont();
+      int fSize = 12;
+      g.setFont(font.deriveFont(fSize));
+      if (!printVersion)
+        g.setColor(lineColor3);
+      else
+        g.setColor(Color.gray);
+      g.drawString("Deviations on Compas Headings", 20, 64); // Label
+      if (withDevsOnMH)
+      {
+        if (!printVersion)
+          g.setColor(Color.cyan);
+        else
+          g.setColor(Color.lightGray);
+        g.drawString("Deviations on Magnetic Headings", 20, 64 + fSize + 2); // Label
+      }
+      g.setFont(font);
+
       // Smoothed one
       try
       {
-        // Dislay smoothed one, based on (possibly) suggested one
         double[] f = DeviationCurve.calculateCurve(htDeviationCurve); 
+        Color[] componentColor = new Color[] { Color.white, Color.green, Color.orange, Color.magenta, Color.pink };
+        // Decompose?
+        if (decompose)
+        {
+          for (int comp=0; comp<5; comp++)
+          {
+            previousPoint = null;
+            g.setColor(componentColor[comp]);
+            for (int cc=-30; cc<=390; cc += 5)
+            {              
+              double dev = DeviationCurve.devFuncComponent(comp, f, cc);
+              int _x = (int)(((dev * widthFactor) + halfWidth) * xDataScale);
+              int _y = (int)((extraVerticalOverlap + cc) * yDataScale);
+              Point p = new Point(_x, _y);
+              if (previousPoint != null)
+                g.drawLine(previousPoint.x, previousPoint.y, p.x, p.y);
+              previousPoint = p;
+            }
+          }
+        }
+        
+        // Dislay smoothed one, based on (possibly) suggested one
         if (!printVersion)
         {
-          g.setColor(lineColor3);
           // Display coefficients
-          Font font = g.getFont();
-          int fSize = 12;
+//        Font font = g.getFont();
+//        int fSize = 12;
           g.setFont(font.deriveFont(fSize));
           for (int i=0; i<f.length; i++)
+          {
+            g.setColor(componentColor[i]);
             g.drawString("coef[" + i + "]=" + Double.toString(f[i]), 20, this.getHeight() - ((f.length - i + 1) * (fSize + 2)) - 2);
+          }
+          g.setColor(lineColor3);
           // Full equation
           String equ = "d=" +
           Double.toString(f[0]) + " + (" + 
@@ -464,6 +507,7 @@ public class DeviationPanel
         
         SortedMap<Double, Double> devOnCM = new TreeMap<Double, Double>();
         // Plot the smoothed curve (yellow). Devs on Compass Heading
+        previousPoint = null;
         for (int cc=-30; cc<=390; cc += 5)
         {
           double dev = DeviationCurve.devFunc(f, cc);
@@ -531,21 +575,23 @@ public class DeviationPanel
       int _y = (int)((extraVerticalOverlap + cm) * yDataScale);
       Point p = new Point(_x, _y);
       if (showCurvePoints)
-        g.drawOval(p.x - 2, p.y - 2, 4, 4);
-      if (previousPoint != null)
-        g.drawLine(previousPoint.x, previousPoint.y, p.x, p.y);
-      previousPoint = p;
-      if (displayTwice && showCurvePoints)
       {
-        Color c = g.getColor();
-        g.setColor(Color.white);
-        if (cm < extraVerticalOverlap)
-          _y = (int)((extraVerticalOverlap + cm + 360) * yDataScale);
-        else
-          _y = (int)((extraVerticalOverlap + cm - 360) * yDataScale);
-        p = new Point(_x, _y);
         g.drawOval(p.x - 2, p.y - 2, 4, 4);
-        g.setColor(c);
+        if (previousPoint != null)
+          g.drawLine(previousPoint.x, previousPoint.y, p.x, p.y);
+        previousPoint = p;
+        if (displayTwice)
+        {
+          Color c = g.getColor();
+          g.setColor(Color.white);
+          if (cm < extraVerticalOverlap)
+            _y = (int)((extraVerticalOverlap + cm + 360) * yDataScale);
+          else
+            _y = (int)((extraVerticalOverlap + cm - 360) * yDataScale);
+          p = new Point(_x, _y);
+          g.drawOval(p.x - 2, p.y - 2, 4, 4);
+          g.setColor(c);
+        }
       }
     }    
     ((Graphics2D)g).setStroke(origStroke);  
@@ -1041,6 +1087,11 @@ public class DeviationPanel
   public void setWithDevsOnMH(boolean withDevsOnMH)
   {
     this.withDevsOnMH = withDevsOnMH;
+  }
+
+  public void setDecompose(boolean decompose)
+  {
+    this.decompose = decompose;
   }
 
   private class DoublePoint
