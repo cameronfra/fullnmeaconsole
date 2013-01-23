@@ -74,7 +74,7 @@ public class DeviationPanel
   private boolean autoSetRedPoints = false;
 
   private Color bgColor    = Color.black;
-  private Color gridColor  = Color.green;
+  private Color gridColor  = new Color(200, 255, 100); // Color.green;
   private Color lineColor1 = Color.green;
   private Color lineColor2 = Color.red;
   private Color lineColor3 = Color.yellow;
