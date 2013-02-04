@@ -1,13 +1,10 @@
 package nmea.server.datareader.specific;
 
+import coreutilities.Utilities;
+
 import nmea.server.ctx.NMEAContext;
 
 import java.io.InputStream;
-
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-
-import java.util.ArrayList;
 
 import gnu.io.CommPort;
 import gnu.io.NoSuchPortException;
@@ -211,7 +208,7 @@ public class CustomSerialReader
 //                throw new RuntimeException("Serial reader on " + comPort + ":" + Integer.toString(br) + "took too long (" + Long.toString(after - before) + ").");
               }
               if (timeout != -1 && (after - before) >= timeout)
-                throw new RuntimeException("Serial reader on " + comPort + ":" + Integer.toString(br) + "took too long (" + Long.toString(after - before) + ").");
+                throw new RuntimeException("Serial reader on " + comPort + ":" + Integer.toString(br) + " took too long (" + Long.toString(after - before) + ").");
             }
             catch (InterruptedException ie) 
             { 
@@ -221,9 +218,14 @@ public class CustomSerialReader
           }    
         }
 //      System.out.println(s);
+//      if (System.getProperty(this.getClass().getName() + ".verbose", "false").equals("true")) 
+        if (Utilities.thisClassVerbose(this.getClass()))
+          System.out.println("DataRead - " + this.getClass().getName() + ": Reading serial port [" + comPort + "]:[" + this.dataRead + "]");
         super.fireDataRead(new NMEAEvent(this, this.dataRead));
       }
-      if (System.getProperty("verbose", "false").equals("true")) System.out.println("2 - " + this.getClass().getName() + ":Stop Reading serial port [" + comPort + "]");
+//    if (System.getProperty(this.getClass().getName() + ".verbose", "false").equals("true")) 
+      if (Utilities.thisClassVerbose(this.getClass()))
+        System.out.println("2 - " + this.getClass().getName() + ":Stop Reading serial port [" + comPort + "]");
     }
     catch (Exception e)
     {
@@ -235,7 +237,9 @@ public class CustomSerialReader
   public void closeReader()
     throws Exception
   {
-    if (System.getProperty("verbose", "false").equals("true")) System.out.println("1 - Stop reading Serial Port " + comPort);
+//  if (System.getProperty("verbose", "false").equals("true")) 
+    if (Utilities.thisClassVerbose(this.getClass()))
+      System.out.println("1 - Stop reading Serial Port " + comPort);
     try
     {
       if (thePort != null)

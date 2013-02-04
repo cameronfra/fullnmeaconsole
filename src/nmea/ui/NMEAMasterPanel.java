@@ -47,8 +47,11 @@ import nmea.ui.viewer.BulkPanel;
 import nmea.ui.viewer.Full2DPanel;
 import nmea.ui.viewer.ViewerTablePane;
 
+import ocss.nmea.api.NMEAEvent;
+//import ocss.nmea.api.NMEAListener;
 import ocss.nmea.parser.SolarDate;
 import ocss.nmea.parser.UTCDate;
+import ocss.nmea.utils.NMEAUtils;
 
 
 public class NMEAMasterPanel
@@ -104,7 +107,20 @@ public class NMEAMasterPanel
   private String host = "localhost";
   private String data = null;
   
-  private transient CustomNMEAClient nmeaClient = null;
+  private transient CustomNMEAClient nmeaClient = null; 
+  // Add NMEAListener, override dataRead
+  private transient ocss.nmea.api.NMEAListener nmeaDataListener = new ocss.nmea.api.NMEAListener()
+    {
+      // ocss.nmea.api
+      @Override
+      public void dataRead(NMEAEvent e)
+      {
+        String chunk = e.getContent();
+        // Translate (for CR NL) here
+        // Tell the GUI...
+        bp.setDataStream(NMEAUtils.translateEscape(chunk, bp.getDataStreamType())); // CR_NL, ALL_IN_HEXA
+      }
+    };
   
   public NMEAMasterPanel(boolean v,
                          String serial,
@@ -338,6 +354,7 @@ public class NMEAMasterPanel
           throw new RuntimeException(t);
         }
       };
+    nmeaClient.addNMEAListener(nmeaDataListener);    
   }
 
   /**
@@ -363,6 +380,7 @@ public class NMEAMasterPanel
           throw new RuntimeException(t);
         }
       };
+    nmeaClient.addNMEAListener(nmeaDataListener);    
   }
 
   /**
@@ -380,13 +398,16 @@ public class NMEAMasterPanel
           throw new RuntimeException(t);
         }
       };
+    nmeaClient.addNMEAListener(nmeaDataListener);    
   }
   
   public void stopReadingSimulationFile()
   {
     try
     {
-      nmeaClient.stopReading();
+      nmeaClient.stopReading(); // TODO Remove listeners?
+      nmeaClient.removeNMEAListener(nmeaDataListener);    
+
     }
     catch (Exception ex)
     {

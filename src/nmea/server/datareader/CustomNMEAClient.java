@@ -11,6 +11,7 @@ import nmea.server.datareader.specific.CustomUDPReader;
 
 import ocss.nmea.api.NMEAClient;
 import ocss.nmea.api.NMEAEvent;
+import ocss.nmea.api.NMEAListener;
 
 
 /**
@@ -98,7 +99,7 @@ public abstract class CustomNMEAClient extends NMEAClient
     data = f;
     setDevicePrefix("*");
     this.parent = parent;
-    this.setEOS("\n");
+    this.setEOS("\n"); // TASK Make sure it is OK. Use NMEAParser.STANDARD_NMEA_EOS otherwise.
     init();
   }
   private DataReader reader = null;
@@ -152,12 +153,15 @@ public abstract class CustomNMEAClient extends NMEAClient
             manageNMEAError(t);
           }
         });
-    reader = (DataReader)this.getReader();    
+    reader = (DataReader)this.getReader();
+    
     super.startWorking();
     
-    if (System.getProperty("verbose", "false").equals("true")) System.out.println(this.getClass().getName() + ":NMEA Client initialized, and started");
+    if (System.getProperty("verbose", "false").equals("true")) 
+      System.out.println(this.getClass().getName() + ":NMEA Client initialized, and started");
   }
 
+  @Override
   public void dataDetectedEvent(NMEAEvent e)
   {
     String val = e.getContent();
@@ -165,7 +169,7 @@ public abstract class CustomNMEAClient extends NMEAClient
 //    System.out.println("Detected:" + val);
     parent.manageDataEvent(val);
   }
-
+  
   public void stopReading() throws Exception
   {
     if (reader != null)

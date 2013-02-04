@@ -133,8 +133,8 @@ public class CustomUDPReader extends NMEAReader implements DataReader
         // For simulation from file:
         if (System.getProperty("os.name").toUpperCase().contains("LINUX"))
         {
-          if (s.endsWith(NMEAParser.WINDOWS_NMEA_EOS))
-            s = s.substring(0, s.length() - NMEAParser.WINDOWS_NMEA_EOS.length());
+          if (s.endsWith(NMEAParser.STANDARD_NMEA_EOS))
+            s = s.substring(0, s.length() - NMEAParser.STANDARD_NMEA_EOS.length());
         }
         if (!s.endsWith(NMEAParser.getEOS()))
           s += NMEAParser.getEOS();
