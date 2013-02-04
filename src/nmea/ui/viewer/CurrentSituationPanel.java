@@ -25,7 +25,7 @@ import nmea.server.ctx.NMEAContext;
 import nmea.server.ctx.NMEADataCache;
 import nmea.server.utils.Utils;
 
-import nmea.event.NMEAListener;
+import nmea.event.NMEAReaderListener;
 
 import nmea.server.constants.Constants;
 
@@ -140,7 +140,7 @@ public class CurrentSituationPanel
   private void jbInit()
     throws Exception
   {
-    NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
         public void dataUpdate() 
         {

@@ -1,12 +1,14 @@
 package nmea.ui.viewer;
 
+import coreutilities.Utilities;
+
 import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JCheckBox;
 
 import nmea.server.ctx.NMEAContext;
 
-import nmea.event.NMEAListener;
+import nmea.event.NMEAReaderListener;
 
 import java.awt.BorderLayout;
 
@@ -73,6 +75,8 @@ public class BulkPanel
       @Override
       public void paintComponent(Graphics gr)
       {
+        if (Utilities.thisClassVerbose(this.getClass())) // nmea.ui.viewer.BulkPanel$2
+          System.out.println("... Repainting centerDataPanel (bulk NMEA stream)");
         gr.setColor(Color.white);
         gr.fillRect(0, 0, this.getWidth(), this.getHeight());
         gr.setColor(Color.red);
@@ -90,7 +94,10 @@ public class BulkPanel
             }
           }
         }
-        gr.drawString(currentStream, 2, this.getHeight() - 2);
+        if (currentStream.length() == 0)
+          gr.drawString("- No Data -", 2, this.getHeight() - 2);
+        else
+          gr.drawString(currentStream, 2, this.getHeight() - 2);
       }
     };
   private JCheckBox hexaCheckBox = new JCheckBox();
@@ -126,10 +133,11 @@ public class BulkPanel
 
     hexaCheckBox.setText("Hexa");
     hexaCheckBox.setToolTipText("Display stream in hexadecimal or text");
-    NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
      {
        public void manageNMEAString(String str) 
        {
+//       System.out.println("Displaying NMEA Sentences");
          // Add the new loine to the panel.
          sentences.add(str);
          while (sentences.size() > nbLines)
@@ -145,6 +153,8 @@ public class BulkPanel
   
   public void setDataStream(String s)
   {
+    if (Utilities.thisClassVerbose(this.getClass())) // nmea.ui.viewer.BulkPanel
+      System.out.println("... Repainting centerDataPanel (bulk NMEA stream) [" + s + "]");
     currentStream  += s;
     if (centerDataPanel.isVisible())
     {

@@ -27,7 +27,7 @@ public class CustomUDPReader extends NMEAReader implements DataReader
   public CustomUDPReader(List<NMEAListener> al)
   {
     super(al);
-    NMEAContext.getInstance().addNMEAListener(new nmea.event.NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new nmea.event.NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
         public void stopReading()
           throws Exception
@@ -41,7 +41,7 @@ public class CustomUDPReader extends NMEAReader implements DataReader
   {
     super(al);
     udpport = udp;
-    NMEAContext.getInstance().addNMEAListener(new nmea.event.NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new nmea.event.NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
         public void stopReading()
           throws Exception
@@ -56,7 +56,7 @@ public class CustomUDPReader extends NMEAReader implements DataReader
     super(al);
     udpport = udp;
     this.host = host;
-    NMEAContext.getInstance().addNMEAListener(new nmea.event.NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new nmea.event.NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
         public void stopReading()
           throws Exception
@@ -139,7 +139,9 @@ public class CustomUDPReader extends NMEAReader implements DataReader
         if (!s.endsWith(NMEAParser.getEOS()))
           s += NMEAParser.getEOS();
         if (verbose) System.out.println("UDP:" + s);
-        super.fireDataRead(new NMEAEvent(this, s));        
+          NMEAEvent n = new NMEAEvent(this, s);
+          super.fireDataRead(n);
+          NMEAContext.getInstance().fireBulkDataRead(n);
       }
     }
     catch(Exception e)

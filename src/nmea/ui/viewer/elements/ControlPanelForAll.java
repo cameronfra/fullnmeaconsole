@@ -38,7 +38,7 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import nmea.event.NMEAListener;
+import nmea.event.NMEAReaderListener;
 
 import nmea.server.constants.Constants;
 import nmea.server.ctx.NMEAContext;
@@ -455,7 +455,7 @@ public class ControlPanelForAll
       fileProgress.setValue(0);
     }
     
-    NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
         @Override
         public void setWindScale(float f) 
