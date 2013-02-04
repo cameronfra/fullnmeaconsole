@@ -1,15 +1,8 @@
 package nmea.server.datareader.specific;
 
-import java.io.BufferedReader;
-
-import java.io.DataOutputStream;
-
 import nmea.server.ctx.NMEAContext;
 
 import java.io.InputStream;
-
-import java.io.InputStreamReader;
-
 import java.net.InetAddress;
 import java.net.Socket;
 
@@ -181,12 +174,11 @@ public class CustomTCPReader extends NMEAReader implements DataReader
     {
       List<NMEAListener> ll = new ArrayList<NMEAListener>();
       NMEAListener nl = new NMEAListener()
-        {
-
+      {
         @Override
         public void dataRead(NMEAEvent nmeaEvent)
         {
-          System.out.println(nmeaEvent.getContent());
+          System.out.println(nmeaEvent.getContent()); // TODO Send to the GUI?
         }
       };
       ll.add(nl);
