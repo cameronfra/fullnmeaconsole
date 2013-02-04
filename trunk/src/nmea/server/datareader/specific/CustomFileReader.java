@@ -34,7 +34,7 @@ public class CustomFileReader extends NMEAReader implements DataReader
   {
     super(al);
     dataFile = f;
-    NMEAContext.getInstance().addNMEAListener(new nmea.event.NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new nmea.event.NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
         public void replaySpeedChanged(int slider) 
         {
@@ -103,7 +103,9 @@ public class CustomFileReader extends NMEAReader implements DataReader
             String nmeaContent = new String(ba);
             recNum += nbNMEASentences(nmeaContent);
             NMEAContext.getInstance().setReplayFileRecNum(recNum);
-            super.fireDataRead(new NMEAEvent(this, nmeaContent));
+            NMEAEvent n = new NMEAEvent(this, nmeaContent);
+            super.fireDataRead(n);
+            NMEAContext.getInstance().fireBulkDataRead(n);
             try { Thread.sleep(sleepTime); } catch (Exception ignore) {}
           }
           else

@@ -14,7 +14,7 @@ import java.util.Date;
 
 import javax.swing.JPanel;
 
-import nmea.event.NMEAListener;
+import nmea.event.NMEAReaderListener;
 
 import nmea.server.constants.Constants;
 import nmea.server.ctx.NMEAContext;
@@ -124,7 +124,7 @@ implements MinMaxPanelInterface
     this.add(tws, BorderLayout.SOUTH);
     tws.setDisplayColor(Color.orange);
 
-    NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
         @Override
         public void dataUpdate()

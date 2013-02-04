@@ -45,7 +45,7 @@ import nmea.server.ctx.NMEAContext;
 import nmea.server.ctx.NMEADataCache;
 import nmea.server.utils.Utils;
 
-import nmea.event.NMEAListener;
+import nmea.event.NMEAReaderListener;
 
 import nmea.ui.viewer.elements.CurrentDisplay;
 
@@ -217,7 +217,7 @@ public class DeadReckoningPlottingSheet
                     new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                            new Insets(0, 0, 0, 0), 0, 0));
     this.add(bottomPanel, BorderLayout.SOUTH);
-    NMEAContext.getInstance().addNMEAListener(new NMEAListener()
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener()
       {
         public void dataUpdate() 
         {

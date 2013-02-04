@@ -19,7 +19,7 @@ import rmi.nmea.client.Notifiable;
 import nmea.server.ctx.NMEAContext;
 import nmea.server.ctx.NMEADataCache;
 
-import nmea.event.NMEAListener;
+import nmea.event.NMEAReaderListener;
 
 public class NMEAServer
   extends UnicastRemoteObject
@@ -31,7 +31,7 @@ public class NMEAServer
   public NMEAServer() throws RemoteException
   {
     super();
-    NMEAContext.getInstance().addNMEAListener(new NMEAListener()
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener()
       {
         public void dataUpdate() 
         {

@@ -4,7 +4,7 @@ import nmea.server.ctx.NMEAContext;
 import nmea.server.ctx.NMEADataCache;
 import nmea.server.utils.Utils;
 
-import nmea.event.NMEAListener;
+import nmea.event.NMEAReaderListener;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
@@ -121,7 +121,7 @@ public class DeviationPanel
     this.setPreferredSize(new Dimension(400, 500));
     
     setHtDeviationCurve(Utils.loadDeviationCurve(NMEAContext.getInstance().getDeviation()));
-    NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
         @Override
         public void dataUpdate() 

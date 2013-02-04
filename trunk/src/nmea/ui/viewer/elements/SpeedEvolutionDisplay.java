@@ -34,7 +34,7 @@ import javax.swing.ToolTipManager;
 import nmea.server.ctx.NMEAContext;
 import nmea.server.utils.Utils;
 
-import nmea.event.NMEAListener;
+import nmea.event.NMEAReaderListener;
 
 import nmea.server.constants.Constants;
 import nmea.server.ctx.NMEADataCache;
@@ -132,7 +132,7 @@ public class SpeedEvolutionDisplay
     this.add(dataPanel, BorderLayout.CENTER);
     this.add(rangePanel, BorderLayout.EAST);
 
-    NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
     {
       public void dataBufferSizeChanged(int size) 
       {

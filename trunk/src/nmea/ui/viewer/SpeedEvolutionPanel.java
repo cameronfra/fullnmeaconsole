@@ -14,7 +14,7 @@ import javax.swing.JScrollPane;
 import nmea.server.ctx.NMEAContext;
 import nmea.server.ctx.NMEADataCache;
 
-import nmea.event.NMEAListener;
+import nmea.event.NMEAReaderListener;
 
 import nmea.server.constants.Constants;
 
@@ -79,7 +79,7 @@ public class SpeedEvolutionPanel
     cspLoggingDisplay.setMax(5d);
     xteLoggingDisplay.setMax(10d);
 
-    NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
     {
       public void dataUpdate() 
       {

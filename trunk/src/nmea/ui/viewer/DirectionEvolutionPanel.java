@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 import nmea.server.ctx.NMEAContext;
 import nmea.server.ctx.NMEADataCache;
 
-import nmea.event.NMEAListener;
+import nmea.event.NMEAReaderListener;
 
 import nmea.server.constants.Constants;
 
@@ -68,7 +68,7 @@ public class DirectionEvolutionPanel
     twdLoggingDisplay.setPreferredSize(dim);
     cdrLoggingDisplay.setPreferredSize(dim);
 
-    NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
         public void dataUpdate()
         {

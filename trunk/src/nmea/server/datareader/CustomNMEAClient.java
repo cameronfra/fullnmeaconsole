@@ -11,7 +11,6 @@ import nmea.server.datareader.specific.CustomUDPReader;
 
 import ocss.nmea.api.NMEAClient;
 import ocss.nmea.api.NMEAEvent;
-import ocss.nmea.api.NMEAListener;
 
 
 /**

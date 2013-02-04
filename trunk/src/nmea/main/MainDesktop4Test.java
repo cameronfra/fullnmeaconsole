@@ -81,7 +81,7 @@ public class MainDesktop4Test
     String fName = null;
     String pfile = null;
     boolean verb = false;
-    String serial = "COM1";
+    String serial = "COM16";
     String br     = "4800";
     String tcp = "";
     String udp = "";
@@ -108,7 +108,7 @@ public class MainDesktop4Test
       else if(args[i].equals("-simul"))
         fName = args[i + 1];
     }
-    int baudrate = 4800;
+    int baudrate = Integer.parseInt(br);
 
 
     String lnf = null;

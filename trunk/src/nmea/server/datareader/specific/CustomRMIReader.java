@@ -33,7 +33,7 @@ public class CustomRMIReader extends NMEAReader implements DataReader
   public CustomRMIReader(List<NMEAListener> al)
   {
     super(al);
-    NMEAContext.getInstance().addNMEAListener(new nmea.event.NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new nmea.event.NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
         public void stopReading()
           throws Exception
@@ -47,7 +47,7 @@ public class CustomRMIReader extends NMEAReader implements DataReader
   {
     super(al);
     rmiport = rmi;
-    NMEAContext.getInstance().addNMEAListener(new nmea.event.NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new nmea.event.NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
         public void stopReading()
           throws Exception
@@ -62,7 +62,7 @@ public class CustomRMIReader extends NMEAReader implements DataReader
     super(al);
     hostName = host;
     rmiport = rmi;
-    NMEAContext.getInstance().addNMEAListener(new nmea.event.NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new nmea.event.NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
         public void stopReading()
           throws Exception
@@ -88,8 +88,9 @@ public class CustomRMIReader extends NMEAReader implements DataReader
             String lastSentence = (String)nmeaDataCache.get(NMEADataCache.LAST_NMEA_SENTENCE);
             if (!lastSentenceInCache.equals(lastSentence))
             {
-              fireDataRead(new NMEAEvent(this, lastSentence + NMEAParser.getEOS()));
-              lastSentenceInCache = lastSentence;
+              NMEAEvent n = new NMEAEvent(this, lastSentence + NMEAParser.getEOS());
+              fireDataRead(n);
+              NMEAContext.getInstance().fireBulkDataRead(n);
             }
           }
         };

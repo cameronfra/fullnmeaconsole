@@ -8,7 +8,7 @@ import nmea.server.ctx.NMEADataCache;
 
 import nmea.server.utils.Utils;
 
-import nmea.event.NMEAListener;
+import nmea.event.NMEAReaderListener;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -100,7 +100,7 @@ public class DrawingBoard
   private void jbInit()
     throws Exception
   {
-    NMEAContext.getInstance().addNMEAListener(new NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
         public void dataUpdate() 
         {

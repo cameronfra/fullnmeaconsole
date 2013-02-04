@@ -39,7 +39,7 @@ public class CustomSerialReader
   public CustomSerialReader(List<NMEAListener> al)
   {
     super(al);
-    NMEAContext.getInstance().addNMEAListener(new nmea.event.NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new nmea.event.NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
         public void stopReading()
           throws Exception
@@ -60,7 +60,7 @@ public class CustomSerialReader
     super(al);
     comPort = com;
     this.br = br;
-    NMEAContext.getInstance().addNMEAListener(new nmea.event.NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new nmea.event.NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
         public void stopReading()
           throws Exception
@@ -219,9 +219,12 @@ public class CustomSerialReader
         }
 //      System.out.println(s);
 //      if (System.getProperty(this.getClass().getName() + ".verbose", "false").equals("true")) 
-        if (Utilities.thisClassVerbose(this.getClass()))
+        if (Utilities.thisClassVerbose(this.getClass())) // nmea.server.datareader.CustomNMEAClient$1
           System.out.println("DataRead - " + this.getClass().getName() + ": Reading serial port [" + comPort + "]:[" + this.dataRead + "]");
-        super.fireDataRead(new NMEAEvent(this, this.dataRead));
+        
+        NMEAEvent n = new NMEAEvent(this, this.dataRead);
+        super.fireDataRead(n);
+        NMEAContext.getInstance().fireBulkDataRead(n);
       }
 //    if (System.getProperty(this.getClass().getName() + ".verbose", "false").equals("true")) 
       if (Utilities.thisClassVerbose(this.getClass()))

@@ -32,7 +32,7 @@ public class CustomTCPReader extends NMEAReader implements DataReader
   public CustomTCPReader(List<NMEAListener> al)
   {
     super(al);
-    NMEAContext.getInstance().addNMEAListener(new nmea.event.NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new nmea.event.NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
         public void stopReading()
           throws Exception
@@ -46,7 +46,7 @@ public class CustomTCPReader extends NMEAReader implements DataReader
   {
     super(al);
     tcpport = tcp;
-    NMEAContext.getInstance().addNMEAListener(new nmea.event.NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new nmea.event.NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
         public void stopReading()
           throws Exception
@@ -61,7 +61,7 @@ public class CustomTCPReader extends NMEAReader implements DataReader
     super(al);
     hostName = host;
     tcpport = tcp;
-    NMEAContext.getInstance().addNMEAListener(new nmea.event.NMEAListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new nmea.event.NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
       {
         public void stopReading()
           throws Exception
@@ -118,7 +118,9 @@ public class CustomTCPReader extends NMEAReader implements DataReader
   
           s = new String(toPrint) + NMEAParser.getEOS();
   //      System.out.println("TCP:" + s);
-          super.fireDataRead(new NMEAEvent(this, s));
+          NMEAEvent n = new NMEAEvent(this, s);
+          super.fireDataRead(n);
+          NMEAContext.getInstance().fireBulkDataRead(n);
         }
       }
 

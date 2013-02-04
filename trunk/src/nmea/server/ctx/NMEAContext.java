@@ -17,7 +17,10 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 
-import nmea.event.NMEAListener;
+import nmea.event.NMEAReaderListener;
+
+import ocss.nmea.api.NMEAEvent;
+import ocss.nmea.api.NMEAListener;
 
 import oracle.xml.parser.v2.DOMParser;
 
@@ -57,6 +60,7 @@ public class NMEAContext implements Serializable
   }
   
   private static NMEAContext applicationContext = null;  
+  private transient List<NMEAReaderListener> NMEAReaderListeners = null;
   private transient List<NMEAListener> NMEAListeners = null;
   private NMEADataCache dataCache = null;
   private transient NMEADataCache frozenDataCache = null;
@@ -80,7 +84,8 @@ public class NMEAContext implements Serializable
   
   private NMEAContext()
   {
-    NMEAListeners = new ArrayList<NMEAListener>(2); // 2: Initial Capacity
+    NMEAReaderListeners = new ArrayList<NMEAReaderListener>(2); // 2: Initial Capacity
+    NMEAListeners = new ArrayList<NMEAListener>();
     parser = new DOMParser();
     dataCache = new NMEADataCache();
   }
@@ -92,7 +97,45 @@ public class NMEAContext implements Serializable
     return applicationContext;
   }
     
-  public List<NMEAListener> getListeners()
+  public List<NMEAReaderListener> getReaderListeners()
+  {
+    return NMEAReaderListeners;
+  }    
+
+  public synchronized void addNMEAReaderListener(NMEAReaderListener l)
+  {
+    if (!NMEAReaderListeners.contains(l))
+    {
+      NMEAReaderListeners.add(l);
+    }
+    if (System.getProperty("verbose", "false").equals("true")) System.out.println("We have " + NMEAReaderListeners.size() + " NMEAListener(s). Last one belongs to group [" + l.getGroupID() + "]");
+  }
+
+  public synchronized void removeNMEAReaderListener(NMEAReaderListener l)
+  {
+    NMEAReaderListeners.remove(l);
+  }
+
+  public synchronized void removeNMEAListenerGroup(String groupID)
+  {
+    System.out.println("Removing NMEAListener from group [" + groupID + "]");
+    System.out.println("Start with " + NMEAReaderListeners.size() + " NMEAListener(s).");
+    List<NMEAReaderListener> toRemove = new ArrayList<NMEAReaderListener>(1);
+    for (NMEAReaderListener listener : NMEAReaderListeners)
+    {
+      if (listener.getGroupID().equals(groupID))
+        toRemove.add(listener);
+    }
+    for (NMEAReaderListener nl : toRemove)
+      removeNMEAReaderListener(nl);
+    System.out.println("End up with " + NMEAReaderListeners.size() + " NMEAListener(s):");
+    for (NMEAReaderListener listener : NMEAReaderListeners)
+    {
+      System.out.println("Remaining: Listener belongs to group [" + listener.getGroupID() + "]");
+    }
+  }
+  
+  public synchronized List<NMEAListener> getNMEAListeners()
   {
     return NMEAListeners;
   }    
@@ -103,31 +146,17 @@ public class NMEAContext implements Serializable
     {
       NMEAListeners.add(l);
     }
-    if (System.getProperty("verbose", "false").equals("true")) System.out.println("We have " + NMEAListeners.size() + " NMEAListener(s). Last one belongs to group [" + l.getGroupID() + "]");
   }
 
   public synchronized void removeNMEAListener(NMEAListener l)
   {
     NMEAListeners.remove(l);
   }
-
-  public synchronized void removeNMEAListenerGroup(String groupID)
+  
+  public void fireBulkDataRead(NMEAEvent ne)
   {
-    System.out.println("Removing NMEAListener from group [" + groupID + "]");
-    System.out.println("Start with " + NMEAListeners.size() + " NMEAListener(s).");
-    List<NMEAListener> toRemove = new ArrayList<NMEAListener>(1);
-    for (NMEAListener listener : NMEAListeners)
-    {
-      if (listener.getGroupID().equals(groupID))
-        toRemove.add(listener);
-    }
-    for (NMEAListener nl : toRemove)
-      removeNMEAListener(nl);
-    System.out.println("End up with " + NMEAListeners.size() + " NMEAListener(s):");
-    for (NMEAListener listener : NMEAListeners)
-    {
-      System.out.println("Remaining: Listener belongs to group [" + listener.getGroupID() + "]");
-    }
+    for (NMEAListener nl : NMEAListeners)
+      nl.dataRead(ne);
   }
 
   public void setReplayFile(final String replayFile)
@@ -211,27 +240,27 @@ public class NMEAContext implements Serializable
 
   public void fireInternalFrameClosed()
   {
-    for (int i=0; i<NMEAListeners.size(); i++)
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
     {
-      NMEAListener l = NMEAListeners.get(i);
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
       l.internalFrameClosed();
     }
   }
   
   public void fireLogChanged(boolean b)
   {
-    for (int i=0; i<NMEAListeners.size(); i++)
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
     {
-      NMEAListener l = NMEAListeners.get(i);
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
       l.log(b);
     }
   }
   
   public void fireLogChanged(boolean log, boolean withDateTime)
   {
-    for (int i=0; i<NMEAListeners.size(); i++)
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
     {
-      NMEAListener l = NMEAListeners.get(i);
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
       l.log(log, withDateTime);
     }
   }
@@ -239,135 +268,135 @@ public class NMEAContext implements Serializable
   public void fireWindScale(float f)
   {
     setCurrentWindScale(f);
-    for (int i=0; i<NMEAListeners.size(); i++)
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
     {
-      NMEAListener l = NMEAListeners.get(i);
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
       l.setWindScale(f);
     }
   }
   
   public void fireAutoScale(boolean b)
   {
-    for (int i=0; i<NMEAListeners.size(); i++)
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
     {
-      NMEAListener l = NMEAListeners.get(i);
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
       l.setAutoScale(b);
     }
   }
   
   public void fireSetMessage(String s)
   {
-    for (int i=0; i<NMEAListeners.size(); i++)
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
     {
-      NMEAListener l = NMEAListeners.get(i);
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
       l.setMessage(s);
     }
   }
   
   public void fireNMEAString(String s)
   {
-    for (int i=0; i<NMEAListeners.size(); i++)
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
     {
-      NMEAListener l = NMEAListeners.get(i);
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
       l.manageNMEAString(s);
     }
   }
   
   public void fireSaveUserConfig()
   {
-    for (int i=0; i<NMEAListeners.size(); i++)
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
     {
-      NMEAListener l = NMEAListeners.get(i);
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
       l.saveUserConfig();
     }
   }
   
   public void fireDataChanged()
   {
-    for (int i=0; i<NMEAListeners.size(); i++)
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
     {
-      NMEAListener l = NMEAListeners.get(i);
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
       l.dataUpdate();
     }
   }  
 
   public void fireDataBufferSizeChanged(int size)
   {
-    for (int i=0; i<NMEAListeners.size(); i++)
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
     {
-      NMEAListener l = NMEAListeners.get(i);
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
       l.dataBufferSizeChanged(size);
     }
   }  
 
   public void fireJumpToOffset(long offset)
   {
-    for (int i=0; i<NMEAListeners.size(); i++)
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
     {
-      NMEAListener l = NMEAListeners.get(i);
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
       l.jumpToOffset(offset);
     }
   }  
 
   public void fireDampingHasChanged(int val)
   {
-    for (int i=0; i<NMEAListeners.size(); i++)
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
     {
-      NMEAListener l = NMEAListeners.get(i);
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
       l.dampingHasChanged(val);
     }
   }  
 
   public void fireLoadDataPointsForDeviation(List<double[]> data)
   {
-    for (int i=0; i<NMEAListeners.size(); i++)
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
     {
-      NMEAListener l = NMEAListeners.get(i);
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
       l.loadDataPointsForDeviation(data);
     }
   }
   
   public void fireDeviationCurveChanged(Hashtable<Double, Double> devCurve)
   {
-    for (int i=0; i<NMEAListeners.size(); i++)
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
     {
-      NMEAListener l = NMEAListeners.get(i);
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
       l.deviationCurveChanged(devCurve);
     }
   }
   
   public void fireReplaySpeedChanged(int slider)
   {
-    for (int i=0; i<NMEAListeners.size(); i++)
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
     {
-      NMEAListener l = NMEAListeners.get(i);
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
       l.replaySpeedChanged(slider);
     }
   }
   
   public void fireStopReading() throws Exception
   {
-    for (int i=0; i<NMEAListeners.size(); i++)
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
     {
-      NMEAListener l = NMEAListeners.get(i);
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
       l.stopReading();
     }
   }
 
   public void fireRefreshJournal()
   {
-    for (int i=0; i<NMEAListeners.size(); i++)
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
     {
-      NMEAListener l = NMEAListeners.get(i);
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
       l.refreshLogJournal();
     }
   }
   
   public void fireShowRawData(boolean b)
   {
-    for (int i=0; i<NMEAListeners.size(); i++)
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
     {
-      NMEAListener l = NMEAListeners.get(i);
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
       l.showRawData(b);
     }
   }
