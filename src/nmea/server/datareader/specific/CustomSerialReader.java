@@ -223,7 +223,7 @@ public class CustomSerialReader
           System.out.println("DataRead - " + this.getClass().getName() + ": Reading serial port [" + comPort + "]:[" + this.dataRead + "]");
         
         NMEAEvent n = new NMEAEvent(this, this.dataRead);
-        super.fireDataRead(n);
+        super.fireDataRead(n);                              // TODO Untangle the 2 messages... First listener must not be registered correctly
         NMEAContext.getInstance().fireBulkDataRead(n);
       }
 //    if (System.getProperty(this.getClass().getName() + ".verbose", "false").equals("true")) 

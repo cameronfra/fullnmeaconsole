@@ -387,19 +387,7 @@ public class ControlPanelForAll
           fileProgress.setCursor(previousCursor);
           if (draggedFrom != -1)
           {
-            int width = fileProgress.getSize().width;
-//          System.out.println("Mouse released at " + e.getX() + "/" + width);
-            long fileSize = NMEAContext.getInstance().getReplayFileSize();
-            if (fileSize > 0)
-            {
-              int recOffset = (int)Math.round(fileSize * (double)(e.getX()) / (double)width); 
-              long filePos = recOffset; // NMEAContext.getInstance().getReplayFileRecNum();
-//            System.out.println("Record:" + recOffset);
-              NMEAContext.getInstance().fireJumpToOffset(filePos);
-              double pos = 1000D * (double)filePos / (double)fileSize;
-              fileProgress.setValue((int)Math.round(pos));
-              fileProgress.setString(Long.toString(filePos) + "/" + Long.toString(fileSize));
-            }
+            mouseOperationOnProgressBar(e);
           }
           draggedFrom = -1;
         }
@@ -415,8 +403,9 @@ public class ControlPanelForAll
         @Override
         public void mouseExited(MouseEvent e)
         {
+          super.mouseExited(e);
           // Return Original Cursor
-          fileProgress.setCursor(previousCursor);
+      //  fileProgress.setCursor(previousCursor);
         }
       });
     fileProgress.addMouseMotionListener(new MouseMotionAdapter()
@@ -426,6 +415,7 @@ public class ControlPanelForAll
         public void mouseDragged(MouseEvent e)
         {
 //        System.out.println("Dragged");
+          mouseOperationOnProgressBar(e);
         }
 
         @Override
@@ -498,6 +488,22 @@ public class ControlPanelForAll
       });
   }
 
+  private void mouseOperationOnProgressBar(MouseEvent e)
+  {
+    int width = fileProgress.getSize().width;
+    long fileSize = NMEAContext.getInstance().getReplayFileSize();
+    if (fileSize > 0)
+    {
+      int recOffset = (int)Math.round(fileSize * (double)(e.getX()) / (double)width); 
+      long filePos = recOffset; // NMEAContext.getInstance().getReplayFileRecNum();
+//    System.out.println("Record:" + recOffset);
+      NMEAContext.getInstance().fireJumpToOffset(filePos);
+      double pos = 1000D * (double)filePos / (double)fileSize;
+      fileProgress.setValue((int)Math.round(pos));
+      fileProgress.setString(Long.toString(filePos) + "/" + Long.toString(fileSize));
+    }
+  }
+  
   private void bspCoeffTextField_actionPerformed(ActionEvent e)
   {
     bspCoefChanged();
