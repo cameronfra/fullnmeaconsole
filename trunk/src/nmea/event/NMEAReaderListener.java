@@ -5,13 +5,13 @@ import java.util.EventListener;
 import java.util.Hashtable;
 import java.util.List;
 
-public abstract class NMEAListener implements EventListener
+public abstract class NMEAReaderListener implements EventListener
 {
   private String groupID = "";
   
-  public NMEAListener() 
+  public NMEAReaderListener() 
   { this("default"); }
-  public NMEAListener(String gID)
+  public NMEAReaderListener(String gID)
   { this.groupID = gID; }
   public final String getGroupID() { return groupID; }
   
