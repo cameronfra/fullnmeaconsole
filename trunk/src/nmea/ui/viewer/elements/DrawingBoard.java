@@ -185,8 +185,25 @@ public class DrawingBoard
       }
     }
     // Draw speed circles
+    Stroke thickStroke    = new BasicStroke(5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
+    Stroke originalStroke = ((Graphics2D)gr).getStroke();
+
+    double currentWindScale = 0d;
+    for (NMEAContext.WindScale ws : NMEAContext.WindScale.values())
+    {
+      if (ws.scale() == speedScale)
+      {
+        currentWindScale = ws.speed();
+        break;
+      }
+    }
+    
     for (int w=1; w<=60; w++)
     {
+      if ( w == (int)currentWindScale)
+        ((Graphics2D)gr).setStroke(thickStroke);
+      else
+        ((Graphics2D)gr).setStroke(originalStroke);
       double radius = (w * (bspLengthAt10 / 10D));
       if (w % 5 == 0)
         gr.setColor(Color.gray);
