@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -66,6 +67,7 @@ public class HTTPServer
 
   private final static int XML_OUTPUT  = 0;
   private final static int TEXT_OUTPUT = 1;
+  private final static int JSON_OUTPUT = 2;
 
 //private DecimalFormat decimalFmt = new DecimalFormat("#0.00");
 //private DecimalFormat integerFmt = new DecimalFormat("##0");
@@ -105,8 +107,10 @@ public class HTTPServer
           String fmt = prms[i].substring("-fmt=".length());
           if (fmt.equals("xml"))
             output = XML_OUTPUT;
-          if (fmt.equals("txt"))
+          else if (fmt.equals("txt"))
             output = TEXT_OUTPUT;
+          else if (fmt.equals("json"))
+            output = JSON_OUTPUT;
         }
       }
     }
@@ -128,6 +132,7 @@ public class HTTPServer
         boolean go = true;
         try
         {
+          Map<String, String> header = new HashMap<String, String>();
           ServerSocket ss = new ServerSocket(_port);
           boolean help = false;
           boolean latitude = false, longitude = false,
@@ -247,46 +252,70 @@ public class HTTPServer
 //              System.out.println("********** File to fetch:[" + fileToFetch + "] *************");
               }
 //            System.out.println("Read:[" + line + "]");
+              if (line.indexOf(":") > -1) // Header?
+              {
+                String headerKey = line.substring(0, line.indexOf(":"));
+                String headerValue = line.substring(line.indexOf(":") + 1);
+                header.put(headerKey, headerValue);
+              }
             }
+            String contentType = "text/plain";
+            if (!help && !latitude && !longitude && !latitudefmt && !longitudefmt && !localtime && !lnginhours && !hdg && 
+                !hdm && !bsp && !sog && !cog && !awa && !aws && !twa && !tws)
+            {
+              if (output == XML_OUTPUT)
+                contentType = "text/xml";
+              if (output == JSON_OUTPUT)
+                contentType = "text/json";
+            }
+            String userAgent = header.get("User-Agent");
+//          System.out.println(">>> User-Agent: " + userAgent);
+//          if (userAgent != null && userAgent.contains("Chrome")) // Bug in Chrome for XMLHttpRequest
+//            contentType = "application/octet-stream";
+            
+            String content = "";
             if (help)          
-              out.println(generateHelpContent());
+            {
+              content = (generateHelpContent());
+              contentType = "text/html";
+            }
             else if (latitude)
-              out.println(generateLatitude());
+              content = (generateLatitude());
             else if (longitude)
-              out.println(generateLongitude());
+              content = (generateLongitude());
             else if (latitudefmt)
-              out.println(generateLatitudeFmt());
+              content = (generateLatitudeFmt());
             else if (longitudefmt)
-              out.println(generateLongitudeFmt());
+              content = (generateLongitudeFmt());
             else if (bsp)
-//            out.println(df22.format(Math.random() * 20.0));
-              out.println(generateBSP());
+//            content = (df22.format(Math.random() * 20.0));
+              content = (generateBSP());
             else if (cog)
-              out.println(generateCOG());
+              content = (generateCOG());
             else if (sog)
-              out.println(generateSOG());
+              content = (generateSOG());
             else if (hdg)
-//            out.println(Integer.toString((int)(Math.random() * 360.0)));
-              out.println(generateHDG());
+//            content = (Integer.toString((int)(Math.random() * 360.0)));
+              content = (generateHDG());
             else if (hdm)
-//            out.println(Integer.toString((int)(Math.random() * 360.0)));
-              out.println(generateHDM());
+//            content = (Integer.toString((int)(Math.random() * 360.0)));
+              content = (generateHDM());
             else if (awa)
-//            out.println(Integer.toString((int)(Math.random() * 180.0)));
-              out.println(generateAWA());
+//            content = (Integer.toString((int)(Math.random() * 180.0)));
+              content = (generateAWA());
             else if (aws)
-//            out.println(df22.format(Math.random() * 60.0));
-              out.println(generateAWS());
+//            content = (df22.format(Math.random() * 60.0));
+              content = (generateAWS());
             else if (twa)
-//            out.println(Integer.toString((int)(Math.random() * 180.0)));
-              out.println(generateTWA());
+//            content = (Integer.toString((int)(Math.random() * 180.0)));
+              content = (generateTWA());
             else if (tws)
-//            out.println(df22.format(Math.random() * 60.0));
-              out.println(generateTWS());
+//            content = (df22.format(Math.random() * 60.0));
+              content = (generateTWS());
             else if (localtime)
-              out.println(generateLocalSolarTime());
+              content = (generateLocalSolarTime());
             else if (lnginhours)
-              out.println(generateLngInHours());
+              content = (generateLngInHours());
             else if (fileToFetch.trim().length() > 0)
             {
               File f = new File(fileToFetch);
@@ -310,7 +339,19 @@ public class HTTPServer
               }
             }
             else
-              out.println(generateContent());
+              content = (generateContent());
+            
+            if (content.length() > 0)
+            {
+              // Headers?
+              out.print("HTTP/1.1 200 \r\n"); 
+              out.print("Content-Type: " + contentType + "\r\n");
+              out.print("Content-Length: " + content.length() + "\r\n");
+              out.print("Access-Control-Allow-Origin: *\r\n"); 
+              out.print("\r\n"); // End Of Header
+              //
+              out.println(content);
+            }
             out.flush();
             out.close();
             in.close();
@@ -395,9 +436,13 @@ public class HTTPServer
     return str;
   }
   
-  private DecimalFormat df3  = new DecimalFormat("000");
-  private DecimalFormat df31 = new DecimalFormat("000.0");
-  private DecimalFormat df22 = new DecimalFormat("00.00");
+//  private DecimalFormat df3  = new DecimalFormat("000");
+//  private DecimalFormat df31 = new DecimalFormat("000.0");
+//  private DecimalFormat df22 = new DecimalFormat("00.00");
+
+  private DecimalFormat df3  = new DecimalFormat("##0");
+  private DecimalFormat df31 = new DecimalFormat("##0.0");
+  private DecimalFormat df22 = new DecimalFormat("#0.00");
 
   private String generateLatitude()
   {
@@ -690,49 +735,106 @@ public class HTTPServer
       "]>\n";
       str += ("<data>\n");
     }  
+    else if (output == JSON_OUTPUT)
+    {
+      str += "{\n";
+    }
     
     NMEADataCache cache = NMEAContext.getInstance().getCache();
     Set<String> keys = cache.keySet();
+    boolean first = true;
     for (String k : keys)
     {
       Object cached = cache.get(k);
       if (cached instanceof Speed)
       {
         if (k.equals(NMEADataCache.BSP))
-          str += ("  <bsp>" + df22.format(((Speed)cached).getValue()) + "</bsp>\n");
+        {
+//        str += ("  <bsp>" + df22.format(((Speed)cached).getValue()) + "</bsp>\n");
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(((Speed)cached).getValue()), "bsp", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
+        }
         else if (k.equals(NMEADataCache.SOG))
-          str += ("  <sog>" + df22.format(((Speed)cached).getValue()) + "</sog>\n");
+        {
+//        str += ("  <sog>" + df22.format(((Speed)cached).getValue()) + "</sog>\n");
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(((Speed)cached).getValue()), "sog", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
+        }
         else if (k.equals(NMEADataCache.AWS))
-          str += ("  <aws>" + df22.format(((Speed)cached).getValue()) + "</aws>\n");
+        {
+//        str += ("  <aws>" + df22.format(((Speed)cached).getValue()) + "</aws>\n");
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(((Speed)cached).getValue()), "aws", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
+        }
         else if (k.equals(NMEADataCache.TWS))
-          str += ("  <tws>" + df22.format(((Speed)cached).getValue()) + "</tws>\n");
+        {
+//        str += ("  <tws>" + df22.format(((Speed)cached).getValue()) + "</tws>\n");
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(((Speed)cached).getValue()), "tws", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
+        }
         else if (k.equals(NMEADataCache.CSP))
-          str += ("  <csp>" + df22.format(((Speed)cached).getValue()) + "</csp>\n");
+        {
+//        str += ("  <csp>" + df22.format(((Speed)cached).getValue()) + "</csp>\n");
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(((Speed)cached).getValue()), "csp", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
+        }
       }
       else if (cached instanceof Angle360)
       {
         if (k.equals(NMEADataCache.COG))
-          str += ("  <cog>" + df3.format(((Angle360)cached).getValue()) + "</cog>\n");
+        {
+//        str += ("  <cog>" + df3.format(((Angle360)cached).getValue()) + "</cog>\n");
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle360)cached).getValue()), "cog", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
+        }
         else if (k.equals(NMEADataCache.HDG_TRUE))
-          str += ("  <hdg>" + df3.format(((Angle360)cached).getValue()) + "</hdg>\n");        
+        {
+//        str += ("  <hdg>" + df3.format(((Angle360)cached).getValue()) + "</hdg>\n");        
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle360)cached).getValue()), "hdg", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
+        }
         else if (k.equals(NMEADataCache.TWD))
-          str += ("  <twd>" + df3.format(((Angle360)cached).getValue()) + "</twd>\n");        
+        {
+//        str += ("  <twd>" + df3.format(((Angle360)cached).getValue()) + "</twd>\n");        
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle360)cached).getValue()), "twd", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
+        }
         else if (k.equals(NMEADataCache.CMG))
-          str += ("  <cmg>" + df3.format(((Angle360)cached).getValue()) + "</cmg>\n");        
+        {
+//        str += ("  <cmg>" + df3.format(((Angle360)cached).getValue()) + "</cmg>\n");        
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle360)cached).getValue()), "cmg", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
+        }
         else if (k.equals(NMEADataCache.CDR))
-          str += ("  <cdr>" + df3.format(((Angle360)cached).getValue()) + "</cdr>\n");        
+        {
+//        str += ("  <cdr>" + df3.format(((Angle360)cached).getValue()) + "</cdr>\n");        
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle360)cached).getValue()), "cdr", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
+        }
       }
       else if (cached instanceof Angle180)
       {
         if (k.equals(NMEADataCache.AWA))
-          str += ("  <awa>" + df3.format(((Angle180)cached).getValue()) + "</awa>\n");
-        else if (k.equals(NMEADataCache.TWA))
-          str += ("  <twa>" + df3.format(((Angle180)cached).getValue()) + "</twa>\n");
+        {
+//        str += ("  <awa>" + df3.format(((Angle180)cached).getValue()) + "</awa>\n");
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle180)cached).getValue()), "awa", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
         }
+        else if (k.equals(NMEADataCache.TWA))
+        {
+//        str += ("  <twa>" + df3.format(((Angle180)cached).getValue()) + "</twa>\n");
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle180)cached).getValue()), "twa", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
+        }
+      }
       else if (cached instanceof Angle180LR)
       {
         if (k.equals(NMEADataCache.LEEWAY))
-          str += ("  <leeway>" + df3.format(((Angle180LR)cached).getValue()) + "</leeway>\n");
+        {
+//        str += ("  <leeway>" + df3.format(((Angle180LR)cached).getValue()) + "</leeway>\n");
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle180LR)cached).getValue()), "leeway", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
+        }
       }
       else if (cached instanceof Angle180EW)
       {
@@ -740,51 +842,86 @@ public class HTTPServer
         {
           double d = ((Angle180EW)cached).getValue();
           if (d != -Double.MAX_VALUE)
-            str += ("  <D>" + df3.format(d) + "</D>\n");
+          {
+//          str += ("  <D>" + df3.format(d) + "</D>\n");
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(d), "D", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }
         }
         if (k.equals(NMEADataCache.DEVIATION))
-          str += ("  <d>" + df3.format(((Angle180EW)cached).getValue()) + "</d>\n");
+        {
+//        str += ("  <d>" + df3.format(((Angle180EW)cached).getValue()) + "</d>\n");
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle180EW)cached).getValue()), "d", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
+        }
       }
       else if (cached instanceof GeoPos)
       {
         if (k.equals(NMEADataCache.POSITION))
         {
-          str += ("  <lat>" + Double.toString(((GeoPos)cached).lat) + "</lat>\n");
-          str += ("  <lng>" + Double.toString(((GeoPos)cached).lng) + "</lng>\n");
+//        str += ("  <lat>" + Double.toString(((GeoPos)cached).lat) + "</lat>\n");
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(Double.toString(((GeoPos)cached).lat), "lat", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
+//        str += ("  <lng>" + Double.toString(((GeoPos)cached).lng) + "</lng>\n");
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(Double.toString(((GeoPos)cached).lng), "lng", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
 //        try { str += ("  <pos>" + URLEncoder.encode(((GeoPos)cached).toString(), "UTF-8") + "</pos>\n"); }
-          try { str += ("  <pos>" + ((GeoPos)cached).toString().replaceAll("°","&deg;") + "</pos>\n"); }
+          try 
+          { 
+//          str += ("  <pos>" + ((GeoPos)cached).toString().replaceAll("°","&deg;") + "</pos>\n"); 
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(((GeoPos)cached).toString().replaceAll("°","&deg;"), "pos", output, CHARACTER_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          }
           catch (Exception ex) { ex.printStackTrace(); }
         }        
       }
       else if (cached instanceof Depth)
       {
         if (k.equals(NMEADataCache.DBT))
-          str += ("  <dbt>" + df22.format(((Depth)cached).getValue()) + "</dbt>\n");
+        {
+//        str += ("  <dbt>" + df22.format(((Depth)cached).getValue()) + "</dbt>\n");
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(((Depth)cached).getValue()), "dbt", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
+        }
       }
       else if (cached instanceof Temperature)
       {
         if (k.equals(NMEADataCache.WATER_TEMP))
-          str += ("  <wtemp>" + df22.format(((Temperature)cached).getValue()) + "</wtemp>\n");
+        {
+//        str += ("  <wtemp>" + df22.format(((Temperature)cached).getValue()) + "</wtemp>\n");
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(((Temperature)cached).getValue()), "wtemp", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
+        }
       }
       else if (cached instanceof UTCTime)
       {
         if (k.equals(NMEADataCache.GPS_TIME))
         {
-          str += ("  <gps-time>" + Long.toString(((UTCTime)cached).getValue().getTime()) + "</gps-time>\n");
-          str += ("  <gps-time-fmt>" + TIME_FORMAT.format(((UTCTime)cached).getValue()) + "</gps-time-fmt>\n");
+//        str += ("  <gps-time>" + Long.toString(((UTCTime)cached).getValue().getTime()) + "</gps-time>\n");
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(Long.toString(((UTCTime)cached).getValue().getTime()), "gps-time", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
+//        str += ("  <gps-time-fmt>" + TIME_FORMAT.format(((UTCTime)cached).getValue()) + "</gps-time-fmt>\n");
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(TIME_FORMAT.format(((UTCTime)cached).getValue()), "gps-time-fmt", output, CHARACTER_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
         }
       }
       else if (cached instanceof UTCDate)
       {
         if (k.equals(NMEADataCache.GPS_DATE_TIME))
         {
-          str += ("  <gps-date-time>" + Long.toString(((UTCDate)cached).getValue().getTime()) + "</gps-date-time>\n");
-          str += ("  <gps-date-time-fmt>" + DATE_FORMAT.format(((UTCDate)cached).getValue()) + "</gps-date-time-fmt>\n");
+//        str += ("  <gps-date-time>" + Long.toString(((UTCDate)cached).getValue().getTime()) + "</gps-date-time>\n");
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(Long.toString(((UTCDate)cached).getValue().getTime()), "gps-date-time", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
+//        str += ("  <gps-date-time-fmt>" + DATE_FORMAT.format(((UTCDate)cached).getValue()) + "</gps-date-time-fmt>\n");
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(DATE_FORMAT.format(((UTCDate)cached).getValue()), "gps-date-time-fmt", output, CHARACTER_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
         }
       }
       else if (false) 
       {
-        try { str += ("  <obj name='" + URLEncoder.encode(k, "UTF-8") + "'><![CDATA[" + URLEncoder.encode(cached.toString(), "UTF-8") + "]]></obj>\n"); } catch (Exception ex) { ex.printStackTrace(); }
+        try 
+        { 
+//        str += ("  <obj name='" + URLEncoder.encode(k, "UTF-8") + "'><![CDATA[" + URLEncoder.encode(cached.toString(), "UTF-8") + "]]></obj>\n"); 
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(URLEncoder.encode(cached.toString(), "UTF-8"), URLEncoder.encode(k, "UTF-8"), output, CHARACTER_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
+        } 
+        catch (Exception ex) { ex.printStackTrace(); }
       }
     }
         
@@ -792,6 +929,32 @@ public class HTTPServer
     {
       str += ("</data>\n");
     }  
+    else if (output == JSON_OUTPUT)
+    {
+      str += "\n}\n";
+    }
+    if (verbose)
+      System.out.println(str);
+    return str;
+  }
+
+  private final static int NUMERIC_OPTION = 0;
+  private final static int CHARACTER_OPTION = 1;
+  
+  private static String dataFormat(String data, String dataName, int opt, int dataOption)
+  {
+    String str = "";
+    if (opt == XML_OUTPUT)
+      str = "<" + dataName + ">" + data + "</" + dataName + ">";
+    else if (opt == JSON_OUTPUT)
+    {
+      if (dataOption == NUMERIC_OPTION) // Remove leading '0'
+      {
+        
+      }
+      str = "\"" + dataName + "\":" + (dataOption == CHARACTER_OPTION?"\"":"") + data + (dataOption == CHARACTER_OPTION?"\"":"");
+    }
+    
     return str;
   }
   
