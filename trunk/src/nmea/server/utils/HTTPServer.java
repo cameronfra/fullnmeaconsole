@@ -266,11 +266,15 @@ public class HTTPServer
               if (output == XML_OUTPUT)
                 contentType = "text/xml";
               if (output == JSON_OUTPUT)
-                contentType = "text/json";
+                contentType = "application/json";
             }
-            String userAgent = header.get("User-Agent");
+//          String userAgent = header.get("User-Agent");
 //          System.out.println(">>> User-Agent: " + userAgent);
-//          if (userAgent != null && userAgent.contains("Chrome")) // Bug in Chrome for XMLHttpRequest
+            /* Bug in Chrome for XMLHttpRequest? => No with the Cross Origin Resource Sharing (CORS) header in the incoming doc.
+             * HTTP Header:
+             *   Access-Control-Allow-Origin: *
+             */
+//          if (userAgent != null && userAgent.contains("Chrome")) 
 //            contentType = "application/octet-stream";
             
             String content = "";
