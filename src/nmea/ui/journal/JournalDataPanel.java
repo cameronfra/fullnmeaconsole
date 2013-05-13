@@ -318,8 +318,7 @@ public class JournalDataPanel
                 journalNames[i].equals("SOG") ||
                 journalNames[i].equals("TWS") ||
                 journalNames[i].equals("AWS") ||
-                journalNames[i].equals("CSP") ||
-                journalNames[i].equals("LOG"))
+                journalNames[i].equals("CSP"))
             {              
               data = SPEED_DIST_FMT.format(d) + " kts";
               if (journalNames[i].equals("TWS"))
@@ -332,6 +331,10 @@ public class JournalDataPanel
                 if (d == -Double.MAX_VALUE || Double.isInfinite(d) || Double.isInfinite(d))
                   data = " - ";
               }
+            }
+            else if (journalNames[i].equals("LOG"))
+            {              
+              data = SPEED_DIST_FMT.format(d) + " nm";
             }
             else if (journalNames[i].equals("HDG") ||
                      journalNames[i].equals("COG") ||

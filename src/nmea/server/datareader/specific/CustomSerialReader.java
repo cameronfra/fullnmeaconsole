@@ -103,11 +103,17 @@ public class CustomSerialReader
     {
       thePort = com.open("PortOpener", 10);
     }
-    catch (PortInUseException piue)
+    catch (final PortInUseException piue)
     {
-//    piue.printStackTrace();
-//    System.err.println(this.getClass().getName() + ":read() - Port In Use");
-      JOptionPane.showMessageDialog(null, comPort + " in use.\n" + piue.getLocalizedMessage(), "Error opening port", JOptionPane.ERROR_MESSAGE);
+//      Thread errorThread = new Thread()
+//        {
+//          public void run()
+//          {
+//            JOptionPane.showMessageDialog(null, comPort + ":" + Integer.toString(br) + " in use.\n" + piue.getLocalizedMessage(), "Error opening port", JOptionPane.ERROR_MESSAGE);   
+//          }
+//        };
+//      errorThread.start(); 
+      System.out.println(comPort + ":" + Integer.toString(br) + " in use.\n" + piue.getLocalizedMessage());   
       manageError(piue);
 //    throw new RuntimeException(piue);
       return;

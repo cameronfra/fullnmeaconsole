@@ -268,15 +268,7 @@ public class HTTPServer
               if (output == JSON_OUTPUT)
                 contentType = "application/json";
             }
-//          String userAgent = header.get("User-Agent");
-//          System.out.println(">>> User-Agent: " + userAgent);
-            /* Bug in Chrome for XMLHttpRequest? => No with the Cross Origin Resource Sharing (CORS) header in the incoming doc.
-             * HTTP Header:
-             *   Access-Control-Allow-Origin: *
-             */
-//          if (userAgent != null && userAgent.contains("Chrome")) 
-//            contentType = "application/octet-stream";
-            
+
             String content = "";
             if (help)          
             {
@@ -327,6 +319,15 @@ public class HTTPServer
                 out.println(fileToFetch + " not found from " + System.getProperty("user.dir"));
               else
               {
+                if (fileToFetch.toUpperCase().endsWith(".HTML") ||
+                    fileToFetch.toUpperCase().endsWith(".XHTML"))
+                  contentType = "text/html";
+                else if (fileToFetch.toUpperCase().endsWith(".XML"))
+                  contentType = "text/xml";
+                else if (fileToFetch.toUpperCase().endsWith(".TXT"))
+                  contentType = "text/plain";
+                else
+                  System.out.println("File extension not managed for " + fileToFetch); // We don't read binaries. See below.
 //              System.out.println("............... Reading " + f.getAbsolutePath());
                 BufferedReader br = new BufferedReader(new FileReader(f));
                 String data = "";
@@ -963,7 +964,7 @@ public class HTTPServer
   }
   
   /**
-   * @deprecaed
+   * @deprecated
    */
   private String generateOldContent()
   {
@@ -1163,5 +1164,23 @@ public class HTTPServer
       str += ("</data>\n");
     }  
     return str;
+  }
+  
+  //  For dev tests
+  public static void main(String[] args) throws Exception
+  {
+  //System.setProperty("http.port", "9999");
+    new HTTPServer(new String[] { "-verbose=y", "-fmt=xml" }, null, null);
+    Thread t = new Thread()
+      {
+        public void run()
+        {
+          synchronized(this)
+          {
+            try {  this.wait(); } catch (Exception ex) {}
+          }
+        }
+      };
+    t.start();
   }
 }
