@@ -75,6 +75,7 @@ public class CustomTCPReader extends NMEAReader implements DataReader
   
   public void read()
   {
+    boolean verbose = "true".equals((System.getProperty("verbose", "false")));
     System.out.println("From " + getClass().getName() + " Reading TCP Port " + tcpport + " on " + hostName);
     super.enableReading();
     try
@@ -98,7 +99,7 @@ public class CustomTCPReader extends NMEAReader implements DataReader
         }
         else
         {
-          if (false /* verbose */)
+          if (verbose)
           {
             System.out.println("# Read " + bytesRead + " characters");
             System.out.println("# " + (new Date()).toString());
