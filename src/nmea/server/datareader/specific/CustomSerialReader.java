@@ -302,7 +302,7 @@ public class CustomSerialReader
         int bytesRead = is.read(buffer);
         if (bytesRead == -1)
           return; // break;
-//      System.out.println("# Read " + bytesRead + " characters");
+        System.out.println(this.getClass().getName() +  " # Read " + bytesRead + " characters");
 //      System.out.println("# " + (new Date()).toString());
         int nn = bytesRead;
         for (int i = 0; i < Math.min(buffer.length, bytesRead); i++)
