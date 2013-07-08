@@ -36,6 +36,13 @@ import coreutilities.gui.HeadingPanel;
 import coreutilities.gui.JumboDisplay;
 import coreutilities.gui.SpeedoPanel;
 
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+
+import java.awt.Shape;
+import java.awt.geom.Arc2D;
+
 import nmea.ui.viewer.minimaxi.boatspeed.BoatSpeed;
 import nmea.ui.viewer.minimaxi.wind.WindSpeed;
 
@@ -99,6 +106,7 @@ public class CurrentSituationPanel
   
   private JCheckBox showLeftPaneCheckBox = new JCheckBox();
   private JCheckBox miniMaxiCheckBox = new JCheckBox();
+  private JCheckBox beaufortCheckBox = new JCheckBox();
   private JCheckBox showTemperatureCheckBox = new JCheckBox();
   private JCheckBox analogDisplayCheckBox = new JCheckBox();
   private JCheckBox perimeterTicksCheckBox = new JCheckBox();
@@ -247,7 +255,7 @@ public class CurrentSituationPanel
     displayPanel.add(showLeftPaneCheckBox, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
           new Insets(0, 3, 0, 0), 0, 0));
     displayPanel.add(miniMaxiCheckBox, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-          new Insets(0, 3, 0, 0), 0, 0));    
+          new Insets(0, 3, 0, 0), 0, 0));            
     displayPanel.add(analogDisplayCheckBox, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
           new Insets(0, 3, 0, 0), 0, 0));
     displayPanel.add(showTemperatureCheckBox, new GridBagConstraints(0, 3, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
@@ -319,6 +327,17 @@ public class CurrentSituationPanel
         }
       });
 
+    beaufortCheckBox.setText("Show Beaufort Scale");
+    beaufortCheckBox.setSelected(true);
+    beaufortCheckBox.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          twsSpeedoPanel.withBeaufortScale(beaufortCheckBox.isSelected());
+          twsSpeedoPanel.repaint();
+        }
+      });
+      
     analogDisplayCheckBox.setText("Show analog displays");
     analogDisplayCheckBox.setSelected(true);
     analogDisplayCheckBox.addActionListener(new ActionListener()
@@ -384,6 +403,8 @@ public class CurrentSituationPanel
     double maxTWS = Double.parseDouble(System.getProperty("max.analog.tws", "50"));  
     System.out.println("Setting MAX BSP to " + maxTWS);
     twsSpeedoPanel = new SpeedoPanel(maxTWS, false);
+    twsSpeedoPanel.withBeaufortScale(true);
+    
     twsSpeedoPanel.setPreferredSize(new Dimension(200, 120));
     twsSpeedoPanel.setLabel("TWS");
     
@@ -541,6 +562,8 @@ public class CurrentSituationPanel
     speedoPanel.add(resetMinMaxButton, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
           new Insets(10, 1, 1, 1), 0, 0));     
     speedoPanel.add(withMinMaxJCheckBox, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+          new Insets(10, 3, 1, 1), 0, 0)); 
+    speedoPanel.add(beaufortCheckBox, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
           new Insets(10, 3, 1, 1), 0, 0)); 
     
     topDisplayPanel.add(speedoPanelHolder, new GridBagConstraints(3, 0, 1, 7, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
@@ -701,4 +724,5 @@ public class CurrentSituationPanel
   {
     drawingPlusCompass.setVisible(showLeftPaneCheckBox.isSelected());
   }
+
 }
