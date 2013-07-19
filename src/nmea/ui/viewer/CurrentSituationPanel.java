@@ -712,6 +712,7 @@ public class CurrentSituationPanel
     twsSpeedoPanel.setVisible(analogDisplayCheckBox.isSelected());
     resetMinMaxButton.setVisible(analogDisplayCheckBox.isSelected());    
     withMinMaxJCheckBox.setVisible(analogDisplayCheckBox.isSelected());
+    beaufortCheckBox.setVisible(analogDisplayCheckBox.isSelected());
   }
     
   private void perimeterTicksCheckBox_actionPerformed(ActionEvent e)
