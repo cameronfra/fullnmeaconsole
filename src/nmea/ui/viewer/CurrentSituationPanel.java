@@ -36,12 +36,9 @@ import coreutilities.gui.HeadingPanel;
 import coreutilities.gui.JumboDisplay;
 import coreutilities.gui.SpeedoPanel;
 
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import javax.swing.JComboBox;
 
-import java.awt.Shape;
-import java.awt.geom.Arc2D;
+import javax.swing.JOptionPane;
 
 import nmea.ui.viewer.minimaxi.boatspeed.BoatSpeed;
 import nmea.ui.viewer.minimaxi.wind.WindSpeed;
@@ -49,6 +46,7 @@ import nmea.ui.viewer.minimaxi.wind.WindSpeed;
 import ocss.nmea.parser.Angle180;
 import ocss.nmea.parser.Angle180LR;
 import ocss.nmea.parser.Angle360;
+import ocss.nmea.parser.Distance;
 import ocss.nmea.parser.Speed;
 import ocss.nmea.parser.TrueWindDirection;
 import ocss.nmea.parser.TrueWindSpeed;
@@ -85,6 +83,11 @@ public class CurrentSituationPanel
   private SpeedoPanel bspSpeedoPanel = null;
   private SpeedoPanel twsSpeedoPanel = null;
   
+  private JumboDisplay vmgDisplay = null;
+  private JRadioButton vmgWithHDG = null;
+  private JRadioButton vmgWithCOG = null;
+  private JPanel vmgRBPanel = null;
+
   private JPanel speedoPanel = null;
   private JPanel speedoPanelHolder = null;
   
@@ -107,6 +110,8 @@ public class CurrentSituationPanel
   private JCheckBox showLeftPaneCheckBox = new JCheckBox();
   private JCheckBox miniMaxiCheckBox = new JCheckBox();
   private JCheckBox beaufortCheckBox = new JCheckBox();
+  private JCheckBox vmgCheckBox = new JCheckBox();
+  private JComboBox vmgZmgComboBox = new JComboBox();
   private JCheckBox showTemperatureCheckBox = new JCheckBox();
   private JCheckBox analogDisplayCheckBox = new JCheckBox();
   private JCheckBox perimeterTicksCheckBox = new JCheckBox();
@@ -132,6 +137,7 @@ public class CurrentSituationPanel
   
   private boolean jumbosOnTheRight = true;
   private JCheckBox autoScaleCheckBox = new JCheckBox();
+//private GridBagLayout gridBagLayout3 = new GridBagLayout();
 
   public CurrentSituationPanel()
   {
@@ -207,6 +213,63 @@ public class CurrentSituationPanel
               if (!found)
                 NMEAContext.getInstance().fireWindScale(NMEAContext.WindScale._50_60.scale());
             }
+            // VMG
+            try
+            {
+              double vmg = 0d;
+              if (vmgZmgComboBox.getSelectedIndex() == 0) // On Wind
+              {
+                vmgDisplay.setName("VMG");
+                vmgDisplay.setToolTipText("Velocity Made Good");
+                if (vmgWithHDG.isSelected())
+                {
+                  double twa = ((Angle180)cache.get(NMEADataCache.TWA)).getValue();
+                  double bsp = ((Speed)cache.get(NMEADataCache.BSP)).getValue();
+                  vmg = bsp * Math.cos(Math.toRadians(twa));
+                }
+                else if (vmgWithCOG.isSelected())
+                {
+                  double sog = (((Speed)cache.get(NMEADataCache.SOG)).getValue());
+                  double cog = ((Angle360)cache.get(NMEADataCache.COG)).getValue();
+                  double twd = (((TrueWindDirection)cache.get(NMEADataCache.TWD)).getValue());
+                  double twa = twd - cog;
+                  vmg = sog * Math.cos(Math.toRadians(twa));
+                }
+  //            System.out.println("VMG: " + vmg);
+                setVMG(vmg);
+                drawingBoard.setVMGValue(vmg);
+              }
+              else if (vmgZmgComboBox.getSelectedIndex() == 1) // On Waypoint
+              {
+//              System.out.println("Bearing to [" + cache.get(NMEADataCache.TO_WP) + "] :" + ((Angle360)cache.get(NMEADataCache.B2WP)).getValue() + " \272" );
+                if (cache.get(NMEADataCache.TO_WP) != null && cache.get(NMEADataCache.TO_WP).toString().trim().length() > 0)
+                {
+                  vmgDisplay.setName(cache.get(NMEADataCache.TO_WP).toString().trim());
+                  vmgDisplay.setToolTipText("Velocity Made Good to " + cache.get(NMEADataCache.TO_WP).toString().trim());
+                  double b2wp = ((Angle360)cache.get(NMEADataCache.B2WP)).getValue();
+                  if (vmgWithHDG.isSelected())
+                  {
+                    double angle = b2wp - ((Angle360)cache.get(NMEADataCache.HDG_TRUE)).getValue();
+                    double bsp = ((Speed)cache.get(NMEADataCache.BSP)).getValue();
+                    vmg = bsp * Math.cos(Math.toRadians(angle));
+                  }
+                  else if (vmgWithCOG.isSelected())
+                  {
+                    double sog = (((Speed)cache.get(NMEADataCache.SOG)).getValue());
+                    double cog = ((Angle360)cache.get(NMEADataCache.COG)).getValue();
+                    double angle = b2wp - cog;
+                    vmg = sog * Math.cos(Math.toRadians(angle));
+                  }
+                  setVMG(vmg);
+                  drawingBoard.setVMGValue(vmg, cache.get(NMEADataCache.TO_WP).toString().trim(), b2wp);
+                  // TODO Tell the drawing board
+                }
+              }
+            }
+            catch (Exception ex)
+            {
+              System.err.println(ex.toString());
+            }
           }
           repaint();
         } 
@@ -250,7 +313,6 @@ public class CurrentSituationPanel
     topDisplayPanel.setLayout(new GridBagLayout());
     displayPanel.add(topDisplayPanel, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.VERTICAL,
           new Insets(0, 0, 0, 0), 0, 0));
-
     
     displayPanel.add(showLeftPaneCheckBox, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
           new Insets(0, 3, 0, 0), 0, 0));
@@ -258,19 +320,44 @@ public class CurrentSituationPanel
           new Insets(0, 3, 0, 0), 0, 0));            
     displayPanel.add(analogDisplayCheckBox, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
           new Insets(0, 3, 0, 0), 0, 0));
-    displayPanel.add(showTemperatureCheckBox, new GridBagConstraints(0, 3, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+    displayPanel.add(showTemperatureCheckBox,
+                     new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
           new Insets(0, 3, 0, 0), 0, 0));
-    displayPanel.add(displayCurrentCheckBox, new GridBagConstraints(0, 4, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+    JPanel vmgZmgHolder = new JPanel(new BorderLayout());
+    vmgZmgHolder.add(vmgCheckBox, BorderLayout.WEST);
+    vmgZmgComboBox.removeAllItems();
+    vmgZmgComboBox.addItem("VMG on Wind");
+    vmgZmgComboBox.addItem("VMG on Waypoint");
+    // Make sure there is an active waypoint (RMB) when the 2nd option is selected
+    vmgZmgComboBox.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          if (vmgZmgComboBox.getSelectedIndex() == 1) // VMG on Waypoint
+          {
+            NMEADataCache cache = NMEAContext.getInstance().getCache();
+            if (cache.get(NMEADataCache.TO_WP) == null || cache.get(NMEADataCache.TO_WP).toString().trim().length() == 0)
+            {
+              JOptionPane.showMessageDialog(vmgZmgComboBox, 
+                                            "No waypoint currently set on your GPS (RMB).\nWill remain on VMG on Wind.", 
+                                            "VMG on Waypoint (aka ZMG)", 
+                                            JOptionPane.WARNING_MESSAGE);
+              vmgZmgComboBox.setSelectedIndex(0);
+            }
+          }
+        }
+      });
+    vmgZmgHolder.add(vmgZmgComboBox, BorderLayout.CENTER);
+    displayPanel.add(vmgZmgHolder,
+                     new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
           new Insets(0, 3, 0, 0), 0, 0));
-    displayPanel.add(perimeterTicksCheckBox, new GridBagConstraints(1, 4, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+    displayPanel.add(displayCurrentCheckBox,
+                     new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+          new Insets(0, 3, 0, 0), 0, 0));
+    displayPanel.add(perimeterTicksCheckBox,
+                     new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
           new Insets(0, 3, 0, 0), 0, 0));
     displayPanel.add(twsMethodPanel, new GridBagConstraints(0, 5, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-          new Insets(0, 3, 0, 0), 0, 0));
-
-    JPanel buttonPanel = new JPanel();
-    buttonPanel.add(freezeButton, null);
-    buttonPanel.add(shiftLeftRightButton, null);
-    displayPanel.add(buttonPanel, new GridBagConstraints(0, 6, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
           new Insets(0, 3, 0, 0), 0, 0));
 
     displayPanel.add(autoScaleCheckBox, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
@@ -288,6 +375,55 @@ public class CurrentSituationPanel
     twsDisplay.setDisplayColor(Color.cyan);
     twdDisplay = new JumboDisplay("WINDIR", "000", "True Wind Direction", basicJumboSize); // TWD
     twdDisplay.setDisplayColor(Color.cyan);
+
+    vmgDisplay = new JumboDisplay("VMG", "+00.00", "Velocity Made Good", basicJumboSize);
+    vmgDisplay.setDisplayColor(Color.cyan);
+    vmgWithHDG = new JRadioButton("with HDG & BSP");
+    vmgWithHDG.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          broadcastVMGOption();
+        }
+      });
+    vmgWithCOG = new JRadioButton("with COG & SOG");
+    vmgWithCOG.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          broadcastVMGOption();
+        }
+      });
+    ButtonGroup vmgGroup = new ButtonGroup();
+    vmgGroup.add(vmgWithHDG);
+    vmgGroup.add(vmgWithCOG);
+    vmgWithHDG.setSelected(true);
+    vmgWithCOG.setSelected(false);
+    vmgRBPanel = new JPanel(new GridBagLayout());
+    vmgRBPanel.add(vmgWithHDG,
+                    new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE,
+          new Insets(1, 1, 1, 1), 0, 0));
+    vmgRBPanel.add(vmgWithCOG,
+                    new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE,
+          new Insets(1, 1, 1, 1), 0, 0));
+    
+    JPanel buttonPanel = new JPanel(new GridBagLayout());
+//  buttonPanel.setLayout(gridBagLayout3);
+    buttonPanel.add(freezeButton,
+                    new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.NONE,
+          new Insets(1, 1, 1, 1), 0, 0));
+    buttonPanel.add(shiftLeftRightButton,
+                    new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.NONE,
+          new Insets(1, 1, 1, 1), 0, 0));
+    buttonPanel.add(vmgDisplay,
+                    new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.NONE,
+          new Insets(1, 30, 1, 1), 0, 0));
+    buttonPanel.add(vmgRBPanel,
+                    new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.NONE,
+          new Insets(1, 1, 1, 1), 0, 0));
+
+    displayPanel.add(buttonPanel, new GridBagConstraints(0, 6, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+          new Insets(0, 3, 0, 0), 0, 0));
 
     lwyDisplay = new JumboDisplay("LWY", "00.00", "Leeway", basicJumboSize);
     lwyDisplay.setDisplayColor(Color.red);
@@ -338,6 +474,18 @@ public class CurrentSituationPanel
         }
       });
       
+    vmgCheckBox.setText("Show");
+    vmgCheckBox.setSelected(true);
+    vmgCheckBox.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          vmgDisplay.setVisible(vmgCheckBox.isSelected());
+          vmgRBPanel.setVisible(vmgCheckBox.isSelected());
+          broadcastVMGOption();
+        }
+      });
+    
     analogDisplayCheckBox.setText("Show analog displays");
     analogDisplayCheckBox.setSelected(true);
     analogDisplayCheckBox.addActionListener(new ActionListener()
@@ -359,7 +507,7 @@ public class CurrentSituationPanel
         }
       });
       
-    showTemperatureCheckBox.setText("Show Water Temperature");
+    showTemperatureCheckBox.setText("Show Water Temp.");
 
     boolean dt = "true".equals(System.getProperty("display.temperature", "false"));
     showTemperatureCheckBox.setSelected(dt);
@@ -521,6 +669,9 @@ public class CurrentSituationPanel
     topDisplayPanel.add(awDisplay,
                         new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
                                                new Insets(1, 1, 1, 1), 0, 0));
+//    topDisplayPanel.add(vmgDisplay,
+//                        new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+//                                               new Insets(1, 1, 1, 1), 0, 0));
 
     topDisplayPanel.add(twdDisplay,
                         new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
@@ -565,6 +716,10 @@ public class CurrentSituationPanel
           new Insets(10, 3, 1, 1), 0, 0)); 
     speedoPanel.add(beaufortCheckBox, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
           new Insets(10, 3, 1, 1), 0, 0)); 
+//    speedoPanel.add(vmgCheckBox, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+//          new Insets(10, 3, 1, 1), 0, 0));     
+//    speedoPanel.add(vmgDisplay, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+//          new Insets(10, 3, 1, 1), 0, 0)); 
     
     topDisplayPanel.add(speedoPanelHolder, new GridBagConstraints(3, 0, 1, 7, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
           new Insets(1, 1, 1, 1), 0, 0));
@@ -574,6 +729,19 @@ public class CurrentSituationPanel
 //  cogPanel.setHdg(94);
   }
 
+  private void broadcastVMGOption()
+  {
+    if (vmgCheckBox.isSelected())
+    {
+      if (vmgWithHDG.isSelected())
+        drawingBoard.setVMGOption(DrawingBoard.VMG_WITH_BSP_HDG);
+      else
+        drawingBoard.setVMGOption(DrawingBoard.VMG_WITH_SOG_COG);
+    }
+    else
+      drawingBoard.setVMGOption(DrawingBoard.NO_VMG);    
+  }
+  
   private void displayCurrentCheckBox_actionPerformed(ActionEvent e)
   {
     setDisplayCurrent(displayCurrentCheckBox.isSelected());
@@ -602,6 +770,20 @@ public class CurrentSituationPanel
       {
         bspDisplay.setValue(df22.format(d));
         bspSpeedoPanel.setSpeed(d);
+      }
+    }
+  }
+
+  private void setVMG(double d)
+  {
+    if (d != -Double.MAX_VALUE)
+    {
+      if (vmgDisplay.isVisible())
+      {
+        String txt = df22.format(d);
+        if (!txt.startsWith("-"))
+          txt = "+" + txt;
+        vmgDisplay.setValue(txt);
       }
     }
   }
