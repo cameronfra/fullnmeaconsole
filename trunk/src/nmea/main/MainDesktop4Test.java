@@ -56,7 +56,7 @@ public class MainDesktop4Test
     throws Exception
   {
     this.getContentPane().setLayout( null );
-    this.setSize(new Dimension(1672, 879));
+    this.setSize(new Dimension(1400, 900));
     this.setTitle( "Oliv Desktop" );
     
     NMEAInternalFrame nmeaFrame = new NMEAInternalFrame(v, 

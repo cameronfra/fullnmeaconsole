@@ -20,6 +20,7 @@ import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.Stroke;
 
 import java.awt.font.TextAttribute;
@@ -67,6 +68,10 @@ public class DrawingBoard
 
   private double sog = 7D;
   private double cog = 94D;
+  
+  private double vmg = 0d;
+  private double b2wp = 0d;
+  private String wpName = "";
 
   private double bspCoeff  = 1D;
   private double hdgOffset = 0D;
@@ -84,6 +89,10 @@ public class DrawingBoard
   private boolean freeze         = false;
   private boolean showTemperature = false;
   private boolean showPerimeterTicks = true;
+  
+  private boolean showVMG = true;
+  private boolean vmgWithBSP_HDG = true;
+  private boolean vmgWithSOG_COG = true;
   
   public DrawingBoard()
   {
@@ -336,6 +345,66 @@ public class DrawingBoard
       stroke = new BasicStroke(5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
       ((Graphics2D) gr).setStroke(stroke);
     }
+    // VMG ?
+    if (showVMG)
+    {
+      double arrowEndX = 0d, arrowEndY = 0d;
+      double onTheWindX = 0d, onTheWindY = 0d;
+      
+      if (this.wpName.trim().length() > 0)
+      {
+        // Draw bearing to Waypoint
+        gr.setColor(Color.black);
+        stroke = new BasicStroke(1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
+        ((Graphics2D) gr).setStroke(stroke);
+        double radius = Math.min(this.getWidth() / 2, this.getHeight() / 2);
+        double wpX = boatPosX + (radius * Math.sin(Math.toRadians(b2wp)));
+        double wpY = boatPosY - (radius * Math.cos(Math.toRadians(b2wp)));
+        Point wp = new Point((int)wpX, (int)wpY); 
+
+        Utils.drawArrow((Graphics2D) gr, new Point(boatPosX, boatPosY), wp, Color.black);
+        gr.drawString(this.wpName, (int) wpX + 5, (int) wpY + 5);        
+      }
+      
+      if (vmgWithBSP_HDG)
+      {
+        arrowEndX = boatPosX + ((bsp * bspCoeff) * (bspLengthAt10 / 10D) * Math.sin(Math.toRadians(hdg + hdgOffset)));
+        arrowEndY = boatPosY - ((bsp * bspCoeff) * (bspLengthAt10 / 10D) * Math.cos(Math.toRadians(hdg + hdgOffset)));
+      }
+      else if (vmgWithSOG_COG)
+      {
+        arrowEndX = boatPosX + (sog * (bspLengthAt10 / 10D) * Math.sin(Math.toRadians(cog)));
+        arrowEndY = boatPosY - (sog * (bspLengthAt10 / 10D) * Math.cos(Math.toRadians(cog)));
+      }  
+      
+      if (this.wpName.trim().length() > 0)
+      {
+        onTheWindX = boatPosX + (vmg * (bspLengthAt10 / 10D) * Math.sin(Math.toRadians(b2wp)));
+        onTheWindY = boatPosY - (vmg * (bspLengthAt10 / 10D) * Math.cos(Math.toRadians(b2wp)));
+      }
+      else
+      {
+        onTheWindX = boatPosX + (vmg * (bspLengthAt10 / 10D) * Math.sin(Math.toRadians(twd)));
+        onTheWindY = boatPosY - (vmg * (bspLengthAt10 / 10D) * Math.cos(Math.toRadians(twd)));
+      }
+      float dash[] = {10.0f};
+      stroke = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER, 10f, dash, 0f);
+      ((Graphics2D) gr).setStroke(stroke);
+      gr.setColor(Color.orange);
+      gr.drawLine((int)onTheWindX, (int)onTheWindY, (int)arrowEndX, (int)arrowEndY);
+
+      ((Graphics2D) gr).setStroke(new CompositeStroke(new BasicStroke(5f), new BasicStroke(0.5f)));      
+      gr.setColor(Color.black);
+      gr.drawLine(boatPosX, boatPosY, (int)onTheWindX, (int)onTheWindY);
+
+      gr.setColor(Color.orange);
+      stroke = new BasicStroke(4f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER, 10f, dash, 0f);
+      ((Graphics2D) gr).setStroke(stroke);
+      Utils.drawArrow((Graphics2D) gr, new Point(boatPosX, boatPosY), new Point((int)onTheWindX, (int)onTheWindY), Color.orange);
+      gr.setColor(Color.darkGray);
+      gr.drawString("VMG", (int) onTheWindX + 5, (int) onTheWindY + 5);        
+    }
+    
     /*
      * Boat itself
      * 
@@ -736,6 +805,44 @@ public class DrawingBoard
 //  repaint();
   }
 
+  public final static int NO_VMG           = 0;
+  public final static int VMG_WITH_BSP_HDG = 1;
+  public final static int VMG_WITH_SOG_COG = 2;
+  
+  public void setVMGOption(int option)
+  {
+    switch (option)
+    {
+      case NO_VMG:
+        showVMG = false;
+        break;
+      case VMG_WITH_BSP_HDG:
+        vmgWithBSP_HDG = true;
+        vmgWithSOG_COG = false;
+        showVMG = true;
+        break;
+      case VMG_WITH_SOG_COG:
+        vmgWithBSP_HDG = false;
+        vmgWithSOG_COG = true;
+        showVMG = true;
+        break;
+    }
+  }
+  
+  public void setVMGValue(double d)
+  {
+    this.vmg = d;
+    this.b2wp = 0d;
+    this.wpName = "";
+  }
+
+  public void setVMGValue(double d, String wpName, double bearingToWaypoint)
+  {
+    this.vmg = d;
+    this.b2wp = bearingToWaypoint;
+    this.wpName = wpName;
+  }
+  
   public boolean isDisplayCurrent()
   {
     return displayCurrent;  
@@ -815,5 +922,22 @@ public class DrawingBoard
   public void setShowPerimeterTicks(boolean showPerimeterTicks)
   {
     this.showPerimeterTicks = showPerimeterTicks;
+  }
+
+  public class CompositeStroke
+    implements Stroke
+  {
+    private Stroke stroke1, stroke2;
+
+    public CompositeStroke(Stroke stroke1, Stroke stroke2)
+    {
+      this.stroke1 = stroke1;
+      this.stroke2 = stroke2;
+    }
+
+    public Shape createStrokedShape(Shape shape)
+    {
+      return stroke2.createStrokedShape(stroke1.createStrokedShape(shape));
+    }
   }
 }

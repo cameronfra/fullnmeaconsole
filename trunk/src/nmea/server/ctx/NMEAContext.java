@@ -13,6 +13,7 @@ import java.sql.Connection;
 import java.text.DecimalFormat;
 
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -142,21 +143,43 @@ public class NMEAContext implements Serializable
 
   public synchronized void addNMEAListener(NMEAListener l)
   {
-    if (!NMEAListeners.contains(l))
+    synchronized(NMEAListeners)
     {
-      NMEAListeners.add(l);
+      if (!NMEAListeners.contains(l))
+      {
+        NMEAListeners.add(l);
+      }
     }
   }
 
   public synchronized void removeNMEAListener(NMEAListener l)
   {
-    NMEAListeners.remove(l);
+    synchronized(NMEAListeners)
+    {
+      NMEAListeners.remove(l);
+    }
   }
   
   public void fireBulkDataRead(NMEAEvent ne)
   {
-    for (NMEAListener nl : NMEAListeners)
-      nl.dataRead(ne);
+    try
+    {
+      synchronized (NMEAListeners)
+      {
+        for (NMEAListener nl : NMEAListeners)
+        {
+          synchronized(nl)
+          {
+            nl.dataRead(ne);
+          }
+        }
+      }
+    }
+    catch (Exception cme)
+    {
+      System.err.println("To be taken care of: " + cme.toString() + "...");
+      cme.printStackTrace();
+    }
   }
 
   public void setReplayFile(final String replayFile)
