@@ -25,9 +25,13 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
+import java.io.File;
+
 import java.text.DecimalFormat;
 
+import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -47,6 +51,10 @@ import nmea.server.ctx.NMEADataCache;
 import nmea.ui.viewer.CurrentSituationPanel;
 
 import ocss.nmea.parser.Angle180EW;
+
+import polarmaker.polars.smooth.gui.components.ToolFileFilter;
+
+import utils.PolarHelper;
 
 
 public class ControlPanelForAll
@@ -76,6 +84,12 @@ public class ControlPanelForAll
   private JFormattedTextField maxLeewayTextField = new JFormattedTextField();
   private JLabel windScaleLabel = new JLabel();
   private JComboBox scaleComboBox = new JComboBox();
+  
+  private JLabel polarFileLabel = new JLabel();
+  private JTextField polarFileTextField = new JTextField();
+  private JButton findPolarFilelButton = new JButton();
+  private JLabel polarFactorLabel = new JLabel();
+  private JFormattedTextField polarFactorTextField = new JFormattedTextField(DF24);  
   
 //private boolean frozen = false;
   
@@ -111,7 +125,6 @@ public class ControlPanelForAll
 
     this.setLayout(gridBagLayout1);
 
-    this.setSize(new Dimension(485, 123));
     bspCoeffLabel.setText("BSP Coeff:");
     bspCoeffTextField.setPreferredSize(new Dimension(40, 20));
     bspCoeffTextField.setHorizontalAlignment(JTextField.TRAILING);
@@ -327,6 +340,66 @@ public class ControlPanelForAll
         }
       });
 
+    polarFactorLabel.setText("Polar factor:");
+    polarFactorTextField.setPreferredSize(new Dimension(40, 20));
+    polarFactorTextField.setHorizontalAlignment(JTextField.TRAILING);
+    double polarCoeff = 1d;
+    try { polarCoeff = ((Double) NMEAContext.getInstance().getDataCache(NMEADataCache.POLAR_FACTOR)).doubleValue(); } catch (Exception ex) {}
+    polarFactorTextField.setText(polarFactorTextField.getFormatter().valueToString(polarCoeff));
+    polarFactorTextField.setMinimumSize(new Dimension(35, 20));
+    polarFactorTextField.setSize(new Dimension(40, 20));
+    polarFactorTextField.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          polarFactorTextField_actionPerformed(e);
+        }
+      });
+    polarFactorTextField.addFocusListener(new FocusAdapter()
+      {
+        public void focusLost(FocusEvent e)
+        {
+          polarFactorTextField_focusLost(e);
+        }
+      });
+
+    polarFileLabel.setText("Polar file:");
+    polarFileTextField.setPreferredSize(new Dimension(100, 20));
+    polarFileTextField.setHorizontalAlignment(JTextField.TRAILING);
+    String polarFile = "";
+    try { polarFile = NMEAContext.getInstance().getDataCache(NMEADataCache.POLAR_FILE_NAME).toString(); } catch (Exception ex) {}
+    polarFileTextField.setText(polarFile);
+    polarFileTextField.setMinimumSize(new Dimension(35, 20));
+    polarFileTextField.setSize(new Dimension(40, 20));
+    polarFileTextField.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          polarFileTextField_actionPerformed(e);
+        }
+      });
+    polarFileTextField.addFocusListener(new FocusAdapter()
+      {
+        public void focusLost(FocusEvent e)
+        {
+          polarFileTextField_focusLost(e);
+        }
+      });
+    findPolarFilelButton.setText("...");
+    findPolarFilelButton.setPreferredSize(new Dimension(30, 20));
+    findPolarFilelButton.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          String fName = chooseFile(JFileChooser.FILES_AND_DIRECTORIES, "polar-coeff", "Polars", "Choose the Polar file", "Choose");
+          if (fName.trim().length() > 0)
+          {
+            polarFileTextField.setText(fName);
+            polarFileChanged();
+          }
+        }
+      });
+    
     this.add(bspCoeffLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     this.add(bspCoeffTextField, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
     this.add(hdgOffsetLabel, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
@@ -335,6 +408,11 @@ public class ControlPanelForAll
     this.add(awsCoeffTextField, new GridBagConstraints(5, 0, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
     this.add(awaOffsetLabel, new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
     this.add(awaOffsetTextField, new GridBagConstraints(7, 0, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+    this.add(polarFactorLabel, new GridBagConstraints(8, 0, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
+    this.add(polarFactorTextField,
+             new GridBagConstraints(9, 0, 2, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
+          new Insets(0, 0, 0, 0), 0, 0));
+        
     this.add(maxLeewayLabel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 0, 0), 0, 0));
     this.add(maxLeewayTextField, new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, 0), 0, 0));
     this.add(windScaleLabel, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 0, 0, 0), 0, 0));
@@ -344,8 +422,15 @@ public class ControlPanelForAll
     this.add(defaultDeclinationFormattedTextField, new GridBagConstraints(5, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(3, 0, 0, 0), 0, 0));
     this.add(dampingLabel, new GridBagConstraints(6, 1, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 0, 0, 0), 0, 0));
     this.add(dampingSpinner, new GridBagConstraints(7, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, 0), 0, 0));
+    this.add(polarFileLabel, new GridBagConstraints(8, 1, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 0, 0, 0), 0, 0));
+    this.add(polarFileTextField,
+             new GridBagConstraints(9, 1, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+          new Insets(5, 0, 0, 0), 0, 0));
+    this.add(findPolarFilelButton,
+             new GridBagConstraints(10, 1, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE,
+          new Insets(5, 0, 0, 0), 0, 0));
 
-    this.add(replaySpeedSlider, new GridBagConstraints(0, 3, 8, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, 0), 0, 0));
+    this.add(replaySpeedSlider, new GridBagConstraints(0, 3, 11, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, 0), 0, 0));
     replaySpeedSlider.addChangeListener(new ChangeListener()
       {
         public void stateChanged(ChangeEvent evt)
@@ -363,7 +448,7 @@ public class ControlPanelForAll
     replaySpeedSlider.setToolTipText("Replay Speed");
     replaySpeedSlider.setVisible(NMEAContext.getInstance().isFromFile());    
     
-    this.add(fileProgress, new GridBagConstraints(0, 4, 9, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+    this.add(fileProgress, new GridBagConstraints(0, 4, 11, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
           new Insets(5, 0, 0, 0), 0, 0));
     fileProgress.addMouseListener(new MouseAdapter()
       {
@@ -628,6 +713,79 @@ public class ControlPanelForAll
       System.setProperty("wind.scale", Float.toString(f));
     }
   }
+
+  private void polarFactorTextField_actionPerformed(ActionEvent e)
+  {
+    polarFactorChanged();
+  }
+  private void polarFactorTextField_focusLost(FocusEvent e)
+  {
+    polarFactorChanged();
+  }
+  private void polarFactorChanged()
+  {
+    System.out.println("Polar factor changed?");
+    double d = Double.parseDouble(polarFactorTextField.getText());
+    NMEAContext.getInstance().getCache().put(NMEADataCache.POLAR_FACTOR, new Double(d));      
+    PolarHelper.setPolarCoeff(d);
+  }
+
+  private void polarFileTextField_actionPerformed(ActionEvent e)
+  {
+    polarFileChanged();
+  }
+  private void polarFileTextField_focusLost(FocusEvent e)
+  {
+    polarFileChanged();
+  }
+  
+  private void polarFileChanged()
+  {
+    System.out.println("Polar file changed?");
+    String fn = polarFileTextField.getText();
+    NMEAContext.getInstance().getCache().put(NMEADataCache.POLAR_FILE_NAME, fn);
+    PolarHelper.setFileName(fn);
+    PolarHelper.refreshCoeffs();
+  }
+
+  public static String chooseFile(int mode,
+                                  String flt,
+                                  String desc,
+                                  String title,
+                                  String buttonLabel)
+  {
+    String fileName = "";
+    JFileChooser chooser = new JFileChooser();
+    if (title != null)
+      chooser.setDialogTitle(title);
+    if (buttonLabel != null)
+      chooser.setApproveButtonText(buttonLabel);    
+
+    ToolFileFilter filter = new ToolFileFilter(flt,
+                                               desc);                                               
+    chooser.addChoosableFileFilter(filter);
+    chooser.setFileFilter(filter);
+
+    chooser.setFileSelectionMode(mode);
+    // Set current directory
+    File f = new File(".");
+    String currPath = f.getAbsolutePath();
+    f = new File(currPath.substring(0, currPath.lastIndexOf(File.separator)));
+    chooser.setCurrentDirectory(f);
+
+    int retval = chooser.showOpenDialog(null);
+    switch (retval)
+    {
+      case JFileChooser.APPROVE_OPTION:
+        fileName = chooser.getSelectedFile().toString();
+        break;
+      case JFileChooser.CANCEL_OPTION:
+        break;
+      case JFileChooser.ERROR_OPTION:
+        break;
+    }
+    return fileName;
+  }  
 
   class ScaleForWind
   {

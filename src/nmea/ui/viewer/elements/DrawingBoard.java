@@ -72,6 +72,8 @@ public class DrawingBoard
   private double vmg = 0d;
   private double b2wp = 0d;
   private String wpName = "";
+  
+  private double perf = -1;
 
   private double bspCoeff  = 1D;
   private double hdgOffset = 0D;
@@ -247,8 +249,8 @@ public class DrawingBoard
       Utils.drawHollowArrow((Graphics2D) gr, new Point(boatPosX, boatPosY), new Point((int) rvX, (int) rvY), Color.red);
     stroke = new BasicStroke(5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
     ((Graphics2D) gr).setStroke(stroke);
-    gr.drawString("BSP:" + DF32.format(bsp * bspCoeff) + " kts, HDG:" + DF3.format((hdg + hdgOffset)) + "\272", (int) rvX + 5,
-                  (int) rvY + 5);
+    if (bsp > 0)
+      gr.drawString("BSP:" + DF32.format(bsp * bspCoeff) + " kts, HDG:" + DF3.format((hdg + hdgOffset)) + "\272", (int) rvX + 5, (int) rvY + 5);
     /*
      * Leeway
      */
@@ -332,18 +334,22 @@ public class DrawingBoard
     /*
      * Current
      */
-    double a = 10 * (rsX - rfX) / bspLengthAt10;
-    double b = 10 * (rfY - rsY) / bspLengthAt10;
-    double csp = Math.sqrt((a * a) + (b * b));
-    double cdr = Utils.getDir((float) a, (float) b);
-    if (debug || (displayCurrent && csp > 0.2))
+      double a = 10 * (rsX - rfX) / bspLengthAt10;
+      double b = 10 * (rfY - rsY) / bspLengthAt10;
+      double csp = Math.sqrt((a * a) + (b * b));
+      double cdr = Utils.getDir((float) a, (float) b);
+    if (rsX != -Double.MAX_VALUE && !Double.isInfinite(rsX) && !Double.isNaN(rsX) &&
+        rsY != -Double.MAX_VALUE && !Double.isInfinite(rsY) && !Double.isNaN(rsY))
     {
-      gr.setColor(Color.green);
-      stroke = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
-      ((Graphics2D) gr).setStroke(stroke);
-      Utils.drawCurrentArrow((Graphics2D) gr, new Point((int) rsX, (int) rsY), new Point((int) rfX, (int) rfY), Color.green);
-      stroke = new BasicStroke(5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
-      ((Graphics2D) gr).setStroke(stroke);
+      if (debug || (displayCurrent && csp > 0.2))
+      {
+        gr.setColor(Color.green);
+        stroke = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
+        ((Graphics2D) gr).setStroke(stroke);
+        Utils.drawCurrentArrow((Graphics2D) gr, new Point((int) rsX, (int) rsY), new Point((int) rfX, (int) rfY), Color.green);
+        stroke = new BasicStroke(5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
+        ((Graphics2D) gr).setStroke(stroke);
+      }
     }
     // VMG ?
     if (showVMG)
@@ -366,12 +372,12 @@ public class DrawingBoard
         gr.drawString(this.wpName, (int) wpX + 5, (int) wpY + 5);        
       }
       
-      if (vmgWithBSP_HDG)
+      if (vmgWithBSP_HDG && bsp > 0)
       {
         arrowEndX = boatPosX + ((bsp * bspCoeff) * (bspLengthAt10 / 10D) * Math.sin(Math.toRadians(hdg + hdgOffset)));
         arrowEndY = boatPosY - ((bsp * bspCoeff) * (bspLengthAt10 / 10D) * Math.cos(Math.toRadians(hdg + hdgOffset)));
       }
-      else if (vmgWithSOG_COG)
+      else if (vmgWithSOG_COG && sog > 0)
       {
         arrowEndX = boatPosX + (sog * (bspLengthAt10 / 10D) * Math.sin(Math.toRadians(cog)));
         arrowEndY = boatPosY - (sog * (bspLengthAt10 / 10D) * Math.cos(Math.toRadians(cog)));
@@ -404,7 +410,7 @@ public class DrawingBoard
       gr.setColor(Color.darkGray);
       gr.drawString("VMG", (int) onTheWindX + 5, (int) onTheWindY + 5);        
     }
-    
+
     /*
      * Boat itself
      * 
@@ -476,8 +482,17 @@ public class DrawingBoard
     // Now displaying data
     Font f = gr.getFont();
     gr.setFont(f.deriveFont(Font.BOLD));
-    drawDataTable(dataTable, gr);
+    int y = drawDataTable(dataTable, gr);
     gr.setFont(f);
+    
+    // Performance
+    if (this.perf != -1)
+    {
+      gr.setFont(f.deriveFont(Font.ITALIC, 24f));
+      gr.setColor(Color.darkGray);
+      gr.drawString("Perf: " + DF3.format(this.perf * 100d) + "%", 14, y + 24);
+      gr.setFont(f);
+    }
     
     // Leeway indicator
     if (Math.abs(leeway) > 0) // Indicator not shown if no leeway
@@ -657,7 +672,7 @@ public class DrawingBoard
     return new Point[] { from, to };
   }
 
-  private void drawDataTable(List<Object[]> data, Graphics gr)
+  private int drawDataTable(List<Object[]> data, Graphics gr)
   {
     int x = 14;
     // Determine biggest title width
@@ -685,6 +700,7 @@ public class DrawingBoard
       gr.drawString(asRight.getIterator(), maxLen + 5 + x, y);
       y += (fontSize + 2);
     }
+    return y;
   }
   
   private final static int tubeWidth         = 10;
@@ -834,6 +850,11 @@ public class DrawingBoard
     this.vmg = d;
     this.b2wp = 0d;
     this.wpName = "";
+  }
+  
+  public void setPerformance(double d)
+  {
+    this.perf = d;
   }
 
   public void setVMGValue(double d, String wpName, double bearingToWaypoint)
