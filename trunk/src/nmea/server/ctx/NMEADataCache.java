@@ -60,6 +60,9 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
   public final static String DEFAULT_DECLINATION = "Default Declination";
   public final static String DAMPING             = "Damping";
   
+  public final static String POLAR_FILE_NAME = "Polar File name";
+  public final static String POLAR_FACTOR    = "Polar Factor";
+
   private final static boolean DEBUG = false;
 
   public final static HashMap<String, String> TOOLTIP_MAP = new HashMap<String, String>();
@@ -125,6 +128,9 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
     TOOLTIP_MAP.put(DEVIATION_FILE,      "Name of the CSV file containing the deviation curve points");
     TOOLTIP_MAP.put(DEFAULT_DECLINATION, "Declination to use, in case there is none in the NMEA Data");
     TOOLTIP_MAP.put(DAMPING,             "Damping for Data smoothing");
+    
+    TOOLTIP_MAP.put(POLAR_FILE_NAME, "Polar file name, with 'polar-coeff' extension");
+    TOOLTIP_MAP.put(POLAR_FACTOR,    "Coefficient to apply to the target speed.");
 
     dampingMap.put(BSP,      new ArrayList<Object>());
     dampingMap.put(HDG_TRUE, new ArrayList<Object>());

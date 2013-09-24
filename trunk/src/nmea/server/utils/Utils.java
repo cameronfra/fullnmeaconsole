@@ -212,6 +212,9 @@ public class Utils
     props.put("display.temperature", System.getProperty("display.temperature", "false"));
     props.put("wind.scale",          System.getProperty("wind.scale", "-1"));
     
+    props.put("polar.file.name", (String) NMEAContext.getInstance().getCache().get(NMEADataCache.POLAR_FILE_NAME));
+    props.put("polar.factor",    ((Double) NMEAContext.getInstance().getCache().get(NMEADataCache.POLAR_FACTOR)).toString());
+
     try
     {
       PrintWriter pw = new PrintWriter(new FileOutputStream(PARAMETER_FILE));
@@ -259,6 +262,12 @@ public class Utils
       
       System.setProperty("display.temperature", props.getProperty("display.temperature", "false"));
       System.setProperty("wind.scale",          props.getProperty("wind.scale", "-1"));
+      
+      String pfName = props.getProperty("polar.file.name", "");
+      NMEAContext.getInstance().getCache().put(NMEADataCache.POLAR_FILE_NAME, pfName);
+
+      String pfStr = props.getProperty("polar.factor", "1");
+      NMEAContext.getInstance().getCache().put(NMEADataCache.POLAR_FACTOR, Double.parseDouble(pfStr));      
     }
     catch (Exception ex)
     {
