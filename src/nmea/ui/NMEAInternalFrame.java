@@ -210,6 +210,7 @@ public class NMEAInternalFrame
             // Close the simulator
             nmeaTP.stopReadingSimulationFile();
           }
+//        instance.setVisible(false);
         }
       });
     getContentPane().add(nmeaTP, BorderLayout.CENTER);

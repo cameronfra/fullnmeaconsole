@@ -393,22 +393,25 @@ public class DrawingBoard
         onTheWindX = boatPosX + (vmg * (bspLengthAt10 / 10D) * Math.sin(Math.toRadians(twd)));
         onTheWindY = boatPosY - (vmg * (bspLengthAt10 / 10D) * Math.cos(Math.toRadians(twd)));
       }
-      float dash[] = {10.0f};
-      stroke = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER, 10f, dash, 0f);
-      ((Graphics2D) gr).setStroke(stroke);
-      gr.setColor(Color.orange);
-      gr.drawLine((int)onTheWindX, (int)onTheWindY, (int)arrowEndX, (int)arrowEndY);
+      if (vmg != 0.0)
+      {
+        float dash[] = {10.0f};
+        stroke = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER, 10f, dash, 0f);
+        ((Graphics2D) gr).setStroke(stroke);
+        gr.setColor(Color.orange);
+        gr.drawLine((int)onTheWindX, (int)onTheWindY, (int)arrowEndX, (int)arrowEndY);
 
-      ((Graphics2D) gr).setStroke(new CompositeStroke(new BasicStroke(5f), new BasicStroke(0.5f)));      
-      gr.setColor(Color.black);
-      gr.drawLine(boatPosX, boatPosY, (int)onTheWindX, (int)onTheWindY);
-
-      gr.setColor(Color.orange);
-      stroke = new BasicStroke(4f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER, 10f, dash, 0f);
-      ((Graphics2D) gr).setStroke(stroke);
-      Utils.drawArrow((Graphics2D) gr, new Point(boatPosX, boatPosY), new Point((int)onTheWindX, (int)onTheWindY), Color.orange);
-      gr.setColor(Color.darkGray);
-      gr.drawString("VMG", (int) onTheWindX + 5, (int) onTheWindY + 5);        
+        ((Graphics2D) gr).setStroke(new CompositeStroke(new BasicStroke(5f), new BasicStroke(0.5f)));      
+        gr.setColor(Color.black);
+        gr.drawLine(boatPosX, boatPosY, (int)onTheWindX, (int)onTheWindY);
+  
+        gr.setColor(Color.orange);
+        stroke = new BasicStroke(4f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER, 10f, dash, 0f);
+        ((Graphics2D) gr).setStroke(stroke);
+        Utils.drawArrow((Graphics2D) gr, new Point(boatPosX, boatPosY), new Point((int)onTheWindX, (int)onTheWindY), Color.orange);
+        gr.setColor(Color.darkGray);
+        gr.drawString("VMG", (int) onTheWindX + 5, (int) onTheWindY + 5);        
+      }
     }
 
     /*
