@@ -472,8 +472,10 @@ public class JournalDataPanel
       // Generate pdf
       try
       {
-        // TASK Other systems
         String cmd = "cmd /k start /min pub" + File.separator + "publish-journal.bat \"journal.xml\" \"journal.pdf\"";
+        if (System.getProperty("os.name").indexOf("Linux") > -1)
+          cmd = "." + File.separator + "pub" + File.separator + "publish-journal  \"journal.xml\" \"journal.pdf\"";
+        System.out.println("Command:" + cmd);
         Runtime.getRuntime().exec(cmd);
       }
       catch (Exception e)
