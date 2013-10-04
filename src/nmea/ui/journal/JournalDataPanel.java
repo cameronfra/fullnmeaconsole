@@ -449,6 +449,8 @@ public class JournalDataPanel
           String dataId = details.getString(1);
           double data   = 0;
           try { data = details.getDouble(2); } catch (SQLException sqle) { System.err.println("Managed (2):" + sqle.getLocalizedMessage()); }
+          if (data == -Double.MAX_VALUE)
+            data = 0d;
           sb.append("      <data id='" + dataId + "'>" + Double.toString(data) + "</data>\n");
         }
         details.close();
@@ -474,7 +476,7 @@ public class JournalDataPanel
       {
         String cmd = "cmd /k start /min pub" + File.separator + "publish-journal.bat \"journal.xml\" \"journal.pdf\"";
         if (System.getProperty("os.name").indexOf("Linux") > -1)
-          cmd = "." + File.separator + "pub" + File.separator + "publish-journal  \"journal.xml\" \"journal.pdf\"";
+          cmd = "." + File.separator + "pub" + File.separator + "publish-journal journal.xml journal.pdf";
         System.out.println("Command:" + cmd);
         Runtime.getRuntime().exec(cmd);
       }
