@@ -36,9 +36,11 @@ import ocss.nmea.parser.Depth;
 import ocss.nmea.parser.GeoPos;
 import ocss.nmea.parser.RMC;
 import ocss.nmea.parser.SVData;
+import ocss.nmea.parser.SolarDate;
 import ocss.nmea.parser.Speed;
 import ocss.nmea.parser.StringParsers;
 import ocss.nmea.parser.Temperature;
+import ocss.nmea.parser.TrueWindDirection;
 import ocss.nmea.parser.TrueWindSpeed;
 import ocss.nmea.parser.UTC;
 import ocss.nmea.parser.UTCDate;
@@ -326,6 +328,10 @@ public class HTTPServer
                   contentType = "text/xml";
                 else if (fileToFetch.toUpperCase().endsWith(".TXT"))
                   contentType = "text/plain";
+                else if (fileToFetch.toUpperCase().endsWith(".JS"))
+                  contentType = "text/javascript";
+                else if (fileToFetch.toUpperCase().endsWith(".CSS"))
+                  contentType = "text/css";
                 else
                   System.out.println("File extension not managed for " + fileToFetch); // We don't read binaries. See below.
 //              System.out.println("............... Reading " + f.getAbsolutePath());
@@ -816,6 +822,12 @@ public class HTTPServer
           str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle360)cached).getValue()), "cdr", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
           first = false;
         }
+        else if (k.equals(NMEADataCache.B2WP))
+        {
+//        str += ("  <cdr>" + df3.format(((Angle360)cached).getValue()) + "</cdr>\n");
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle360)cached).getValue()), "b2wp", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
+        }
       }
       else if (cached instanceof Angle180)
       {
@@ -918,6 +930,24 @@ public class HTTPServer
           str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(DATE_FORMAT.format(((UTCDate)cached).getValue()), "gps-date-time-fmt", output, CHARACTER_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
         }
       }
+      else if (cached instanceof SolarDate)
+      {
+        if (k.equals(NMEADataCache.GPS_SOLAR_TIME))
+        {
+//        str += ("  <gps-date-time>" + Long.toString(((UTCDate)cached).getValue().getTime()) + "</gps-date-time>\n");
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(Long.toString(((SolarDate)cached).getValue().getTime()), "gps-solar-date", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
+        }
+      }
+      else if (cached instanceof String)
+      {
+        if (k.equals(NMEADataCache.TO_WP))
+        {
+//        str += ("  <gps-date-time>" + Long.toString(((UTCDate)cached).getValue().getTime()) + "</gps-date-time>\n");
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat((String)cached, "to-wp", output, CHARACTER_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
+        }
+      }
       else if (false) 
       {
         try 
@@ -929,7 +959,52 @@ public class HTTPServer
         catch (Exception ex) { ex.printStackTrace(); }
       }
     }
+    // VMG & Perf
+    double vmg = 0d;
+
+    double sog = (((Speed)cache.get(NMEADataCache.SOG)).getValue());
+    double cog = ((Angle360)cache.get(NMEADataCache.COG)).getValue();
+    double twd = (((TrueWindDirection)cache.get(NMEADataCache.TWD)).getValue());
+    double twa = twd - cog;
+    if (sog > 0) // Try with GPS Data first
+      vmg = sog * Math.cos(Math.toRadians(twa));
+    else
+    {
+      twa = ((Angle180)cache.get(NMEADataCache.TWA)).getValue();
+      double bsp = ((Speed)cache.get(NMEADataCache.BSP)).getValue();
+      if (bsp > 0)
+        vmg = bsp * Math.cos(Math.toRadians(twa));
+    }
+    str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(vmg), "vmg-wind", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+    first = false;
         
+    if (cache.get(NMEADataCache.TO_WP) != null && cache.get(NMEADataCache.TO_WP).toString().trim().length() > 0)
+    {
+      double b2wp = ((Angle360)cache.get(NMEADataCache.B2WP)).getValue();
+      sog = (((Speed)cache.get(NMEADataCache.SOG)).getValue());
+      cog = ((Angle360)cache.get(NMEADataCache.COG)).getValue();
+      if (sog > 0)
+      {
+        double angle = b2wp - cog;
+        vmg = sog * Math.cos(Math.toRadians(angle));
+      }
+      else
+      {
+        double angle = b2wp - ((Angle360)cache.get(NMEADataCache.HDG_TRUE)).getValue();
+        double bsp = ((Speed)cache.get(NMEADataCache.BSP)).getValue();
+        vmg = bsp * Math.cos(Math.toRadians(angle));
+      }
+      str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(vmg), "vmg-wp", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+      first = false;
+    }
+    if (cache.get(NMEADataCache.PERF) != null && ((Double)cache.get(NMEADataCache.PERF)).doubleValue() > -1d)
+    {
+      double perf = ((Double)cache.get(NMEADataCache.PERF)).doubleValue();
+      str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(perf), "perf", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+      first = false;
+    }
+    System.out.println(" --- No perf in the Cache");
+
     if (output == XML_OUTPUT)
     {
       str += ("</data>\n");

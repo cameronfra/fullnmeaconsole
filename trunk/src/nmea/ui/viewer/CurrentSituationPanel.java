@@ -291,9 +291,13 @@ public class CurrentSituationPanel
               double performance = bsp / targetSpeed;
 //            System.out.println("Speed:" + df22.format(bsp) + ", target:" + df22.format(targetSpeed) + ", Performance: " + df3.format(performance * 100d) + "%");
               drawingBoard.setPerformance(performance);
+              NMEAContext.getInstance().getCache().put(NMEADataCache.PERF, new Double(performance));
             }
             else
+            {
               drawingBoard.setPerformance(-1d);
+              NMEAContext.getInstance().getCache().put(NMEADataCache.PERF, new Double(-1d));
+            }
           }
           repaint();
         } 
