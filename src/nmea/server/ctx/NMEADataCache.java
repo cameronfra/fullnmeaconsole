@@ -49,6 +49,7 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
   public final static String S2STEER     = "Steer";  
   public final static String LEEWAY      = "Leeway";
   public final static String CMG         = "CMG";
+  public final static String PERF        = "Performance";
   
   public final static String BSP_FACTOR  = "BSP Factor";
   public final static String AWS_FACTOR  = "AWS Factor";
@@ -131,6 +132,7 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
     
     TOOLTIP_MAP.put(POLAR_FILE_NAME, "Polar file name, with 'polar-coeff' extension");
     TOOLTIP_MAP.put(POLAR_FACTOR,    "Coefficient to apply to the target speed.");
+    TOOLTIP_MAP.put(PERF,            "Performance, calculated with the polars");
 
     dampingMap.put(BSP,      new ArrayList<Object>());
     dampingMap.put(HDG_TRUE, new ArrayList<Object>());

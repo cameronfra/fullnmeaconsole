@@ -116,8 +116,8 @@ function AnalogDisplay(cName,                     // Canvas Name
   
     // Cleanup
   //context.fillStyle = "#ffffff";
-    context.fillStyle = "LightBlue";
-  //context.fillStyle = "transparent";
+  //context.fillStyle = "LightBlue";
+    context.fillStyle = "transparent";
     context.fillRect(0, 0, canvas.width, canvas.height);    
   //context.fillStyle = 'rgba(255, 255, 255, 0.0)';
   //context.fillRect(0, 0, canvas.width, canvas.height);    

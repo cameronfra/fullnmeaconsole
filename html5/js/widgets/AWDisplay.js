@@ -1,9 +1,11 @@
-function Direction(cName, dSize, majorTicks, minorTicks)
+function AWDisplay(cName, dSize, majorTicks, minorTicks, withDigits)
 {
   if (majorTicks === undefined)
     majorTicks = 45;
   if (minorTicks === undefined)
     minorTicks = 0;
+  if (withDigits === undefined)
+    withDigits = false;
 
   var canvasName = cName;
   var displaySize = dSize;
@@ -13,12 +15,13 @@ function Direction(cName, dSize, majorTicks, minorTicks)
   var running = false;
   var previousValue = 0.0;
   var intervalID;
-  var valueToDisplay = 0;
+  var angleToDisplay = 0;
+  var aws = 0;
   var incr = 1;
   
   var instance = this;
   
-//try { console.log('in the Direction constructor for ' + cName + " (" + dSize + ")"); } catch (e) {}
+//try { console.log('in the AWDisplay constructor for ' + cName + " (" + dSize + ")"); } catch (e) {}
   
   (function(){ drawDisplay(canvasName, displaySize, previousValue); })(); // Invoked automatically
   
@@ -40,7 +43,7 @@ function Direction(cName, dSize, majorTicks, minorTicks)
     else 
     {
       window.clearInterval(intervalID);
-      previousValue = valueToDisplay;
+      previousValue = angleToDisplay;
     }
   };
 
@@ -50,6 +53,11 @@ function Direction(cName, dSize, majorTicks, minorTicks)
     while (num < 0)
       num += 360;
     return num;
+  };
+  
+  this.setAWS = function(ws)
+  {
+    aws = ws;  
   };
   
   this.animate = function()
@@ -73,7 +81,7 @@ function Direction(cName, dSize, majorTicks, minorTicks)
         value += 360;
       diff = value - on360(previousValue);
     }
-    valueToDisplay = on360(previousValue);
+    angleToDisplay = on360(previousValue);
     
 //  console.log(canvasName + " going from " + previousValue + " to " + value);
     
@@ -99,9 +107,9 @@ function Direction(cName, dSize, majorTicks, minorTicks)
   var displayAndIncrement = function(finalValue)
   {
     //console.log('Tic ' + inc + ', ' + finalValue);
-    drawDisplay(canvasName, displaySize, valueToDisplay);
-    valueToDisplay += incr;
-    if ((incr > 0 && valueToDisplay > finalValue) || (incr < 0 && valueToDisplay < finalValue))
+    drawDisplay(canvasName, displaySize, angleToDisplay);
+    angleToDisplay += incr;
+    if ((incr > 0 && angleToDisplay > finalValue) || (incr < 0 && angleToDisplay < finalValue))
     {
       //  console.log('Stop!')
       window.clearInterval(intervalID);
@@ -124,8 +132,8 @@ function Direction(cName, dSize, majorTicks, minorTicks)
   
     // Cleanup
   //context.fillStyle = "#ffffff";
-    context.fillStyle = "LightBlue";
-  //context.fillStyle = "transparent";
+  //context.fillStyle = "LightBlue";
+    context.fillStyle = "transparent";
     context.fillRect(0, 0, canvas.width, canvas.height);    
   //context.fillStyle = 'rgba(255, 255, 255, 0.0)';
   //context.fillRect(0, 0, canvas.width, canvas.height);    
@@ -186,7 +194,7 @@ function Direction(cName, dSize, majorTicks, minorTicks)
     
     // Numbers
     context.beginPath();
-    for (i = 0;i < 360 ;i+=majorTicks)
+    for (i = 0;i < 360 && withDigits; i+=majorTicks)
     {
       context.save();
       context.translate(canvas.width/2, (radius + 10)); // canvas.height);
@@ -199,11 +207,34 @@ function Direction(cName, dSize, majorTicks, minorTicks)
       context.restore();
     }
     context.closePath();
+    
+    // Arcs
+    context.beginPath();
+    x = canvas.width / 2;
+    y = canvas.height / 2;
+    context.lineWidth = 20;
+    var top = 1.5 * Math.PI;
+    var arcWidth = toRadians(120);
+
+    // Starboard
+    context.beginPath();
+    context.strokeStyle = 'rgba(0, 255, 0, 0.25)';
+    context.arc(x, y, radius * .75, 1.5 * Math.PI, top + arcWidth, false);
+    context.stroke();
+    context.closePath();
+    
+    // Port
+    context.beginPath();
+    context.strokeStyle = 'rgba(255, 0, 0, 0.25)';
+    context.arc(x, y, radius * .75, 1.5 * Math.PI, top - arcWidth, true);
+    context.stroke();
+    context.closePath();
+    
     // Value
-    var dv = displayValue;
-    while (dv > 360) dv -= 360;
-    while (dv < 0) dv += 360;
-    text = dv.toFixed(0);
+//    var dv = displayValue;
+//    while (dv > 360) dv -= 360;
+//    while (dv < 0) dv += 360;
+    text = aws.toFixed(1);
     len = 0;
     context.font = "bold " + Math.round(scale * 40) + "px Arial"; // "bold 40px Arial"
     var metrics = context.measureText(text);
