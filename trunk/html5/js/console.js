@@ -311,13 +311,32 @@ var pingNMEAConsole = function()
     // to-wp, vmg-wind, vmg-wp, b2wp
     try
     {
-      var vmg = parseFloat(doc.getElementsByTagName("vmg-wind")[0].childNodes[0].nodeValue);
-//    displayOverview.setVMG(vmg);
+      var to_wp = doc.getElementsByTagName("to-wp")[0].childNodes[0].nodeValue;
+      var b2wp = parseFloat(doc.getElementsByTagName("b2wp")[0].childNodes[0].nodeValue);
+      displayOverview.setB2WP(b2wp);
+      document.getElementById("display.vmg.waypoint").disabled = false;
+      document.getElementById("display.vmg.waypoint").value = to_wp;
+      document.getElementById("display.vmg.waypoint").nextSibling.textContent = "VMG to " + to_wp;
+    }
+    catch (err)
+    {
+      document.getElementById("display.vmg.waypoint").disabled = true;
+      document.getElementById("display.vmg.wind").checked = true;
+    }
+    
+    try
+    {
+      var vmg = 0;
+      if (document.getElementById("display.vmg.wind").checked)
+        vmg = parseFloat(doc.getElementsByTagName("vmg-wind")[0].childNodes[0].nodeValue);
+      else
+        vmg = parseFloat(doc.getElementsByTagName("vmg-wp")[0].childNodes[0].nodeValue);
+      displayOverview.setVMG(vmg);
       jumboVMG.setValue(vmg.toFixed(2));
     }
     catch (err)
     {
-   // errMess += ((errMess.length > 0?"\n":"") + "Problem with Perf...");
+      errMess += ((errMess.length > 0?"\n":"") + "Problem with VMG...");
     }
     
     // perf

@@ -31,6 +31,12 @@ function JumboDisplay(cName,                     // Canvas Name
     drawDisplay(canvasName, displayTitle, displayWidth, displayHeight);
   };
   
+  this.setTitle = function(val)
+  {
+    displayTitle = val;
+    drawDisplay(canvasName, displayTitle, displayWidth, displayHeight);
+  };
+  
   this.setDisplaySize = function(dw, dh)
   {
  // scale = ds / 100;
