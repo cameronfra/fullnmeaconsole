@@ -8,11 +8,38 @@ function BoatOverview(cName)     // Canvas name
   
   // NMEA Data
   var  bsp = 0, hdg = 0, tws = 0, twa = 0, twd = 0, aws = 0, awa = 0, perf = 0, 
-       leeway = 0, vmg = 0, cog = 0, sog = 0, cmg = 0, csp = 0, cdr = 0;
+       leeway = 0, vmg = 0, cog = 0, sog = 0, cmg = 0, csp = 0, cdr = 0, b2wp = 0;
   
+  var VMW_ON_WIND     = 0;
+  var VMW_ON_WAYPOINT = 1;
+  
+  var vmgOption = VMW_ON_WIND;
+  var toWayPoint = "";
+      
+  this.setVMGonWind = function()
+  {
+    vmgOption = VMW_ON_WIND;
+  };
+  
+  this.setVMGto = function(waypoint)
+  {
+    vmgOption = VMW_ON_WAYPOINT;
+    toWayPoint = waypoint;
+  };
+  
+  this.setB2WP = function(d)
+  {
+    b2wp = d;
+    instance.drawGraph();
+  };
   this.setBSP = function(d)
   {
     bsp = d;
+    instance.drawGraph();
+  };
+  this.setVMG = function(d)
+  {
+    vmg = d;
     instance.drawGraph();
   };
   this.setTWA = function(d)
@@ -343,6 +370,8 @@ function BoatOverview(cName)     // Canvas name
     instance.drawSOG();
     if (document.getElementById("display.current").checked)
       instance.drawCurrent();
+    if (document.getElementById("display.vmg").checked)
+      instance.drawVMG();
     
     // Display values
     context.fillStyle = 'green';
@@ -556,6 +585,57 @@ function BoatOverview(cName)     // Canvas name
       context.font= "bold 12px Arial";
       context.fillStyle = "pink";
       context.fillText("SOG:" + sog.toFixed(2) + " kts, COG:" + cog + "º", x + dX, y + dY);
+      context.strokeStyle = "black";
+      context.lineWidth = 1;
+//    context.strokeText("SOG:" + sog.toFixed(2) + " kts, COG:" + cog + "º", x + dX, y + dY);
+    }
+  };
+  
+  this.drawVMG = function()
+  { 
+    cWidth  = document.getElementById(cName).width;
+    cHeight = document.getElementById(cName).height;
+    
+    var _hdg = 0;
+    context.beginPath();
+    var center = getCanvasCenter();
+    var x = center.x;
+    var y = center.y;
+    
+    var wpName = document.getElementById("display.vmg.waypoint").value;
+    if (document.getElementById("display.vmg.wind").checked)
+      _hdg = toRadians(twd); 
+    else
+    {
+      _hdg = toRadians(b2wp);       
+      // Display WP direction
+      context.strokeStyle = "orange";
+      context.fillStyle   = "orange";
+      context.lineWidth = 1;
+      var len = 0.75 * Math.min(cHeight, cWidth) / 2;
+      var _dX = len * Math.sin(_hdg);
+      var _dY = - len * Math.cos(_hdg);
+      var wpLine = new Line(x, y, x + _dX, y + _dY);
+      wpLine.drawWithArrowhead(context);
+      context.fillText(wpName, x + _dX, y + _dY);
+    }
+
+    var bspLength = vmg * ((Math.min(cHeight, cWidth) / 2) / speedScale);
+    var dX = bspLength * Math.sin(_hdg);
+    var dY = - bspLength * Math.cos(_hdg);
+    // create a new line object
+    var line = new Line(x, y, x + dX, y + dY);
+    // draw the line
+    context.strokeStyle = "yellow";
+    context.fillStyle   = "yellow";
+    context.lineWidth = 5;
+    line.drawWithArrowhead(context);
+    context.closePath();
+    if (false && document.getElementById("display.labels").checked)
+    {
+      context.font= "bold 12px Arial";
+      context.fillStyle = "yellow";
+      context.fillText("VMG:" + vmg.toFixed(2) + " kts", x + dX, y + dY);
       context.strokeStyle = "black";
       context.lineWidth = 1;
 //    context.strokeText("SOG:" + sog.toFixed(2) + " kts, COG:" + cog + "º", x + dX, y + dY);

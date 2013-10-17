@@ -136,6 +136,22 @@
     if (twdEvolution !== undefined)
       twdEvolution.resetTWD();
   };
+  
+  var handleRadioValue = function(radio)
+  {
+    var val = radio.value;
+//  console.log("Radio:" + val);
+    if (val === "wind")
+    {
+      displayOverview.setVMGonWind();
+      jumboVMG.setTitle("VMG");
+    }
+    else
+    {
+      displayOverview.setVMGto(val);
+      jumboVMG.setTitle(val);
+    }
+  };
     </script>
   </head>
   <body bgcolor="black">
@@ -195,7 +211,14 @@
               <br>
               <input type="checkbox" checked="true" id="display.labels">Display Labels</input>
               <br>
+              <input type="checkbox" checked="true" id="display.vmg">Display VMG</input>
+              <br>
               <input type="checkbox" checked="true" id="display.perf">Display Performance</input>
+              <br>
+              <br>
+              <input type="radio" name="vmg" checked="true" id="display.vmg.wind" value="wind" onclick="handleRadioValue(this);">VMG on Wind</input>
+              <br>
+              <input type="radio" name="vmg" id="display.vmg.waypoint" value="wp" onclick="handleRadioValue(this);">VMG on waypoint</input>
               <br>
               <br>
               <canvas id="awDisplayCanvas" height="180" width="180" title="Apparent Wind, speed and direction"><!-- class="displayCanvas" --></canvas>
