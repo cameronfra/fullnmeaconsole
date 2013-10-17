@@ -72,7 +72,7 @@ function AnalogDisplay(cName,                     // Canvas Name
     value = Math.max(value, startValue);
     value = Math.min(value, maxValue);
     
-//  console.log("Reaching Value :" + value + " from " + previousValue);
+  //console.log("Reaching Value :" + value + " from " + previousValue);
     diff = value - previousValue;
     valueToDisplay = previousValue;
     
@@ -84,24 +84,24 @@ function AnalogDisplay(cName,                     // Canvas Name
 //      incr = -0.01 * maxValue;
     incr = diff / 10;
     if (intervalID)
-      window.clearInterval(intervalID);
-    intervalID = window.setInterval(function () { displayAndIncrement(value); }, 50);
+      window.clearInterval(intervalID);      
+    intervalID = window.setInterval(function () { displayAndIncrement(value); }, 10);
   };
 
-  var displayAndIncrement = function(finalValue)
+  var displayAndIncrement = function(finalValue) 
   {
     //console.log('Tic ' + inc + ', ' + finalValue);
     drawDisplay(canvasName, displaySize, valueToDisplay);
     valueToDisplay += incr;
     if ((incr > 0 && valueToDisplay > finalValue) || (incr < 0 && valueToDisplay < finalValue))
     {
-      //  console.log('Stop!')
+//    console.log('Stop, ' + finalValue + ' reached, steps were ' + incr);
       window.clearInterval(intervalID);
       previousValue = finalValue;
       if (running)
         instance.animate();
       else
-        drawDisplay(canvasName, displaySize, finalValue);
+        drawDisplay(canvasName, displaySize, finalValue); // Final display
     }
   };
 
@@ -249,6 +249,11 @@ function AnalogDisplay(cName,                     // Canvas Name
     context.fill();
     context.strokeStyle = 'blue';
     context.stroke();
+  };
+  
+  this.setValue = function(val)
+  {
+    drawDisplay(canvasName, displaySize, val);  
   };
   
   function toDegrees(rad)

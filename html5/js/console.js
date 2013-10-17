@@ -143,31 +143,36 @@ var pingNMEAConsole = function()
     try
     {
       var bsp = parseFloat(doc.getElementsByTagName("bsp")[0].childNodes[0].nodeValue);
-      displayBSP.animate(bsp);
+//    displayBSP.animate(bsp);
+      displayBSP.setValue(bsp);
       displayOverview.setBSP(bsp);
       jumboBSP.setValue(bsp.toFixed(2));
     }
     catch (err)
     {
       errMess += ((errMess.length > 0?"\n":"") + "Problem with boat speed...");
-      displayBSP.animate(0.0);
+//    displayBSP.animate(0.0);
+      displayBSP.setValue(0.0);
     }
     try
     {
       var hdg = parseFloat(doc.getElementsByTagName("hdg")[0].childNodes[0].nodeValue);
-      displayHDG.animate(hdg);
+//    displayHDG.animate(hdg);
+      displayHDG.setValue(hdg);
       displayOverview.setHDG(hdg);
       jumboHDG.setValue(lpad(Math.round(hdg).toString(), '0', 3));
     }
     catch (err)
     {
       errMess += ((errMess.length > 0?"\n":"") + "Problem with heading...");
-      displayHDG.animate(0.0);
+//    displayHDG.animate(0.0);
+      displayHDG.setValue(0.0);
     }
     try
     {
       var twd = parseFloat(doc.getElementsByTagName("twd")[0].childNodes[0].nodeValue);
-      displayTWD.animate(twd);
+//    displayTWD.animate(twd);
+      displayTWD.setValue(twd);
       displayOverview.setTWD(twd);
       jumboTWD.setValue(lpad(Math.round(twd).toString(), '0', 3));
       twdEvolution.addTWD(twd);
@@ -175,7 +180,8 @@ var pingNMEAConsole = function()
     catch (err)
     {
       errMess += ((errMess.length > 0?"\n":"") + "Problem with TWD...");
-      displayTWD.animate(0.0);
+//    displayTWD.animate(0.0);
+      displayTWD.setValue(0.0);
     }
     try
     {
@@ -191,29 +197,34 @@ var pingNMEAConsole = function()
     catch (err)
     {
       errMess += ((errMess.length > 0?"\n":"") + "Problem with TWD...");
-      displayTWD.animate(0.0);
+//    displayTWD.animate(0.0);
+      displayTWD.setValue(0.0);
     }
     try
     {
       var tws = parseFloat(doc.getElementsByTagName("tws")[0].childNodes[0].nodeValue);
-      displayTWS.animate(tws);
+//    displayTWS.animate(tws);
+      displayTWS.setValue(tws);
       displayOverview.setTWS(tws);
       jumboTWS.setValue(tws.toFixed(1));
     }
     catch (err)
     {
       errMess += ((errMess.length > 0?"\n":"") + "Problem with TWS...");
-      displayTWS.animate(0.0);
+//    displayTWS.animate(0.0);
+      displayTWS.setValue(0.0);
     }
     try
     {
       var waterTemp = parseFloat(doc.getElementsByTagName("wtemp")[0].childNodes[0].nodeValue);
-      thermometer.animate(waterTemp);
+//    thermometer.animate(waterTemp);
+      thermometer.setValue(waterTemp);
     }
     catch (err)
     {
       errMess += ((errMess.length > 0?"\n":"") + "Problem with water temperature...");
-      thermometer.animate(0.0);
+//    thermometer.animate(0.0);
+      thermometer.setValue(0.0);
     }
     try
     {
@@ -229,7 +240,8 @@ var pingNMEAConsole = function()
     try
     {
       var awa = parseFloat(doc.getElementsByTagName("awa")[0].childNodes[0].nodeValue);
-      displayAW.animate(awa);
+//    displayAW.animate(awa);
+      displayAW.setValue(awa);
       displayOverview.setAWA(awa);
       var awaStr = lpad(Math.round(Math.abs(awa)).toString(), '0', 3);
       if (awa < 0)

@@ -11,22 +11,21 @@ function Direction(cName, dSize, majorTicks, minorTicks)
   var scale = dSize / 100;
 
   var running = false;
-  var previousValue = 0.0;
-  var intervalID;
-  var valueToDisplay = 0;
-  var incr = 1;
+  this.previousValue = 0.0;
+  this.intervalID = 0;
+  this.valueToDisplay = 0;
+  this.incr = 1;
+  this.busy = false;
   
   var instance = this;
   
 //try { console.log('in the Direction constructor for ' + cName + " (" + dSize + ")"); } catch (e) {}
   
-  (function(){ drawDisplay(canvasName, displaySize, previousValue); })(); // Invoked automatically
-  
   this.setDisplaySize = function(ds)
   {
     scale = ds / 100;
     displaySize = ds;
-    drawDisplay(canvasName, displaySize, previousValue);
+    this.drawDisplay(canvasName, displaySize, instance.previousValue);
   };
   
   this.startStop = function (buttonName) 
@@ -39,8 +38,9 @@ function Direction(cName, dSize, majorTicks, minorTicks)
       this.animate();
     else 
     {
-      window.clearInterval(intervalID);
-      previousValue = valueToDisplay;
+      window.clearInterval(this.intervalID);
+      this.intervalID = 0;
+      this.previousValue = this.valueToDisplay;
     }
   };
 
@@ -62,58 +62,74 @@ function Direction(cName, dSize, majorTicks, minorTicks)
 //    console.log("Generating random value");
       value = 360 * Math.random();
     }
-//  console.log("Reaching Value :" + value + " from " + previousValue);
-    diff = value - on360(previousValue);
+//  console.log("Reaching Value :" + value + " from " + this.previousValue);
+    diff = value - on360(this.previousValue);
     if (Math.abs(diff) > 180) // && sign(Math.cos(toRadians(value))))
     {
-//    console.log("Diff > 180: new:" + value + ", prev:" + previousValue);
-      if (value > on360(previousValue))
+//    console.log("Diff > 180: new:" + value + ", prev:" + this.previousValue);
+      if (value > on360(this.previousValue))
         value -= 360;
       else
         value += 360;
-      diff = value - on360(previousValue);
+      diff = value - on360(this.previousValue);
     }
-    valueToDisplay = on360(previousValue);
+    this.valueToDisplay = on360(this.previousValue);
     
-//  console.log(canvasName + " going from " + previousValue + " to " + value);
+//  console.log(canvasName + " going from " + this.previousValue + " to " + value);
     
-    incr = diff / 10;
+    this.incr = diff / 10;
 //    if (diff < 0)
 //      incr *= -1;
-    if (intervalID)
-      window.clearInterval(intervalID);
-    intervalID = window.setInterval(function () { displayAndIncrement(value); }, 50);
+    if (this.intervalID && this.intervalID !== 0)
+      window.clearInterval(this.intervalID);
+    if (this.incr !== 0 && !this.busy)  
+    {
+      if (canvasName === 'twdCanvas')    
+        console.log('Starting animation between ' + this.previousValue + ' and ' + value + ', step ' + this.incr);
+      this.busy = true;
+      this.intervalID = window.setTimeout(function () { instance.displayAndIncrement(value); }, 50);
+    }
   };
 
-  function sign(x) { return x > 0 ? 1 : x < 0 ? -1 : 0; };
-  function toRadians(d)
+  var sign = function(x) { return x > 0 ? 1 : x < 0 ? -1 : 0; };
+  var toRadians = function(d)
   {
     return Math.PI * d / 180;
   };
   
-  function toDegrees(d)
+  var toDegrees = function(d)
   {
     return d * 180 / Math.PI;
   };    
   
-  var displayAndIncrement = function(finalValue)
+  this.displayAndIncrement = function(finalValue)
   {
     //console.log('Tic ' + inc + ', ' + finalValue);
-    drawDisplay(canvasName, displaySize, valueToDisplay);
-    valueToDisplay += incr;
-    if ((incr > 0 && valueToDisplay > finalValue) || (incr < 0 && valueToDisplay < finalValue))
+    this.drawDisplay(canvasName, displaySize, this.valueToDisplay);
+    this.valueToDisplay += this.incr;
+    if (canvasName === 'twdCanvas')
+      console.log('       displayAndIncrement curr:' + this.valueToDisplay.toFixed(2) + ', final:' + finalValue + ', step ' + this.incr);
+    if ((this.incr > 0 && this.valueToDisplay.toFixed(2) >= finalValue) || (this.incr < 0 && this.valueToDisplay.toFixed(2) <= finalValue))
     {
+      if (canvasName === 'twdCanvas')
+        console.log('Stop, ' + finalValue + ' reached, steps were ' + this.incr);
       //  console.log('Stop!')
-      window.clearInterval(intervalID);
-      previousValue = finalValue;
+      window.clearInterval(this.intervalID);
+      this.intervalID = 0;
+      this.previousValue = finalValue;
       if (running)
         instance.animate();
       else
-        drawDisplay(canvasName, displaySize, finalValue);
+        this.drawDisplay(canvasName, displaySize, finalValue); // Final state
+      this.busy = false; // Free!
+    }
+    else
+    {
+      window.setTimeout(function () { instance.displayAndIncrement(finalValue); }, 50);
     }
   };
 
-  function drawDisplay(displayCanvasName, displayRadius, displayValue)
+  this.drawDisplay = function(displayCanvasName, displayRadius, displayValue)
   {
     var digitColor = 'LightBlue';
     
@@ -249,4 +265,11 @@ function Direction(cName, dSize, majorTicks, minorTicks)
     context.strokeStyle = 'red';
     context.stroke();
   };
+  
+  this.setValue = function(val)
+  {
+    instance.drawDisplay(canvasName, displaySize, val);
+  };
+
+  (function(){ instance.drawDisplay(canvasName, displaySize, instance.previousValue); })(); // Invoked automatically
 }

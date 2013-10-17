@@ -220,4 +220,9 @@ function Thermometer(cName, dSize, minValue, maxValue, majorTicks, minorTicks)
     context.stroke();
     context.closePath();
   };
+  
+  this.setValue = function(val)
+  {
+    drawDisplay(canvasName, displaySize, val);
+  };
 }

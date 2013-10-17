@@ -640,6 +640,20 @@ function BoatOverview(cName)     // Canvas name
       context.lineWidth = 1;
 //    context.strokeText("SOG:" + sog.toFixed(2) + " kts, COG:" + cog + "º", x + dX, y + dY);
     }
+    if (context.setLineDash !== undefined)
+    {
+      context.setLineDash([5]);
+      context.moveTo(x + dX, y + dY);
+      var _cog = toRadians(cog); 
+      var sogLength = sog * ((Math.min(cHeight, cWidth) / 2) / speedScale);
+      dX = sogLength * Math.sin(_cog);
+      dY = - sogLength * Math.cos(_cog);
+      context.lineTo(x + dX, y + dY);
+      context.lineWidth = 1;
+      context.stroke();
+      // Reset
+      context.setLineDash([0]);
+    }
   };
   
   this.drawCurrent = function()
