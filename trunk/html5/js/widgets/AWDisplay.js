@@ -120,6 +120,11 @@ function AWDisplay(cName, dSize, majorTicks, minorTicks, withDigits)
         drawDisplay(canvasName, displaySize, finalValue);
     }
   };
+  
+  this.setValue = function(val)
+  {
+    drawDisplay(canvasName, displaySize, val);
+  };
 
   function drawDisplay(displayCanvasName, displayRadius, displayValue)
   {

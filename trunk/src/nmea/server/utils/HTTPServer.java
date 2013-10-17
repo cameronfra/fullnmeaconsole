@@ -337,6 +337,13 @@ public class HTTPServer
 //              System.out.println("............... Reading " + f.getAbsolutePath());
                 BufferedReader br = new BufferedReader(new FileReader(f));
                 String data = "";
+
+                out.print("HTTP/1.1 200 \r\n"); 
+                out.print("Content-Type: " + contentType + "\r\n");
+//              out.print("Content-Length: " + content.length() + "\r\n");
+//              out.print("Access-Control-Allow-Origin: *\r\n"); 
+                out.print("\r\n"); // End Of Header
+                //
                 boolean ok = true;
                 while (ok)
                 {
