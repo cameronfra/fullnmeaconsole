@@ -12,12 +12,14 @@
     </style>
     <link rel="stylesheet" href="css/black.css" type="text/css" id="theme"/>
     <script type="text/javascript" src="js/widgets/AnalogDisplay.js"></script>
+    <script type="text/javascript" src="js/widgets/CompassRose.js"></script>
     <script type="text/javascript" src="js/widgets/BoatOverview.js"></script>
     <script type="text/javascript" src="js/widgets/Thermometer.js"></script>
     <script type="text/javascript" src="js/widgets/Direction.js"></script>
     <script type="text/javascript" src="js/widgets/JumboDisplay.js"></script>
     <script type="text/javascript" src="js/widgets/AWDisplay.js"></script>
     <script type="text/javascript" src="js/widgets/TWDEvolution.js"></script>
+    <script type="text/javascript" src="js/widgets/TWSEvolution.js"></script>
     <script type="text/javascript" src="js/console.js"></script>
     <script type="text/javascript">
   var showMap = function()
@@ -119,6 +121,7 @@
       document.getElementById(jumboCanvasList[i]).height =  60 * jumboFactor;
     }
     document.getElementById('twdEvolutionCanvas').height = wh * 0.8;
+    document.getElementById('twsEvolutionCanvas').height = wh * 0.8;
     // Displays inside the canvases        
     resizeDisplays(ww); 
   };
@@ -131,10 +134,12 @@
     cssLink.href = 'css/' + selected + '.css';
   };
   
-  var resetTWSBuffer = function()
+  var resetTWBuffer = function()
   {
     if (twdEvolution !== undefined)
       twdEvolution.resetTWD();
+    if (twsEvolution !== undefined)
+      twsEvolution.resetTWS();
   };
   
   var handleRadioValue = function(radio)
@@ -155,12 +160,12 @@
     </script>
   </head>
   <body bgcolor="black">
-    <table width="98%">
+    <!--table width="98%">
       <tr>
         <td><h2 style="font-size: 12pt; font-family: Verdana, Arial, Helvetica, Geneva, Swiss, SunSans-Regular">NMEA Console Data</h2></td>
       </tr>
-    </table>
-    <small><button id="showMap" onclick="showMap();">Map</button>&nbsp;<button id="showDisplays" onclick="showDisplays();">Displays</button>&nbsp;<button id="showOverview" onclick="showOverview();">Overview</button>&nbsp;<button id="showTWDEvolution" onclick="showTWDEvolution();">TWD Evolution</button></small>
+    </table-->
+    <small><button id="showMap" onclick="showMap();">Map</button>&nbsp;<button id="showDisplays" onclick="showDisplays();">Displays</button>&nbsp;<button id="showOverview" onclick="showOverview();">Overview</button>&nbsp;<button id="showTWDEvolution" onclick="showTWDEvolution();">TW Evolution</button></small>
     <select id="theme-select" onchange="changeTheme();">
       <option value="black">Black theme</option>
       <option value="white">White theme</option>
@@ -197,6 +202,11 @@
           </td>
           <td align="center" valign="top">
             <canvas id="tmpCanvas" width="100" height="240" title="Water Temperature in Celcius"> <!-- class="displayCanvas" --></canvas>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" valign="top" colspan="5">
+            <canvas id="roseCanvas" width="400" height="50" title="True Heading"> <!-- class="displayCanvas" --></canvas>
           </td>
         </tr>
       </table>   
@@ -303,10 +313,13 @@
         <table align="center">
           <tr>
             <td valign="top">
-              <button onclick="resetTWSBuffer();">Reset</button>
+              <button onclick="resetTWBuffer();">Reset</button>
             </td>
             <td align="center" valign="top" rowspan="6">
-              <canvas id="twdEvolutionCanvas" height="500" width="600" class="displayCanvas"></canvas>
+              <canvas id="twdEvolutionCanvas" height="500" width="300" class="displayCanvas"></canvas>
+            </td>
+            <td align="center" valign="top" rowspan="6">
+              <canvas id="twsEvolutionCanvas" height="500" width="300" class="displayCanvas"></canvas>
             </td>
           </tr>
         </table>
