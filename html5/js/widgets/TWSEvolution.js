@@ -1,4 +1,4 @@
-function TWDEvolution(cName)     // Canvas name
+function TWSEvolution(cName)     // Canvas name
 {
   var instance = this;
   var cWidth, cHeight;
@@ -6,19 +6,19 @@ function TWDEvolution(cName)     // Canvas name
   var canvas;
   var context;
   
-  var twdBuffer = [];
-  var lastTWD = 0;
+  var twsBuffer = [];
+  var lastTWS = 0;
   
-  this.addTWD = function(d)
+  this.addTWS = function(d)
   {
-    twdBuffer.push(d);
-    lastTWD = d;
+    twsBuffer.push(d);
+    lastTWS = d;
     instance.drawGraph();
   };
 
-  this.resetTWD = function()
+  this.resetTWS = function()
   {
-    twdBuffer = [];
+    twsBuffer = [];
     instance.drawGraph();
   };
 
@@ -43,38 +43,37 @@ function TWDEvolution(cName)     // Canvas name
 //  context.strokeText("Overview", 10, 20); // Outlined  
 //  context.closePath();
     // Grid
-    
     context.strokeStyle = 'LightGreen';
-    for (var i=1; i<4; i++)
+    for (var i=0; i<60; i+=5) // every 5 knots
     {
-      var x = i * (canvas.width / 4);
+      var x = i * (canvas.width / 60);
       context.beginPath();
-      context.lineWidth = (i % 2 === 0) ? 3 : 1;
+      context.lineWidth = (i % 10 === 0) ? 3 : 1;
       context.moveTo(x, 0);
       context.lineTo(x, canvas.height);
       context.closePath();
       context.stroke();
-    }
+    }        
     context.lineWidth = 3;
     // Data here    
     // Calculate average
-    if (false && twdBuffer.length > 0)
+    if (false && twsBuffer.length > 0)
     {
       var sum = 0;
-      for (var i=0; i<twdBuffer.length; i++)
+      for (var i=0; i<twsBuffer.length; i++)
       {
-        sum += twdBuffer[i];
+        sum += twsBuffer[i];
       }
-      var avg = sum / twdBuffer.length;
+      var avg = sum / twsBuffer.length;
     }
     
-    var yScale = canvas.height / (twdBuffer.length - 1);
-    var xScale = canvas.width / 360;
-    context.strokeStyle = 'red';
+    var yScale = canvas.height / (twsBuffer.length - 1);
+    var xScale = canvas.width / 60;
+    context.strokeStyle = 'cyan';
     context.beginPath();
-    for (var i=0; i<twdBuffer.length; i++)
+    for (var i=0; i<twsBuffer.length; i++)
     {
-      var xPt = twdBuffer[i] * xScale;
+      var xPt = twsBuffer[i] * xScale;
       var yPt = canvas.height - (i * yScale);
 //    console.log("i:" + i + ", " + xPt + "/" + yPt);
       if (i === 0)
@@ -91,8 +90,8 @@ function TWDEvolution(cName)     // Canvas name
     var txtY = 20;
     var space = 18;
     var col1 = 10, col2 = 90;
-    context.fillText("TWD", col1, txtY);
-    context.fillText(lastTWD + "º", col2, txtY);
+    context.fillText("TWS", col1, txtY);
+    context.fillText(lastTWS + "kts", col2, txtY);
     txtY += space;    
   };
 
@@ -138,7 +137,7 @@ function TWDEvolution(cName)     // Canvas name
         var coords = relativeMouseCoords(evt, canvas);
         x = coords.x;
         y = coords.y;
-        var str1 = "TWD " + Math.round(360 * x / canvas.width) + "º";
+        var str1 = "TWS " + Math.round(60 * x / canvas.width) + "kts";
         instance.drawGraph();
         context.fillStyle = "rgba(250, 250, 210, .6)"; 
 //      context.fillStyle = 'yellow';

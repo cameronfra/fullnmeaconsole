@@ -1,7 +1,7 @@
-var displayBSP, displayTWD, displayTWS, thermometer, displayHDG, displayOverview,
+var displayBSP, displayTWD, displayTWS, thermometer, displayHDG, rose, displayOverview,
     jumboBSP, jumboHDG, jumboTWD, jumboLWY, jumboAWA, jumboTWA, jumboAWS, jumboTWS, jumboCOG, jumboCDR, jumboSOG, jumboCSP, jumboVMG,
     displayAW,
-    twdEvolution;
+    twdEvolution, twsEvolution;
     
 var jumboList = [];
 
@@ -13,6 +13,8 @@ var init = function()
 //displayTWD      = new Direction('twdCanvas', 100, 1060,  10,  1, false, 60, 960);
   displayTWS      = new AnalogDisplay('twsCanvas', 100,   50,  10,  1, true, 40);
   thermometer     = new Thermometer('tmpCanvas', 200);
+  rose            = new CompassRose('roseCanvas', 400, 50);
+  
   displayOverview = new BoatOverview('overviewCanvas');
   
   jumboBSP        = new JumboDisplay('jumboBSPCanvas', 'BSP', 120, 60, "0.00");
@@ -33,6 +35,7 @@ var init = function()
   
   displayAW       = new AWDisplay('awDisplayCanvas', 80, 45, 5);
   twdEvolution    = new TWDEvolution('twdEvolutionCanvas');
+  twsEvolution    = new TWSEvolution('twsEvolutionCanvas');
   
   var interval = setInterval(function() { pingNMEAConsole(); }, 1000);
 };
@@ -48,8 +51,10 @@ var resizeDisplays = function(width)
     displayHDG.setDisplaySize(100 * (Math.min(width, TOTAL_WIDTH) / TOTAL_WIDTH)); 
     displayTWD.setDisplaySize(100 * (Math.min(width, TOTAL_WIDTH) / TOTAL_WIDTH)); 
     thermometer.setDisplaySize(200 * (Math.min(width, TOTAL_WIDTH) / TOTAL_WIDTH)); 
+    rose.setDisplaySize(400 * (Math.min(width, TOTAL_WIDTH) / TOTAL_WIDTH)); 
     displayOverview.drawGraph();
     twdEvolution.drawGraph();
+    twsEvolution.drawGraph();
 
     var jumboFactor = width / TOTAL_WIDTH;
     for (var i=0; i<jumboList.length; i++)
@@ -161,6 +166,7 @@ var pingNMEAConsole = function()
       displayHDG.setValue(hdg);
       displayOverview.setHDG(hdg);
       jumboHDG.setValue(lpad(Math.round(hdg).toString(), '0', 3));
+      rose.setValue(Math.round(hdg));
     }
     catch (err)
     {
@@ -207,6 +213,7 @@ var pingNMEAConsole = function()
       displayTWS.setValue(tws);
       displayOverview.setTWS(tws);
       jumboTWS.setValue(tws.toFixed(1));
+      twsEvolution.addTWS(tws);
     }
     catch (err)
     {
