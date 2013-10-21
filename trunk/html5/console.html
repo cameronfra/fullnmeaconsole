@@ -165,19 +165,17 @@
         <td><h2 style="font-size: 12pt; font-family: Verdana, Arial, Helvetica, Geneva, Swiss, SunSans-Regular">NMEA Console Data</h2></td>
       </tr>
     </table-->
-    <small><button id="showMap" onclick="showMap();">Map</button>&nbsp;<button id="showDisplays" onclick="showDisplays();">Displays</button>&nbsp;<button id="showOverview" onclick="showOverview();">Overview</button>&nbsp;<button id="showTWDEvolution" onclick="showTWDEvolution();">TW Evolution</button></small>
+    <small>
+      <button id="showDisplays" onclick="showDisplays();">Displays</button>&nbsp;
+      <button id="showOverview" onclick="showOverview();">Overview</button>&nbsp;
+      <button id="showMap" onclick="showMap();">Map</button>&nbsp;
+      <button id="showTWDEvolution" onclick="showTWDEvolution();">TW Evolution</button>
+    </small>
     <select id="theme-select" onchange="changeTheme();">
       <option value="black">Black theme</option>
       <option value="white">White theme</option>
     </select>
-    <div id="map" style="display: inline;">
-      <p align="center">
-        <iframe id="map-frame" src="worldmap.html" height="500" title="The map" style="width: 90%;"></iframe>
-      </p>
-      <input type="button" value="Reload Map" onClick="reloadMap();"/>
-      <div id="elapsed" style="font-size: 10pt; font-family: Verdana, Arial, Helvetica, Geneva, Swiss, SunSans-Regular"></div>
-    </div>
-    <div id="displays" style="display: none;">
+    <div id="displays" style="display: inline;">
       <!-- Analog Displays -->
       <table align="center">
         <tr>
@@ -308,9 +306,16 @@
         </table>
       </p>
     </div>
+    <div id="map" style="display: none;">
+      <p align="center">
+        <iframe id="map-frame" src="worldmap.html" height="500" title="The map" style="width: 90%;"></iframe>
+      </p>
+      <input type="button" value="Reload Map" onClick="reloadMap();"/>
+      <div id="elapsed" style="font-size: 10pt; font-family: Verdana, Arial, Helvetica, Geneva, Swiss, SunSans-Regular"></div>
+    </div>
     <div id="twd-evolution" style="display: none;">
       <p align="center">
-        <table align="center">
+        <table align="center" cellspacing="10">
           <tr>
             <td valign="top">
               <button onclick="resetTWBuffer();">Reset</button>

@@ -419,8 +419,14 @@ public class NMEAMasterPanel
 
   public void manageDataEvent(String payload)
   {
-    if (verbose)
-      System.out.println("Read from NMEA :[" + payload + "]");
+    if (verbose || "true".equals(System.getProperty("verbose", "false")))
+    {
+      String displ = payload;
+        while ((displ.endsWith("\r") || displ.endsWith("\n")) && displ.length() >= 0)
+        displ = displ.substring(0, displ.length() - 1);
+      System.out.println(this.getClass().getName() + ": Read from NMEA :[" + displ + "]");
+    }
+    
     NMEAContext.getInstance().fireNMEAString(payload);
   }
 

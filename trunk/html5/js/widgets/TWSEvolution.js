@@ -54,7 +54,27 @@ function TWSEvolution(cName)     // Canvas name
       context.closePath();
       context.stroke();
     }        
+    context.lineWidth = 1;
+    // Beaufort scale
+    var beaufort = [1, 4, 7, 11, 16, 22, 28, 34, 41, 48, 56, 64];
+    context.strokeStyle = 'rgba(255, 0, 0, 0.7)'; // 'red';
+    for (var i=0; i<beaufort.length; i++)
+    {
+      var x = beaufort[i] * (canvas.width / 60);
+      context.beginPath();
+      context.moveTo(x, 0);
+      context.lineTo(x, canvas.height);
+      context.closePath();
+      context.stroke();
+      var txt = (i + 1).toString();
+      context.font = "bold 16px Arial"; // "bold 16px Arial"
+      var metrics = context.measureText(txt);
+      len = metrics.width;    
+      context.fillStyle = 'white';
+      context.fillText(txt, x - (len / 2), canvas.height - 5);
+    }
     context.lineWidth = 3;
+    
     // Data here    
     // Calculate average
     if (false && twsBuffer.length > 0)
