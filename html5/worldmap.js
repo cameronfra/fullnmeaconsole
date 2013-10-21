@@ -1,4 +1,4 @@
-function clear(canvasName) 
+var clear = function(canvasName) 
 {
   var canvas = document.getElementById(canvasName);
   var context = canvas.getContext('2d');
@@ -6,12 +6,12 @@ function clear(canvasName)
   // Cleanup
   context.fillStyle = "rgba(0, 0, 100, 10.0)";
   context.fillRect(0, 0, canvas.width, canvas.height);      
-}
+};
 
 var fromPt, toPt;
 var animationID;
 
-function addCanvasListener(canvasName) 
+var addCanvasListener = function(canvasName) 
 {
   var canvas = document.getElementById(canvasName);
   canvas.addEventListener("click", // "click", "dblclick", "mousedown", "mouseup", "mousemove"
@@ -56,9 +56,9 @@ function addCanvasListener(canvasName)
                             }
                           }, 
                           false);
-}
+};
 
-function plotPoint(canvasName, pt, color) 
+var plotPoint = function(canvasName, pt, color) 
 {
   var canvas = document.getElementById(canvasName);
   var context = canvas.getContext('2d');
@@ -67,10 +67,10 @@ function plotPoint(canvasName, pt, color)
   context.arc(pt.x, pt.y, 2, 0, 2*Math.PI);
   context.stroke();
   context.fill();
-}
+};
 
 var currentStep = 0;
-function travel(canvasName, from, to, nbStep) 
+var travel = function(canvasName, from, to, nbStep) 
 {
   var newX = from.x + (currentStep * (to.x - from.x) / nbStep);
   var newY = from.y + (currentStep * (to.y - from.y) / nbStep);
@@ -78,9 +78,9 @@ function travel(canvasName, from, to, nbStep)
   currentStep++;
   if (currentStep > nbStep)
     window.clearInterval(animationID);
-}
+};
 
-function drawWorldMap(canvasName) 
+var drawWorldMap = function(canvasName) 
 {
 //var start = new Date().getTime();
   
@@ -142,25 +142,32 @@ function drawWorldMap(canvasName)
   }
 //var end = new Date().getTime();
 //console.log("Operation completed in " + (end - start) + " ms.");
-}
+};
 
-function plotPosToCanvas(canvasName, lat, lng, label)
+var plotPosToCanvas = function(canvasName, lat, lng, label)
 {
   var canvas = document.getElementById(canvasName); 
   var pt = posToCanvas(canvas, lat, lng);
   plotPoint(canvasName, pt, "red");
-  if ("undefined" !== label)
+  if (label !== undefined)
   {
-    var context = canvas.getContext('2d');
-    context.fillStyle = "red";
-    context.fillText(label, Math.round(pt.x) + 3, Math.round(pt.y) - 3);
+    try
+    {
+      var context = canvas.getContext('2d');
+      context.fillStyle = "red";
+      context.fillText(label, Math.round(pt.x) + 3, Math.round(pt.y) - 3);
+    }
+    catch (err) // Firefox has some glitches here
+    {
+      console.log(err);
+    }
   }
-}
+};
 
-function posToCanvas(canvas, lat, lng) // Anaximandre
+var posToCanvas = function(canvas, lat, lng) // Anaximandre
 {
   var x = (180 + lng) * (canvas.width / 360);
   var y = canvas.height - ((lat + 90) * canvas.height / 180);
   
   return { "x":x, "y":y };
-}
+};

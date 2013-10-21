@@ -45,36 +45,94 @@ function TWDEvolution(cName)     // Canvas name
     // Grid
     
     context.strokeStyle = 'LightGreen';
-    for (var i=1; i<4; i++)
-    {
-      var x = i * (canvas.width / 4);
-      context.beginPath();
-      context.lineWidth = (i % 2 === 0) ? 3 : 1;
-      context.moveTo(x, 0);
-      context.lineTo(x, canvas.height);
-      context.closePath();
-      context.stroke();
-    }
-    context.lineWidth = 3;
     // Data here    
     // Calculate average
-    if (false && twdBuffer.length > 0)
+    if (twdBuffer.length > 0)
     {
       var sum = 0;
+      var sumCos = 0, sumSin = 0;
       for (var i=0; i<twdBuffer.length; i++)
       {
-        sum += twdBuffer[i];
+//      sum += twdBuffer[i];
+        sumCos += Math.cos(toRadians(twdBuffer[i]));
+        sumSin += Math.sin(toRadians(twdBuffer[i]));
       }
-      var avg = sum / twdBuffer.length;
+//    var avg = sum / twdBuffer.length;
+      var avgCos = sumCos / twdBuffer.length;
+      var avgSin = sumSin / twdBuffer.length;
+      
+      var aCos = toDegrees(Math.acos(avgCos));
+      var aSin = toDegrees(Math.asin(avgSin));
+      
+      if (avgCos > 0)
+      {
+        if (avgSin > 0)
+          avg = aCos;
+        else
+          avg = 360 - aCos;
+      }
+      else
+      {
+        if (avgSin > 0)
+          avg = 180 - aCos;
+        else
+          avg = 180 + aCos;
+      }
+//    console.log("Avg TWD:" + Math.round(avg));
     }
-    
+  
+    var orig = lastTWD - 180;   
+    for (var i=0; i<360; i++)
+    {
+      if ((i + orig) % 30 === 0)
+      {
+        var x = i * (canvas.width / 360);
+  
+        context.beginPath();
+        context.lineWidth = ((i + orig) % 90 === 0) ? 3 : 1;
+        context.strokeStyle = ((i + orig) % 90 === 0) ? 'LightGreen' : 'white';
+        context.moveTo(x, 0);
+        context.lineTo(x, canvas.height);
+        context.closePath();
+        context.stroke();
+        if ((i + orig) % 90 === 0)
+        {
+          var txt = "";
+          switch ((i + orig) % 360)
+          {
+            case 0:
+            case 360:
+              txt = "N";
+              break;
+            case 90:
+              txt = "E";
+              break;
+            case 180:
+              txt = "S";
+              break;
+            case 270:
+              txt = "W";
+              break;
+            default:
+              break;
+          }
+          context.font = "bold 16px Arial"; // "bold 16px Arial"
+          var metrics = context.measureText(txt);
+          len = metrics.width;    
+          context.fillStyle = 'white';
+          context.fillText(txt, x - (len / 2), canvas.height - 5);
+        }
+      }
+    }
+    context.lineWidth = 3;
+
     var yScale = canvas.height / (twdBuffer.length - 1);
     var xScale = canvas.width / 360;
     context.strokeStyle = 'red';
     context.beginPath();
     for (var i=0; i<twdBuffer.length; i++)
     {
-      var xPt = twdBuffer[i] * xScale;
+      var xPt = (canvas.width / 2) + ((twdBuffer[i] - lastTWD) * xScale);
       var yPt = canvas.height - (i * yScale);
 //    console.log("i:" + i + ", " + xPt + "/" + yPt);
       if (i === 0)
@@ -122,7 +180,7 @@ function TWDEvolution(cName)     // Canvas name
     return deg * (Math.PI / 180);
   };
 
-  function toDegrees(rad)
+  var toDegrees = function(rad)
   {
     return rad * (180 / Math.PI);
   };
@@ -138,7 +196,7 @@ function TWDEvolution(cName)     // Canvas name
         var coords = relativeMouseCoords(evt, canvas);
         x = coords.x;
         y = coords.y;
-        var str1 = "TWD " + Math.round(360 * x / canvas.width) + "º";
+        var str1 = "TWD " + Math.round(360 * x / canvas.width) + "º"; // FIXME Not from 0 to 360...
         instance.drawGraph();
         context.fillStyle = "rgba(250, 250, 210, .6)"; 
 //      context.fillStyle = 'yellow';
