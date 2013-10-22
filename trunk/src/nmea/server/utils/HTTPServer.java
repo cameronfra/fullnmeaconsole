@@ -324,7 +324,9 @@ public class HTTPServer
                 if (fileToFetch.toUpperCase().endsWith(".HTML") ||
                     fileToFetch.toUpperCase().endsWith(".XHTML"))
                   contentType = "text/html";
-                else if (fileToFetch.toUpperCase().endsWith(".XML"))
+                else if (fileToFetch.toUpperCase().endsWith(".XML") ||
+                         fileToFetch.toUpperCase().endsWith(".XSL") ||
+                         fileToFetch.toUpperCase().endsWith(".XSD"))
                   contentType = "text/xml";
                 else if (fileToFetch.toUpperCase().endsWith(".TXT"))
                   contentType = "text/plain";
@@ -1010,7 +1012,6 @@ public class HTTPServer
       str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(perf), "perf", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
       first = false;
     }
-    System.out.println(" --- No perf in the Cache");
 
     if (output == XML_OUTPUT)
     {

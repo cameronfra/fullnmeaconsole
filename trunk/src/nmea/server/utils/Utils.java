@@ -95,6 +95,8 @@ import oracle.xml.parser.v2.NSResolver;
 
 import user.util.GeomUtil;
 
+import utils.PolarHelper;
+
 public class Utils
 {
   private final static SimpleDateFormat SDF = new SimpleDateFormat("EEE dd-MMM-yyyy HH:mm:ss (z)");
@@ -712,6 +714,25 @@ public class Utils
                                    cog);
     cache.put(NMEADataCache.CDR, new Angle360(cr[0]));
     cache.put(NMEADataCache.CSP, new Speed(cr[1]));    
+    
+    // Performance
+    if (!PolarHelper.arePolarsAvailable() && cache.get(NMEADataCache.POLAR_FILE_NAME).toString().trim().length() > 0)
+    {
+      PolarHelper.setFileName(cache.get(NMEADataCache.POLAR_FILE_NAME).toString());
+      PolarHelper.setPolarCoeff(((Double)cache.get(NMEADataCache.POLAR_FACTOR)).doubleValue());
+    }
+    double speedCoeff = PolarHelper.getPolarCoeff();
+    double targetSpeed = PolarHelper.getSpeed(tws, Math.abs(twa), speedCoeff);
+    if (PolarHelper.arePolarsAvailable())
+    {
+      double performance = bsp / targetSpeed;
+      cache.put(NMEADataCache.PERF, new Double(performance));
+    }
+    else
+    {
+      cache.put(NMEADataCache.PERF, new Double(-1d));
+    }
+    
   }
 
   public static double[] calculateTWwithGPS(double aws, double awsCoeff, 
