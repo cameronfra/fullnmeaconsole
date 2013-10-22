@@ -275,29 +275,14 @@ public class CurrentSituationPanel
               System.err.println(ex.toString());
             }
             // Performance
-            double bsp = ((Speed)cache.get(NMEADataCache.BSP)).getValue();
-            double tws = ((TrueWindSpeed)cache.get(NMEADataCache.TWS)).getValue();
-            double twa = ((Angle180)cache.get(NMEADataCache.TWA)).getValue();
-            
-            if (!PolarHelper.arePolarsAvailable() && NMEAContext.getInstance().getCache().get(NMEADataCache.POLAR_FILE_NAME).toString().trim().length() > 0)
+            Object obj = NMEAContext.getInstance().getCache().get(NMEADataCache.PERF);
+            if (obj != null && perfCheckBox.isSelected())
             {
-              PolarHelper.setFileName(NMEAContext.getInstance().getCache().get(NMEADataCache.POLAR_FILE_NAME).toString());
-              PolarHelper.setPolarCoeff(((Double)NMEAContext.getInstance().getCache().get(NMEADataCache.POLAR_FACTOR)).doubleValue());
-            }
-            double speedCoeff = PolarHelper.getPolarCoeff();
-            double targetSpeed = PolarHelper.getSpeed(tws, Math.abs(twa), speedCoeff);
-            if (PolarHelper.arePolarsAvailable() && perfCheckBox.isSelected())
-            {
-              double performance = bsp / targetSpeed;
-//            System.out.println("Speed:" + df22.format(bsp) + ", target:" + df22.format(targetSpeed) + ", Performance: " + df3.format(performance * 100d) + "%");
+              double performance = ((Double)obj).doubleValue();
               drawingBoard.setPerformance(performance);
-              NMEAContext.getInstance().getCache().put(NMEADataCache.PERF, new Double(performance));
             }
             else
-            {
               drawingBoard.setPerformance(-1d);
-              NMEAContext.getInstance().getCache().put(NMEADataCache.PERF, new Double(-1d));
-            }
           }
           repaint();
         } 
