@@ -159,7 +159,13 @@ var plotPosToCanvas = function(canvasName, lat, lng, label)
     }
     catch (err) // Firefox has some glitches here
     {
-      console.log(err);
+      if (console.log !== undefined)
+      {
+        if (err.message !== undefined && err.name !== undefined)
+          console.log(err.message + " " + err.name);
+        else
+          console.log(err);
+      }
     }
   }
 };

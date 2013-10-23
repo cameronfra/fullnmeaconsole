@@ -2,6 +2,7 @@
 <html>
   <head>
     <!--meta charset="windows-1252"></meta-->
+    <meta charset="iso-8859-1"></meta>
     <title>NMEA Console Data</title>
     <link rel="stylesheet" href="css/stylesheet.css" type="text/css"/>
     <style type="text/css">
@@ -28,11 +29,13 @@
     document.getElementById('displays').style.display = 'none';
     document.getElementById('overview').style.display = 'none';
     document.getElementById('twd-evolution').style.display = 'none';
+    document.getElementById('calibration-prms').style.display = 'none';
 
     document.getElementById('showMap').style.textDecoration = 'none';
     document.getElementById('showDisplays').style.textDecoration = 'underline';
     document.getElementById('showOverview').style.textDecoration = 'underline';
     document.getElementById('showTWDEvolution').style.textDecoration = 'underline';
+    document.getElementById('showCalPrms').style.textDecoration = 'underline';
   };  
   var showDisplays = function()
   {
@@ -40,11 +43,13 @@
     document.getElementById('displays').style.display = 'inline';
     document.getElementById('overview').style.display = 'none';
     document.getElementById('twd-evolution').style.display = 'none';
+    document.getElementById('calibration-prms').style.display = 'none';
 
     document.getElementById('showMap').style.textDecoration = 'underline';
     document.getElementById('showDisplays').style.textDecoration = 'none';
     document.getElementById('showOverview').style.textDecoration = 'underline';
     document.getElementById('showTWDEvolution').style.textDecoration = 'underline';
+    document.getElementById('showCalPrms').style.textDecoration = 'underline';
   };  
   var showOverview = function()
   {
@@ -52,11 +57,13 @@
     document.getElementById('displays').style.display = 'none';
     document.getElementById('overview').style.display = 'inline';
     document.getElementById('twd-evolution').style.display = 'none';
+    document.getElementById('calibration-prms').style.display = 'none';
 
     document.getElementById('showMap').style.textDecoration = 'underline';
     document.getElementById('showDisplays').style.textDecoration = 'underline';
     document.getElementById('showOverview').style.textDecoration = 'none';
     document.getElementById('showTWDEvolution').style.textDecoration = 'underline';
+    document.getElementById('showCalPrms').style.textDecoration = 'underline';
   };    
   var showTWDEvolution = function()
   {
@@ -64,11 +71,27 @@
     document.getElementById('displays').style.display = 'none';
     document.getElementById('overview').style.display = 'none';
     document.getElementById('twd-evolution').style.display = 'inline';
+    document.getElementById('calibration-prms').style.display = 'none';
 
     document.getElementById('showMap').style.textDecoration = 'underline';
     document.getElementById('showDisplays').style.textDecoration = 'underline';
     document.getElementById('showOverview').style.textDecoration = 'underline';
     document.getElementById('showTWDEvolution').style.textDecoration = 'none';
+    document.getElementById('showCalPrms').style.textDecoration = 'underline';
+  };
+  var showCalPrms = function()
+  {
+    document.getElementById('map').style.display = 'none';
+    document.getElementById('displays').style.display = 'none';
+    document.getElementById('overview').style.display = 'none';
+    document.getElementById('twd-evolution').style.display = 'none';
+    document.getElementById('calibration-prms').style.display = 'inline';
+
+    document.getElementById('showMap').style.textDecoration = 'underline';
+    document.getElementById('showDisplays').style.textDecoration = 'underline';
+    document.getElementById('showOverview').style.textDecoration = 'underline';
+    document.getElementById('showTWDEvolution').style.textDecoration = 'underline';
+    document.getElementById('showCalPrms').style.textDecoration = 'none';
   };
   
   window.onload = function()
@@ -170,6 +193,7 @@
       <button id="showOverview" onclick="showOverview();">Overview</button>&nbsp;
       <button id="showMap" onclick="showMap();">Map</button>&nbsp;
       <button id="showTWDEvolution" onclick="showTWDEvolution();">TW Evolution</button>
+      <button id="showCalPrms" onclick="showCalPrms();">Calibration Prms</button>
     </small>
     <select id="theme-select" onchange="changeTheme();">
       <option value="black">Black theme</option>
@@ -187,7 +211,7 @@
         </tr>
         <tr>
           <td align="center" valign="top">
-            <canvas id="bspCanvas" width="240" height="120" title="Boat Speed in knots"> <1-- class="displayCanvas" --></canvas>
+            <canvas id="bspCanvas" width="240" height="120" title="Boat Speed in knots"> <!-- class="displayCanvas" --></canvas>
           </td>
           <td align="center" valign="top">
             <canvas id="hdgCanvas" width="240" height="220" title="Heading in degrees"> <!-- class="displayCanvas" --></canvas>
@@ -329,6 +353,26 @@
           </tr>
         </table>
       </p>
+    </div>
+    <div id="calibration-prms" style="display: none;">
+      <hr>
+      <input type="checkbox" id="edit.prms">Edit</input>      
+      <hr>
+      <table>
+        <tr><td>BSP Factor</td><td><div id="bsp-factor"></div></td></tr>
+        <tr><td>AWS Factor</td><td><div id="aws-factor"></div></td></tr>
+        <tr><td>AWA Offset</td><td><div id="awa-offset"></div></td></tr>
+        <tr><td>HDG Offset</td><td><div id="hdg-offset"></div></td></tr>
+        <tr><td>Max Leeway</td><td><div id="max-leeway"></div></td></tr>
+        <tr><td>Deviation File</td><td><div id="dev-file"></div></td></tr>
+        <tr><td>Default Decl.</td><td><div id="def-decl"></div></td></tr>
+        <tr><td>Damping</td><td><div id="damping"></div></td></tr>
+        <tr><td>Polar file</td><td><div id="polar-file"></div></td></tr>
+        <tr><td>Polar Speed Factor</td><td><div id="polar-speed-factor"></div></td></tr>
+      </table>
+      <hr>
+      <button disabled="true" id="update.button" onclick="updatePrms();">Update</button>
+      <hr>
     </div>
     <div id="err-mess"></div>
   </body>
