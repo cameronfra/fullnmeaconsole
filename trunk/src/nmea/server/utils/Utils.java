@@ -721,6 +721,12 @@ public class Utils
       PolarHelper.setFileName(cache.get(NMEADataCache.POLAR_FILE_NAME).toString());
       PolarHelper.setPolarCoeff(((Double)cache.get(NMEADataCache.POLAR_FACTOR)).doubleValue());
     }
+    
+    if ("true".equals(System.getProperty("verbose", "false")))
+    {
+      System.out.println("Polar file: [" + cache.get(NMEADataCache.POLAR_FILE_NAME).toString() + "], coeff available:" + PolarHelper.arePolarsAvailable());
+    }
+    
     double speedCoeff = PolarHelper.getPolarCoeff();
     double targetSpeed = PolarHelper.getSpeed(tws, Math.abs(twa), speedCoeff);
     if (PolarHelper.arePolarsAvailable())

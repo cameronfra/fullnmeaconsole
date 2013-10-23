@@ -12,7 +12,11 @@ public abstract class NMEAReaderListener implements EventListener
   public NMEAReaderListener() 
   { this("default"); }
   public NMEAReaderListener(String gID)
-  { this.groupID = gID; }
+  { 
+    if ("true".equals(System.getProperty("verbose", "false")))
+      System.out.println(" -- Creating " + this.getClass().getName() + ", group " + gID);
+    this.groupID = gID; 
+  }
   public final String getGroupID() { return groupID; }
   
   public void log(boolean b) {}

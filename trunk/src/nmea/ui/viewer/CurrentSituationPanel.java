@@ -282,7 +282,10 @@ public class CurrentSituationPanel
               drawingBoard.setPerformance(performance);
             }
             else
+            {
+              perfCheckBox.setEnabled(obj != null);
               drawingBoard.setPerformance(-1d);
+            }
           }
           repaint();
         } 

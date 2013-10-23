@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 
 import java.text.DecimalFormat;
@@ -75,7 +76,7 @@ public class HTTPServer
 //private DecimalFormat integerFmt = new DecimalFormat("##0");
 
   private int output      = XML_OUTPUT;
-  private boolean verbose = true;
+  private boolean verbose = "true".equals(System.getProperty("verbose", "false"));
   private String propFileName = "";
   private Object[][] data;
   private int _port = 0;
@@ -141,7 +142,8 @@ public class HTTPServer
                   latitudefmt = false, longitudefmt = false;
           boolean hdg = false, hdm = false, bsp = false, sog = false, 
                   cog = false, awa = false, aws = false, twa = false, 
-                  tws = false, localtime = false, lnginhours = false;
+                  tws = false, localtime = false, lnginhours = false,
+                  prmUpdate = false;;
           while (go)
           {
             Socket client = ss.accept();
@@ -243,6 +245,14 @@ public class HTTPServer
 //              System.out.println("Received a localtime request");
                 lnginhours = true;
               }
+              else if (line.startsWith("GET /update-prms"))
+              {
+                prmUpdate = true;
+                // Update the cache and whatever needs to be updated
+                updateCalParams(line);
+//              System.out.println(line);
+//              System.out.println("---- Update Prms request ---");
+              }
               else if (line.startsWith("POST / ") || line.startsWith("GET / "))
               {
                 // All data in XML Format                
@@ -263,7 +273,7 @@ public class HTTPServer
             }
             String contentType = "text/plain";
             if (!help && !latitude && !longitude && !latitudefmt && !longitudefmt && !localtime && !lnginhours && !hdg && 
-                !hdm && !bsp && !sog && !cog && !awa && !aws && !twa && !tws)
+                !hdm && !bsp && !sog && !cog && !awa && !aws && !twa && !tws && !prmUpdate)
             {
               if (output == XML_OUTPUT)
                 contentType = "text/xml";
@@ -314,6 +324,11 @@ public class HTTPServer
               content = (generateLocalSolarTime());
             else if (lnginhours)
               content = (generateLngInHours());
+            else if (prmUpdate)
+            {
+              content = "";
+              prmUpdate = false;
+            }
             else if (fileToFetch.trim().length() > 0)
             {
               File f = new File(fileToFetch);
@@ -325,9 +340,10 @@ public class HTTPServer
                     fileToFetch.toUpperCase().endsWith(".XHTML"))
                   contentType = "text/html";
                 else if (fileToFetch.toUpperCase().endsWith(".XML") ||
-                         fileToFetch.toUpperCase().endsWith(".XSL") ||
                          fileToFetch.toUpperCase().endsWith(".XSD"))
                   contentType = "text/xml";
+                else if (fileToFetch.toUpperCase().endsWith(".XSL"))
+                  contentType = "text/xsl";
                 else if (fileToFetch.toUpperCase().endsWith(".TXT"))
                   contentType = "text/plain";
                 else if (fileToFetch.toUpperCase().endsWith(".JS"))
@@ -394,6 +410,89 @@ public class HTTPServer
     catch (Exception ex) { ex.printStackTrace(); }
   }
 
+  private enum CacheToQSMatch
+  {
+    BSP_FACTOR("bsp", NMEADataCache.BSP_FACTOR),
+    AWS_FACTOR("aws", NMEADataCache.AWS_FACTOR),
+    AWA_OFFSET("awa", NMEADataCache.AWA_OFFSET),
+    HDG_OFFSET("hdg", NMEADataCache.HDG_OFFSET),
+    MAX_LEEWAY("lwy", NMEADataCache.MAX_LEEWAY),
+    DEVIATION_FILE("dev", NMEADataCache.DEVIATION_FILE),
+    DEFAULT_DECLINATION("dec", NMEADataCache.DEFAULT_DECLINATION),
+    DAMPING("dpg", NMEADataCache.DAMPING),
+    POLAR_FILE("pol", NMEADataCache.POLAR_FILE_NAME),
+    POLAR_FACTOR("fac", NMEADataCache.POLAR_FACTOR);
+    
+    private final String name;
+    private final String key;
+
+    CacheToQSMatch(String name, String key)
+    {
+      this.name = name;
+      this.key = key;
+    }
+    
+    public String prmname() { return this.name; }
+    public String key() { return this.key; }
+  }
+  
+  private void updateCalParams(String line)
+  {
+    try
+    {
+      int from = line.indexOf(" ") + 1;
+      String request = line.substring(from, line.indexOf(" ", from + 1));
+//    System.out.println("[" + request + "]");
+      String qString = request.substring(request.indexOf("?") + 1);
+      String[] prms = qString.split("&");
+      for (String nvPair : prms)
+      {
+        String[] nv = nvPair.split("=");
+        for (CacheToQSMatch match : CacheToQSMatch.values())
+        {
+          if (match.prmname().equals(nv[0]))
+          {
+            Object cachedData = NMEAContext.getInstance().getCache().get(match.key());
+            if (cachedData instanceof String)
+            {
+              String str = URLDecoder.decode(nv[1], "ISO-8859-1");
+              NMEAContext.getInstance().getCache().put(match.key, str);              
+            }
+            else if (cachedData instanceof Double)
+            {
+              String str = URLDecoder.decode(nv[1], "ISO-8859-1");
+              NMEAContext.getInstance().getCache().put(match.key, new Double(str));
+            }
+            else if (cachedData instanceof Integer)
+            {
+              String str = URLDecoder.decode(nv[1], "ISO-8859-1");
+              NMEAContext.getInstance().getCache().put(match.key, new Integer(str));
+            }
+            else if (cachedData instanceof Angle180EW)
+            {
+              String str = URLDecoder.decode(nv[1], "ISO-8859-1");
+              NMEAContext.getInstance().getCache().put(match.key, new Angle180EW(Double.parseDouble(str)));
+            }
+            else
+              System.out.println("Un-managed type:" + cachedData.getClass().getName());
+            break;
+          }
+        }
+      }      
+      NMEAContext.getInstance().fireDampingHasChanged(((Integer)NMEAContext.getInstance().getCache().get(NMEADataCache.DAMPING)).intValue());
+      NMEAContext.getInstance().fireDeviationCurveChanged(Utils.loadDeviationHashtable((String)NMEAContext.getInstance().getCache().get(NMEADataCache.DEVIATION_FILE)));
+      
+      // Write properties file
+      Utils.writeNMEAParameters();
+
+      System.out.println("Prms Updated.");
+    }
+    catch (Exception ex)
+    {
+      ex.printStackTrace();
+    }
+  }
+  
   private List<String> getSentenceList()
   {
     List<String> al = new ArrayList<String>(data.length);
@@ -761,265 +860,307 @@ public class HTTPServer
     }
     
     NMEADataCache cache = NMEAContext.getInstance().getCache();
-    Set<String> keys = cache.keySet();
-    boolean first = true;
-    for (String k : keys)
+    synchronized (cache)
     {
-      Object cached = cache.get(k);
-      if (cached instanceof Speed)
+      Set<String> keys = cache.keySet();
+      boolean first = true;
+      for (String k : keys)
       {
-        if (k.equals(NMEADataCache.BSP))
+        Object cached = cache.get(k);
+        if (cached instanceof Speed)
         {
-//        str += ("  <bsp>" + df22.format(((Speed)cached).getValue()) + "</bsp>\n");
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(((Speed)cached).getValue()), "bsp", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          first = false;
-        }
-        else if (k.equals(NMEADataCache.SOG))
-        {
-//        str += ("  <sog>" + df22.format(((Speed)cached).getValue()) + "</sog>\n");
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(((Speed)cached).getValue()), "sog", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          first = false;
-        }
-        else if (k.equals(NMEADataCache.AWS))
-        {
-//        str += ("  <aws>" + df22.format(((Speed)cached).getValue()) + "</aws>\n");
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(((Speed)cached).getValue()), "aws", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          first = false;
-        }
-        else if (k.equals(NMEADataCache.TWS))
-        {
-//        str += ("  <tws>" + df22.format(((Speed)cached).getValue()) + "</tws>\n");
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(((Speed)cached).getValue()), "tws", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          first = false;
-        }
-        else if (k.equals(NMEADataCache.CSP))
-        {
-//        str += ("  <csp>" + df22.format(((Speed)cached).getValue()) + "</csp>\n");
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(((Speed)cached).getValue()), "csp", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          first = false;
-        }
-      }
-      else if (cached instanceof Angle360)
-      {
-        if (k.equals(NMEADataCache.COG))
-        {
-//        str += ("  <cog>" + df3.format(((Angle360)cached).getValue()) + "</cog>\n");
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle360)cached).getValue()), "cog", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          first = false;
-        }
-        else if (k.equals(NMEADataCache.HDG_TRUE))
-        {
-//        str += ("  <hdg>" + df3.format(((Angle360)cached).getValue()) + "</hdg>\n");        
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle360)cached).getValue()), "hdg", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          first = false;
-        }
-        else if (k.equals(NMEADataCache.TWD))
-        {
-//        str += ("  <twd>" + df3.format(((Angle360)cached).getValue()) + "</twd>\n");        
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle360)cached).getValue()), "twd", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          first = false;
-        }
-        else if (k.equals(NMEADataCache.CMG))
-        {
-//        str += ("  <cmg>" + df3.format(((Angle360)cached).getValue()) + "</cmg>\n");        
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle360)cached).getValue()), "cmg", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          first = false;
-        }
-        else if (k.equals(NMEADataCache.CDR))
-        {
-//        str += ("  <cdr>" + df3.format(((Angle360)cached).getValue()) + "</cdr>\n");        
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle360)cached).getValue()), "cdr", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          first = false;
-        }
-        else if (k.equals(NMEADataCache.B2WP))
-        {
-//        str += ("  <cdr>" + df3.format(((Angle360)cached).getValue()) + "</cdr>\n");
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle360)cached).getValue()), "b2wp", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          first = false;
-        }
-      }
-      else if (cached instanceof Angle180)
-      {
-        if (k.equals(NMEADataCache.AWA))
-        {
-//        str += ("  <awa>" + df3.format(((Angle180)cached).getValue()) + "</awa>\n");
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle180)cached).getValue()), "awa", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          first = false;
-        }
-        else if (k.equals(NMEADataCache.TWA))
-        {
-//        str += ("  <twa>" + df3.format(((Angle180)cached).getValue()) + "</twa>\n");
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle180)cached).getValue()), "twa", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          first = false;
-        }
-      }
-      else if (cached instanceof Angle180LR)
-      {
-        if (k.equals(NMEADataCache.LEEWAY))
-        {
-//        str += ("  <leeway>" + df3.format(((Angle180LR)cached).getValue()) + "</leeway>\n");
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle180LR)cached).getValue()), "leeway", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          first = false;
-        }
-      }
-      else if (cached instanceof Angle180EW)
-      {
-        if (k.equals(NMEADataCache.DECLINATION))
-        {
-          double d = ((Angle180EW)cached).getValue();
-          if (d != -Double.MAX_VALUE)
+          if (k.equals(NMEADataCache.BSP))
           {
-//          str += ("  <D>" + df3.format(d) + "</D>\n");
-            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(d), "D", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+  //        str += ("  <bsp>" + df22.format(((Speed)cached).getValue()) + "</bsp>\n");
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(((Speed)cached).getValue()), "bsp", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }
+          else if (k.equals(NMEADataCache.SOG))
+          {
+  //        str += ("  <sog>" + df22.format(((Speed)cached).getValue()) + "</sog>\n");
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(((Speed)cached).getValue()), "sog", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }
+          else if (k.equals(NMEADataCache.AWS))
+          {
+  //        str += ("  <aws>" + df22.format(((Speed)cached).getValue()) + "</aws>\n");
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(((Speed)cached).getValue()), "aws", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }
+          else if (k.equals(NMEADataCache.TWS))
+          {
+  //        str += ("  <tws>" + df22.format(((Speed)cached).getValue()) + "</tws>\n");
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(((Speed)cached).getValue()), "tws", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }
+          else if (k.equals(NMEADataCache.CSP))
+          {
+  //        str += ("  <csp>" + df22.format(((Speed)cached).getValue()) + "</csp>\n");
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(((Speed)cached).getValue()), "csp", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
             first = false;
           }
         }
-        if (k.equals(NMEADataCache.DEVIATION))
+        else if (cached instanceof Angle360)
         {
-//        str += ("  <d>" + df3.format(((Angle180EW)cached).getValue()) + "</d>\n");
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle180EW)cached).getValue()), "d", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          first = false;
+          if (k.equals(NMEADataCache.COG))
+          {
+  //        str += ("  <cog>" + df3.format(((Angle360)cached).getValue()) + "</cog>\n");
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle360)cached).getValue()), "cog", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }
+          else if (k.equals(NMEADataCache.HDG_TRUE))
+          {
+  //        str += ("  <hdg>" + df3.format(((Angle360)cached).getValue()) + "</hdg>\n");        
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle360)cached).getValue()), "hdg", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }
+          else if (k.equals(NMEADataCache.TWD))
+          {
+  //        str += ("  <twd>" + df3.format(((Angle360)cached).getValue()) + "</twd>\n");        
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle360)cached).getValue()), "twd", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }
+          else if (k.equals(NMEADataCache.CMG))
+          {
+  //        str += ("  <cmg>" + df3.format(((Angle360)cached).getValue()) + "</cmg>\n");        
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle360)cached).getValue()), "cmg", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }
+          else if (k.equals(NMEADataCache.CDR))
+          {
+  //        str += ("  <cdr>" + df3.format(((Angle360)cached).getValue()) + "</cdr>\n");        
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle360)cached).getValue()), "cdr", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }
+          else if (k.equals(NMEADataCache.B2WP))
+          {
+  //        str += ("  <cdr>" + df3.format(((Angle360)cached).getValue()) + "</cdr>\n");
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle360)cached).getValue()), "b2wp", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }
         }
-      }
-      else if (cached instanceof GeoPos)
-      {
-        if (k.equals(NMEADataCache.POSITION))
+        else if (cached instanceof Angle180)
         {
-//        str += ("  <lat>" + Double.toString(((GeoPos)cached).lat) + "</lat>\n");
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(Double.toString(((GeoPos)cached).lat), "lat", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          first = false;
-//        str += ("  <lng>" + Double.toString(((GeoPos)cached).lng) + "</lng>\n");
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(Double.toString(((GeoPos)cached).lng), "lng", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-//        try { str += ("  <pos>" + URLEncoder.encode(((GeoPos)cached).toString(), "UTF-8") + "</pos>\n"); }
+          if (k.equals(NMEADataCache.AWA))
+          {
+  //        str += ("  <awa>" + df3.format(((Angle180)cached).getValue()) + "</awa>\n");
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle180)cached).getValue()), "awa", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }
+          else if (k.equals(NMEADataCache.TWA))
+          {
+  //        str += ("  <twa>" + df3.format(((Angle180)cached).getValue()) + "</twa>\n");
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle180)cached).getValue()), "twa", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }
+        }
+        else if (cached instanceof Angle180LR)
+        {
+          if (k.equals(NMEADataCache.LEEWAY))
+          {
+  //        str += ("  <leeway>" + df3.format(((Angle180LR)cached).getValue()) + "</leeway>\n");
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle180LR)cached).getValue()), "leeway", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }
+        }
+        else if (cached instanceof Angle180EW)
+        {
+          if (k.equals(NMEADataCache.DECLINATION))
+          {
+            double d = ((Angle180EW)cached).getValue();
+            if (d != -Double.MAX_VALUE)
+            {
+  //          str += ("  <D>" + df3.format(d) + "</D>\n");
+              str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(d), "D", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+              first = false;
+            }
+          }
+          if (k.equals(NMEADataCache.DEVIATION))
+          {
+  //        str += ("  <d>" + df3.format(((Angle180EW)cached).getValue()) + "</d>\n");
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df3.format(((Angle180EW)cached).getValue()), "d", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }
+        }
+        else if (cached instanceof GeoPos)
+        {
+          if (k.equals(NMEADataCache.POSITION))
+          {
+  //        str += ("  <lat>" + Double.toString(((GeoPos)cached).lat) + "</lat>\n");
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(Double.toString(((GeoPos)cached).lat), "lat", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+  //        str += ("  <lng>" + Double.toString(((GeoPos)cached).lng) + "</lng>\n");
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(Double.toString(((GeoPos)cached).lng), "lng", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+  //        try { str += ("  <pos>" + URLEncoder.encode(((GeoPos)cached).toString(), "UTF-8") + "</pos>\n"); }
+            try 
+            { 
+  //          str += ("  <pos>" + ((GeoPos)cached).toString().replaceAll("°","&deg;") + "</pos>\n"); 
+              str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(((GeoPos)cached).toString().replaceAll("°","&deg;"), "pos", output, CHARACTER_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            }
+            catch (Exception ex) { ex.printStackTrace(); }
+          }        
+        }
+        else if (cached instanceof Depth)
+        {
+          if (k.equals(NMEADataCache.DBT))
+          {
+  //        str += ("  <dbt>" + df22.format(((Depth)cached).getValue()) + "</dbt>\n");
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(((Depth)cached).getValue()), "dbt", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }
+        }
+        else if (cached instanceof Temperature)
+        {
+          if (k.equals(NMEADataCache.WATER_TEMP))
+          {
+  //        str += ("  <wtemp>" + df22.format(((Temperature)cached).getValue()) + "</wtemp>\n");
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(((Temperature)cached).getValue()), "wtemp", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }
+        }
+        else if (cached instanceof UTCTime)
+        {
+          if (k.equals(NMEADataCache.GPS_TIME))
+          {
+  //        str += ("  <gps-time>" + Long.toString(((UTCTime)cached).getValue().getTime()) + "</gps-time>\n");
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(Long.toString(((UTCTime)cached).getValue().getTime()), "gps-time", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+  //        str += ("  <gps-time-fmt>" + TIME_FORMAT.format(((UTCTime)cached).getValue()) + "</gps-time-fmt>\n");
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(TIME_FORMAT.format(((UTCTime)cached).getValue()), "gps-time-fmt", output, CHARACTER_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          }
+        }
+        else if (cached instanceof UTCDate)
+        {
+          if (k.equals(NMEADataCache.GPS_DATE_TIME))
+          {
+  //        str += ("  <gps-date-time>" + Long.toString(((UTCDate)cached).getValue().getTime()) + "</gps-date-time>\n");
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(Long.toString(((UTCDate)cached).getValue().getTime()), "gps-date-time", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+  //        str += ("  <gps-date-time-fmt>" + DATE_FORMAT.format(((UTCDate)cached).getValue()) + "</gps-date-time-fmt>\n");
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(DATE_FORMAT.format(((UTCDate)cached).getValue()), "gps-date-time-fmt", output, CHARACTER_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          }
+        }
+        else if (cached instanceof SolarDate)
+        {
+          if (k.equals(NMEADataCache.GPS_SOLAR_TIME))
+          {
+  //        str += ("  <gps-date-time>" + Long.toString(((UTCDate)cached).getValue().getTime()) + "</gps-date-time>\n");
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(Long.toString(((SolarDate)cached).getValue().getTime()), "gps-solar-date", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }
+        }
+        else if (cached instanceof String)
+        {
+          if (k.equals(NMEADataCache.TO_WP))
+          {
+  //        str += ("  <gps-date-time>" + Long.toString(((UTCDate)cached).getValue().getTime()) + "</gps-date-time>\n");
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat((String)cached, "to-wp", output, CHARACTER_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }
+        }
+        else if (false) 
+        {
           try 
           { 
-//          str += ("  <pos>" + ((GeoPos)cached).toString().replaceAll("°","&deg;") + "</pos>\n"); 
-            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(((GeoPos)cached).toString().replaceAll("°","&deg;"), "pos", output, CHARACTER_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          }
+  //        str += ("  <obj name='" + URLEncoder.encode(k, "UTF-8") + "'><![CDATA[" + URLEncoder.encode(cached.toString(), "UTF-8") + "]]></obj>\n"); 
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(URLEncoder.encode(cached.toString(), "UTF-8"), URLEncoder.encode(k, "UTF-8"), output, CHARACTER_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          } 
           catch (Exception ex) { ex.printStackTrace(); }
-        }        
-      }
-      else if (cached instanceof Depth)
-      {
-        if (k.equals(NMEADataCache.DBT))
-        {
-//        str += ("  <dbt>" + df22.format(((Depth)cached).getValue()) + "</dbt>\n");
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(((Depth)cached).getValue()), "dbt", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          first = false;
         }
       }
-      else if (cached instanceof Temperature)
+      // VMG & Perf
+      double vmg = 0d;
+      try
       {
-        if (k.equals(NMEADataCache.WATER_TEMP))
+        double sog = (((Speed)cache.get(NMEADataCache.SOG)).getValue());
+        double cog = ((Angle360)cache.get(NMEADataCache.COG)).getValue();
+        double twd = (((TrueWindDirection)cache.get(NMEADataCache.TWD)).getValue());
+        double twa = twd - cog;
+        if (sog > 0) // Try with GPS Data first
+          vmg = sog * Math.cos(Math.toRadians(twa));
+        else
         {
-//        str += ("  <wtemp>" + df22.format(((Temperature)cached).getValue()) + "</wtemp>\n");
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(((Temperature)cached).getValue()), "wtemp", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          first = false;
+          twa = ((Angle180)cache.get(NMEADataCache.TWA)).getValue();
+          double bsp = ((Speed)cache.get(NMEADataCache.BSP)).getValue();
+          if (bsp > 0)
+            vmg = bsp * Math.cos(Math.toRadians(twa));
         }
-      }
-      else if (cached instanceof UTCTime)
-      {
-        if (k.equals(NMEADataCache.GPS_TIME))
-        {
-//        str += ("  <gps-time>" + Long.toString(((UTCTime)cached).getValue().getTime()) + "</gps-time>\n");
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(Long.toString(((UTCTime)cached).getValue().getTime()), "gps-time", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          first = false;
-//        str += ("  <gps-time-fmt>" + TIME_FORMAT.format(((UTCTime)cached).getValue()) + "</gps-time-fmt>\n");
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(TIME_FORMAT.format(((UTCTime)cached).getValue()), "gps-time-fmt", output, CHARACTER_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-        }
-      }
-      else if (cached instanceof UTCDate)
-      {
-        if (k.equals(NMEADataCache.GPS_DATE_TIME))
-        {
-//        str += ("  <gps-date-time>" + Long.toString(((UTCDate)cached).getValue().getTime()) + "</gps-date-time>\n");
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(Long.toString(((UTCDate)cached).getValue().getTime()), "gps-date-time", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          first = false;
-//        str += ("  <gps-date-time-fmt>" + DATE_FORMAT.format(((UTCDate)cached).getValue()) + "</gps-date-time-fmt>\n");
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(DATE_FORMAT.format(((UTCDate)cached).getValue()), "gps-date-time-fmt", output, CHARACTER_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-        }
-      }
-      else if (cached instanceof SolarDate)
-      {
-        if (k.equals(NMEADataCache.GPS_SOLAR_TIME))
-        {
-//        str += ("  <gps-date-time>" + Long.toString(((UTCDate)cached).getValue().getTime()) + "</gps-date-time>\n");
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(Long.toString(((SolarDate)cached).getValue().getTime()), "gps-solar-date", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          first = false;
-        }
-      }
-      else if (cached instanceof String)
-      {
-        if (k.equals(NMEADataCache.TO_WP))
-        {
-//        str += ("  <gps-date-time>" + Long.toString(((UTCDate)cached).getValue().getTime()) + "</gps-date-time>\n");
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat((String)cached, "to-wp", output, CHARACTER_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          first = false;
-        }
-      }
-      else if (false) 
-      {
-        try 
-        { 
-//        str += ("  <obj name='" + URLEncoder.encode(k, "UTF-8") + "'><![CDATA[" + URLEncoder.encode(cached.toString(), "UTF-8") + "]]></obj>\n"); 
-          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(URLEncoder.encode(cached.toString(), "UTF-8"), URLEncoder.encode(k, "UTF-8"), output, CHARACTER_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-          first = false;
-        } 
-        catch (Exception ex) { ex.printStackTrace(); }
-      }
-    }
-    // VMG & Perf
-    double vmg = 0d;
+        str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(vmg), "vmg-wind", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+        first = false;
 
-    double sog = (((Speed)cache.get(NMEADataCache.SOG)).getValue());
-    double cog = ((Angle360)cache.get(NMEADataCache.COG)).getValue();
-    double twd = (((TrueWindDirection)cache.get(NMEADataCache.TWD)).getValue());
-    double twa = twd - cog;
-    if (sog > 0) // Try with GPS Data first
-      vmg = sog * Math.cos(Math.toRadians(twa));
-    else
-    {
-      twa = ((Angle180)cache.get(NMEADataCache.TWA)).getValue();
-      double bsp = ((Speed)cache.get(NMEADataCache.BSP)).getValue();
-      if (bsp > 0)
-        vmg = bsp * Math.cos(Math.toRadians(twa));
-    }
-    str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(vmg), "vmg-wind", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-    first = false;
+        if (cache.get(NMEADataCache.TO_WP) != null && cache.get(NMEADataCache.TO_WP).toString().trim().length() > 0)
+        {
+          double b2wp = ((Angle360)cache.get(NMEADataCache.B2WP)).getValue();
+          sog = (((Speed)cache.get(NMEADataCache.SOG)).getValue());
+          cog = ((Angle360)cache.get(NMEADataCache.COG)).getValue();
+          if (sog > 0)
+          {
+            double angle = b2wp - cog;
+            vmg = sog * Math.cos(Math.toRadians(angle));
+          }
+          else
+          {
+            double angle = b2wp - ((Angle360)cache.get(NMEADataCache.HDG_TRUE)).getValue();
+            double bsp = ((Speed)cache.get(NMEADataCache.BSP)).getValue();
+            vmg = bsp * Math.cos(Math.toRadians(angle));
+          }
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(vmg), "vmg-wp", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+          first = false;
+        }
+      }
+      catch (Exception ex)
+      {
+        System.err.println("Perf & VMG:" + ex.getMessage());
+      }
+      if (cache.get(NMEADataCache.PERF) != null && ((Double)cache.get(NMEADataCache.PERF)).doubleValue() > -1d)
+      {
+        double perf = ((Double)cache.get(NMEADataCache.PERF)).doubleValue();
+        str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(perf), "perf", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+        first = false;
+      }
+      
+      try
+      {
+        // Calibration Parameters
+        double bspFactor   = ((Double)cache.get(NMEADataCache.BSP_FACTOR)).doubleValue();
+        double awsFactor   = ((Double)cache.get(NMEADataCache.AWS_FACTOR)).doubleValue();
+        double awaOffset   = ((Double)cache.get(NMEADataCache.AWA_OFFSET)).doubleValue();
+        double hdgOffset   = ((Double)cache.get(NMEADataCache.HDG_OFFSET)).doubleValue();
+        double maxLeeway   = ((Double)cache.get(NMEADataCache.MAX_LEEWAY)).doubleValue();
+  
+        String devFile     = ((String)cache.get(NMEADataCache.DEVIATION_FILE)).toString();
+        double defaultDecl = ((Angle180EW)cache.get(NMEADataCache.DEFAULT_DECLINATION)).getDoubleValue();
+        int damping        = ((Integer)cache.get(NMEADataCache.DAMPING)).intValue();
         
-    if (cache.get(NMEADataCache.TO_WP) != null && cache.get(NMEADataCache.TO_WP).toString().trim().length() > 0)
-    {
-      double b2wp = ((Angle360)cache.get(NMEADataCache.B2WP)).getValue();
-      sog = (((Speed)cache.get(NMEADataCache.SOG)).getValue());
-      cog = ((Angle360)cache.get(NMEADataCache.COG)).getValue();
-      if (sog > 0)
-      {
-        double angle = b2wp - cog;
-        vmg = sog * Math.cos(Math.toRadians(angle));
-      }
-      else
-      {
-        double angle = b2wp - ((Angle360)cache.get(NMEADataCache.HDG_TRUE)).getValue();
-        double bsp = ((Speed)cache.get(NMEADataCache.BSP)).getValue();
-        vmg = bsp * Math.cos(Math.toRadians(angle));
-      }
-      str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(vmg), "vmg-wp", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-      first = false;
-    }
-    if (cache.get(NMEADataCache.PERF) != null && ((Double)cache.get(NMEADataCache.PERF)).doubleValue() > -1d)
-    {
-      double perf = ((Double)cache.get(NMEADataCache.PERF)).doubleValue();
-      str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(perf), "perf", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
-      first = false;
-    }
+        String polarFile   = ((String)cache.get(NMEADataCache.POLAR_FILE_NAME)).toString();
+        double polarFactor = ((Double)cache.get(NMEADataCache.POLAR_FACTOR)).doubleValue();
 
-    if (output == XML_OUTPUT)
-    {
-      str += ("</data>\n");
-    }  
-    else if (output == JSON_OUTPUT)
-    {
-      str += "\n}\n";
+        str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(Double.toString(bspFactor), "bsp-factor", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+        first = false;
+        str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(Double.toString(awsFactor), "aws-factor", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+        str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(Double.toString(awaOffset), "awa-offset", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+        str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(Double.toString(hdgOffset), "hdg-offset", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+        str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(Double.toString(maxLeeway), "max-leeway", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+        str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(devFile, "dev-file", output, CHARACTER_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+        str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(Double.toString(defaultDecl), "default-decl", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+        str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(Integer.toString(damping), "damping", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+        str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(polarFile, "polar-file", output, CHARACTER_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+        str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(Double.toString(polarFactor), "polar-speed-factor", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+      }
+      catch (Exception ex)
+      {
+        ex.printStackTrace();
+      }
+  
+      if (output == XML_OUTPUT)
+      {
+        str += ("</data>\n");
+      }  
+      else if (output == JSON_OUTPUT)
+      {
+        str += "\n}\n";
+      }
     }
     if (verbose)
       System.out.println(str);

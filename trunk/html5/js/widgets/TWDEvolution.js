@@ -95,10 +95,13 @@ function TWDEvolution(cName)     // Canvas name
         context.lineTo(x, canvas.height);
         context.closePath();
         context.stroke();
-        if ((i + orig) % 90 === 0)
+        var dir = (i + orig);
+        while (dir < 0) dir += 360;
+        while (dir > 360) dir -= 360;
+        if (dir % 90 === 0)
         {
           var txt = "";
-          switch ((i + orig) % 360)
+          switch (dir % 360)
           {
             case 0:
             case 360:
@@ -188,7 +191,7 @@ function TWDEvolution(cName)     // Canvas name
   (function()
    { 
      canvas = document.getElementById(cName);
-     canvas.addEventListener('mousemove', function(evt)
+     canvas.addEventListener('mousemove', function(evt) // Tooltip
      {
         var x = evt.pageX - canvas.offsetLeft;
         var y = evt.pageY - canvas.offsetTop;
@@ -196,7 +199,10 @@ function TWDEvolution(cName)     // Canvas name
         var coords = relativeMouseCoords(evt, canvas);
         x = coords.x;
         y = coords.y;
-        var str1 = "TWD " + Math.round(360 * x / canvas.width) + "º"; // FIXME Not from 0 to 360...
+        var mouseTWD = lastTWD + (360 * (x - (canvas.width / 2)) / canvas.width);
+        while (mouseTWD > 360) mouseTWD -= 360;
+        while (mouseTWD < 0) mouseTWD += 360;
+        var str1 = "TWD " + Math.round(mouseTWD) + "º"; 
         instance.drawGraph();
         context.fillStyle = "rgba(250, 250, 210, .6)"; 
 //      context.fillStyle = 'yellow';
