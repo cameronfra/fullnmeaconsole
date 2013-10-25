@@ -716,29 +716,35 @@ public class Utils
     cache.put(NMEADataCache.CSP, new Speed(cr[1]));    
     
     // Performance
-    if (!PolarHelper.arePolarsAvailable() && cache.get(NMEADataCache.POLAR_FILE_NAME).toString().trim().length() > 0)
+    try
     {
-      PolarHelper.setFileName(cache.get(NMEADataCache.POLAR_FILE_NAME).toString());
-      PolarHelper.setPolarCoeff(((Double)cache.get(NMEADataCache.POLAR_FACTOR)).doubleValue());
+      if (!PolarHelper.arePolarsAvailable() && cache.get(NMEADataCache.POLAR_FILE_NAME).toString().trim().length() > 0)
+      {
+        PolarHelper.setFileName(cache.get(NMEADataCache.POLAR_FILE_NAME).toString());
+        PolarHelper.setPolarCoeff(((Double)cache.get(NMEADataCache.POLAR_FACTOR)).doubleValue());
+      }
+      
+      if ("true".equals(System.getProperty("verbose", "false")))
+      {
+        System.out.println("Polar file: [" + cache.get(NMEADataCache.POLAR_FILE_NAME).toString() + "], coeff available:" + PolarHelper.arePolarsAvailable());
+      }
+      
+      double speedCoeff = PolarHelper.getPolarCoeff();
+      double targetSpeed = PolarHelper.getSpeed(tws, Math.abs(twa), speedCoeff);
+      if (PolarHelper.arePolarsAvailable())
+      {
+        double performance = bsp / targetSpeed;
+        cache.put(NMEADataCache.PERF, new Double(performance));
+      }
+      else
+      {
+        cache.put(NMEADataCache.PERF, new Double(-1d));
+      }
     }
-    
-    if ("true".equals(System.getProperty("verbose", "false")))
+    catch (Exception ex)
     {
-      System.out.println("Polar file: [" + cache.get(NMEADataCache.POLAR_FILE_NAME).toString() + "], coeff available:" + PolarHelper.arePolarsAvailable());
+      System.err.println(ex.toString());
     }
-    
-    double speedCoeff = PolarHelper.getPolarCoeff();
-    double targetSpeed = PolarHelper.getSpeed(tws, Math.abs(twa), speedCoeff);
-    if (PolarHelper.arePolarsAvailable())
-    {
-      double performance = bsp / targetSpeed;
-      cache.put(NMEADataCache.PERF, new Double(performance));
-    }
-    else
-    {
-      cache.put(NMEADataCache.PERF, new Double(-1d));
-    }
-    
   }
 
   public static double[] calculateTWwithGPS(double aws, double awsCoeff, 

@@ -153,7 +153,7 @@ function TWDEvolution(cName)     // Canvas name
     var space = 18;
     var col1 = 10, col2 = 90;
     context.fillText("TWD", col1, txtY);
-    context.fillText(lastTWD + "º", col2, txtY);
+    context.fillText(lastTWD + "" /* "º" */, col2, txtY);
     txtY += space;    
   };
 
@@ -202,7 +202,7 @@ function TWDEvolution(cName)     // Canvas name
         var mouseTWD = lastTWD + (360 * (x - (canvas.width / 2)) / canvas.width);
         while (mouseTWD > 360) mouseTWD -= 360;
         while (mouseTWD < 0) mouseTWD += 360;
-        var str1 = "TWD " + Math.round(mouseTWD) + "º"; 
+        var str1 = "TWD " + Math.round(mouseTWD) + "" /* "º" */; 
         instance.drawGraph();
         context.fillStyle = "rgba(250, 250, 210, .6)"; 
 //      context.fillStyle = 'yellow';

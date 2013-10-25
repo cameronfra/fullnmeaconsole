@@ -7,6 +7,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
+import java.net.SocketException;
+
 import java.util.List;
 
 import nmea.server.constants.Constants;
@@ -89,7 +91,8 @@ public class CustomUDPReader extends NMEAReader implements DataReader
       if (address.isMulticastAddress())
       {
         dsocket = new MulticastSocket(udpport);
-        ((MulticastSocket)dsocket).joinGroup(address);      
+        ((MulticastSocket)dsocket).joinGroup(address);     
+        group = address;
       }  
       else
         dsocket = new DatagramSocket(udpport, address);
@@ -187,7 +190,10 @@ public class CustomUDPReader extends NMEAReader implements DataReader
         if (dsocket instanceof MulticastSocket)
         {
           if (verbose) System.out.println(">> From " + this.getClass().getName() + ": 1 - Leaving group " + group.toString());
-          ((MulticastSocket)dsocket).leaveGroup(group);
+          if (group != null)
+            ((MulticastSocket)dsocket).leaveGroup(group);
+          else
+            System.out.println(">> Multicast Socket: Group is null.");
         }
         if (verbose) System.out.println(">> From " + this.getClass().getName() + ": 2 - Closing Socket");
         dsocket.close();
@@ -242,6 +248,12 @@ public class CustomUDPReader extends NMEAReader implements DataReader
 //        System.out.println("Notifying waiter (Done).");
           waiter.notify(); 
         }
+      }
+      catch (SocketException se)
+      {
+        // Socket closed?
+        if (! "socket closed".equals(se.getMessage()))
+          System.out.println(">>>>> " + this.getClass().getName() + ":" + se.getMessage());
       }
       catch (Exception ex)
       {
