@@ -374,6 +374,7 @@ function BoatOverview(cName)     // Canvas name
       instance.drawVMG();
     
     // Display values
+    // See http://www.w3schools.com/tags/ref_entities.asp, &deg; = &#176;
     context.fillStyle = 'green';
     context.font="bold 16px Courier New";
     var txtY = 20;
@@ -383,50 +384,53 @@ function BoatOverview(cName)     // Canvas name
     context.fillText(bsp + " kts", col2, txtY);
     txtY += space;    
     context.fillText("HDG", col1, txtY);
-    context.fillText(hdg + "º", col2, txtY);
+    context.fillText(hdg + "" /* "º" */, col2, txtY);
     txtY += space;    
     context.fillText("AWS", col1, txtY);
     context.fillText(aws + " kts", col2, txtY);
     txtY += space;    
     context.fillText("AWA", col1, txtY);
-    context.fillText(awa + "º", col2, txtY);
+    context.fillText(awa + "" /* "º" */, col2, txtY);
     context.fillStyle = 'blue';
     txtY += space;    
     context.fillText("TWS", col1, txtY);
     context.fillText(tws + " kts", col2, txtY);
     txtY += space;    
     context.fillText("TWA", col1, txtY);
-    context.fillText(twa + "º", col2, txtY);
+    context.fillText(twa + "" /* "º" */, col2, txtY);
     txtY += space;    
     context.fillText("TWD", col1, txtY);
-    context.fillText(twd + "º", col2, txtY);
+    context.fillText(twd + "" /* "º" */, col2, txtY);
     txtY += space;    
     context.fillText("CDR", col1, txtY);
-    context.fillText(cdr + "º", col2, txtY);
+    context.fillText(cdr + "" /* "º" */, col2, txtY);
     txtY += space;    
     context.fillText("CSP", col1, txtY);
     context.fillText(csp + " kts", col2, txtY);
 
     txtY += space;    
     context.fillText("leeway", col1, txtY);
-    context.fillText(leeway + "º", col2, txtY);
+    context.fillText(leeway + "" /* "º" */, col2, txtY);
     txtY += space;    
     context.fillText("CMG", col1, txtY);
-    context.fillText(cmg + "º", col2, txtY);
+    context.fillText(cmg + "" /* "º" */, col2, txtY);
     
     if (document.getElementById("display.perf").checked)
     {
       context.font="30px Arial";
+      context.fillStyle = 'white';
       context.strokeStyle = 'red';
       context.lineWidth = 1;
       space = 32;
       txtY += space;    
+      
+      context.fillText("Perf", col1, txtY);
       context.strokeText("Perf", col1, txtY);
+      context.fillText(Math.round(perf) + "%", col2, txtY);
       context.strokeText(Math.round(perf) + "%", col2, txtY);
+      context.font= "bold 12px Arial";
     }
   };
-  
-  var ARROW_LEN = 40;
   
   this.drawTrueWind = function()
   {    
@@ -454,7 +458,7 @@ function BoatOverview(cName)     // Canvas name
     {
       context.font= "bold 12px Arial";
       context.fillStyle = "black";
-      context.fillText("TWS:" + tws.toFixed(2) + " kts, TWA:" + twa + "º", x + dX, y + dY);
+      context.fillText("TWS:" + tws.toFixed(2) + " kts, TWA:" + twa + "" /* "º" */, x + dX, y + dY);
     }
   };
   
@@ -487,7 +491,7 @@ function BoatOverview(cName)     // Canvas name
     {
       context.font= "bold 12px Arial";
       context.fillStyle = "blue";
-      context.fillText("AWS:" + aws.toFixed(2) + " kts, AWA:" + awa + "º", x + dX, y + dY);
+      context.fillText("AWS:" + aws.toFixed(2) + " kts, AWA:" + awa + "" /* "º" */, x + dX, y + dY);
     }
   };
   
@@ -520,7 +524,7 @@ function BoatOverview(cName)     // Canvas name
     {
       context.font= "bold 12px Arial";
       context.fillStyle = "red";
-      context.fillText("BSP:" + bsp.toFixed(2) + " kts, HDG:" + hdg + "º", x + dX, y + dY);
+      context.fillText("BSP:" + bsp.toFixed(2) + " kts, HDG:" + hdg + "" /* "º" */, x + dX, y + dY);
     }
   };
   
@@ -552,7 +556,7 @@ function BoatOverview(cName)     // Canvas name
     {
       context.font= "bold 12px Arial";
       context.fillStyle = "cyan";
-      context.fillText("CMG:" + cmg + "º", x + dX, y + dY);
+      context.fillText("CMG:" + cmg + "" /* "º" */, x + dX, y + dY);
     }
   };
 
@@ -584,10 +588,10 @@ function BoatOverview(cName)     // Canvas name
     {
       context.font= "bold 12px Arial";
       context.fillStyle = "pink";
-      context.fillText("SOG:" + sog.toFixed(2) + " kts, COG:" + cog + "º", x + dX, y + dY);
+      context.fillText("SOG:" + sog.toFixed(2) + " kts, COG:" + cog + "" /* "º" */, x + dX, y + dY);
       context.strokeStyle = "black";
       context.lineWidth = 1;
-//    context.strokeText("SOG:" + sog.toFixed(2) + " kts, COG:" + cog + "º", x + dX, y + dY);
+//    context.strokeText("SOG:" + sog.toFixed(2) + " kts, COG:" + cog + "" /* "º" */, x + dX, y + dY);
     }
   };
   
@@ -638,7 +642,7 @@ function BoatOverview(cName)     // Canvas name
       context.fillText("VMG:" + vmg.toFixed(2) + " kts", x + dX, y + dY);
       context.strokeStyle = "black";
       context.lineWidth = 1;
-//    context.strokeText("SOG:" + sog.toFixed(2) + " kts, COG:" + cog + "º", x + dX, y + dY);
+//    context.strokeText("SOG:" + sog.toFixed(2) + " kts, COG:" + cog + "" /* "º" */, x + dX, y + dY);
     }
     if (context.setLineDash !== undefined)
     {
@@ -652,7 +656,7 @@ function BoatOverview(cName)     // Canvas name
       context.lineWidth = 1;
       context.stroke();
       // Reset
-      context.setLineDash([0]);
+      context.setLineDash([]);
     }
   };
   
@@ -690,7 +694,7 @@ function BoatOverview(cName)     // Canvas name
     {
       context.font= "bold 12px Arial";
       context.fillStyle = "LightGreen";
-      context.fillText("CSP:" + csp.toFixed(2) + " kts, CDR:" + cdr + "º", x + dXcog, y + dYcog + 14); // + 14 not to overlap the SOG/COG
+      context.fillText("CSP:" + csp.toFixed(2) + " kts, CDR:" + cdr + "" /* "º" */, x + dXcog, y + dYcog + 14); // + 14 not to overlap the SOG/COG
     }
   };
   
