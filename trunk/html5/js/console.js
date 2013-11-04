@@ -183,7 +183,7 @@ var pingNMEAConsole = function()
       displayTWD.setValue(twd);
       displayOverview.setTWD(twd);
       jumboTWD.setValue(lpad(Math.round(twd).toString(), '0', 3));
-      twdEvolution.addTWD(twd);
+      twdEvolution.addTWD({ "angle": twd, "time": (new Date()).getTime() });
     }
     catch (err)
     {
@@ -215,7 +215,17 @@ var pingNMEAConsole = function()
       displayTWS.setValue(tws);
       displayOverview.setTWS(tws);
       jumboTWS.setValue(tws.toFixed(1));
-      twsEvolution.addTWS(tws);
+      twsEvolution.addTWS({ "speed": tws, "time": (new Date()).getTime() });
+      
+      var from = twsEvolution.getFromBoundary();
+      var to   = twsEvolution.getToBoundary();
+      
+      var dateFmt = (to - from > (3600000 * 24)) ? "d-M H:i:s" : "H:i:s"; // "d-M-Y H:i:s._ Z";
+      document.getElementById("life-span").innerHTML = twsEvolution.getBufferLength() + " pts<br>" + 
+                                                       "From " + (new Date(from)).format(dateFmt) + "<br>" + 
+                                                       "To " + (new Date(to)).format(dateFmt) + "<br>" + 
+                                                    // "(" + twsEvolution.getLifeSpan() + ")" + "<br>" + 
+                                                       twsEvolution.getLifeSpanFormatted();
     }
     catch (err)
     {

@@ -1111,7 +1111,8 @@ public class HTTPServer
       }
       catch (Exception ex)
       {
-        System.err.println("Perf & VMG:" + ex.getMessage());
+        if (verbose)
+          System.err.println("Perf & VMG:" + ex.getMessage());
       }
       if (cache.get(NMEADataCache.PERF) != null && ((Double)cache.get(NMEADataCache.PERF)).doubleValue() > -1d)
       {
