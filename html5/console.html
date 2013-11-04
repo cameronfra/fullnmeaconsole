@@ -14,6 +14,7 @@
       }
     </style>
     <link rel="stylesheet" href="css/black.css" type="text/css" id="theme"/>
+    <script type="text/javascript" src="js/date.proto.js"></script>
     <script type="text/javascript" src="js/widgets/AnalogDisplay.js"></script>
     <script type="text/javascript" src="js/widgets/CompassRose.js"></script>
     <script type="text/javascript" src="js/widgets/BoatOverview.js"></script>
@@ -165,6 +166,14 @@
       twdEvolution.resetTWD();
     if (twsEvolution !== undefined)
       twsEvolution.resetTWS();
+  };
+  
+  var resetTW2Buffer = function()
+  {
+    if (twdEvolution !== undefined)
+      twdEvolution.reset2TWD();
+    if (twsEvolution !== undefined)
+      twsEvolution.reset2TWS();
   };
   
   var handleRadioValue = function(radio)
@@ -343,8 +352,13 @@
       <p align="center">
         <table align="center" cellspacing="10">
           <tr>
-            <td valign="top">
-              <button onclick="resetTWBuffer();">Reset</button>
+            <td valign="top" align="right">
+              <button onclick="resetTWBuffer();">Reset All</button>
+              <br>
+              <button onclick="resetTW2Buffer();">Drop Oldest Half</button>
+              <br>
+              <div id="life-span">
+              </div>
             </td>
             <td align="center" valign="top" rowspan="6">
               <canvas id="twdEvolutionCanvas" height="500" width="300" class="displayCanvas"></canvas>

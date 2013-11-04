@@ -3,25 +3,89 @@ function TWSEvolution(cName)     // Canvas name
   var instance = this;
   var cWidth, cHeight;
   
+  var SEC = 1000;
+  var MIN = 60 * SEC; 
+  var HRS = 60 * MIN;
+  var DAY = 24 * HRS;
+  
   var canvas;
   var context;
   
   var twsBuffer = [];
-  var lastTWS = 0;
+  var lastTWS = {};
   
-  this.addTWS = function(d)
+  this.addTWS = function(d) // { "speed": speed, "time": time }
   {
     twsBuffer.push(d);
     lastTWS = d;
     instance.drawGraph();
   };
 
+  var dumpBuffer = function()
+  {
+    console.log(JSON.stringify(twsBuffer))  ;
+  };
+  
   this.resetTWS = function()
   {
+    dumpBuffer();
     twsBuffer = [];
     instance.drawGraph();
   };
 
+  // Drop oldest half
+  this.reset2TWS = function()
+  {
+    twsBuffer = twsBuffer.slice(Math.round(twsBuffer.length / 2), twsBuffer.length);
+    instance.drawGraph();
+  };
+
+  this.getLifeSpan = function()
+  {
+    var lifeSpan = 0;
+    if (twsBuffer[0] !== undefined)
+    {
+      var from = twsBuffer[0].time;
+      var to   = twsBuffer[twsBuffer.length - 1].time;
+      lifeSpan = to - from;
+    }
+    return lifeSpan;
+  };
+  
+  this.getLifeSpanFormatted = function()
+  {
+    var ms = this.getLifeSpan();
+    var fmt = "0";
+    if (ms !== 0)
+    {
+      var sec = Math.floor(ms / 1000);
+      var min = Math.floor(sec / 60);
+      var hrs = Math.floor(min / 60);
+      var day = Math.floor(hrs / 24);
+      
+      fmt = (day > 0 ? day.toString() + "d " : "") +
+            ((hrs > 0 || day > 0) ? (hrs - (24 * day)).toString() + "h " : "") +
+            ((min > 0 || hrs > 0 || day > 0) ? (min - (60 * hrs) - (24 * day)).toString() + "m " : "") +
+            (sec - (min * 60) - (60 * hrs) - (24 * day)).toString() + "s.";
+    }
+    return fmt;
+  };
+  
+  this.getFromBoundary = function()
+  {
+    return twsBuffer[0].time;
+  };
+  
+  this.getToBoundary = function()
+  {
+    return twsBuffer[twsBuffer.length - 1].time;
+  };
+  
+  this.getBufferLength = function()
+  {
+    return twsBuffer.length;  
+  };
+  
   this.drawGraph = function()
   {
     cWidth  = document.getElementById(cName).width;
@@ -55,6 +119,43 @@ function TWSEvolution(cName)     // Canvas name
       context.stroke();
     }        
     context.lineWidth = 1;
+    // Horizontal grid
+    var lifeSpan = this.getLifeSpan();
+    var timeStep = 15 * SEC; // Default, 15s
+    if (lifeSpan > DAY)
+      timeStep = 3 * HRS;
+    else if (lifeSpan > 3 * HRS)
+      timeStep = 30 * MIN;
+    else if (lifeSpan > HRS)
+      timeStep = 10 * MIN;
+    else if (lifeSpan > 30 * MIN)
+      timeStep = 5 * MIN;
+    else if (lifeSpan > 10 * MIN)
+      timeStep = 1 * MIN;
+    else if (lifeSpan > MIN)
+      timeStep = 30 * SEC;
+    
+    context.strokeStyle = 'white';
+    context.fillStyle = 'white';
+    for (var i=0; i<twsBuffer.length; i++)
+    {
+      if (Math.floor(twsBuffer[i].time / SEC) % (timeStep / SEC) == 0)
+      {
+        var y = canvas.height - (i * (canvas.height / twsBuffer.length));
+        context.beginPath();
+        context.moveTo(0, y);
+        context.lineTo(canvas.width, y);
+        context.closePath();
+        context.stroke();
+
+        var txt = new Date(twsBuffer[i].time).format("H:i:s");
+        context.font = "bold 12px Arial"; // "bold 12px Arial"
+        var metrics = context.measureText(txt);
+        len = metrics.width;    
+        context.fillText(txt, canvas.width - 5 - len, y - 5);
+      }
+    }
+      
     // Beaufort scale
     var beaufort = [1, 4, 7, 11, 16, 22, 28, 34, 41, 48, 56, 64];
     context.strokeStyle = 'rgba(255, 0, 0, 0.7)'; // 'red';
@@ -82,7 +183,7 @@ function TWSEvolution(cName)     // Canvas name
       var sum = 0;
       for (var i=0; i<twsBuffer.length; i++)
       {
-        sum += twsBuffer[i];
+        sum += twsBuffer[i].speed;
       }
       var avg = sum / twsBuffer.length;
     }
@@ -93,7 +194,7 @@ function TWSEvolution(cName)     // Canvas name
     context.beginPath();
     for (var i=0; i<twsBuffer.length; i++)
     {
-      var xPt = twsBuffer[i] * xScale;
+      var xPt = twsBuffer[i].speed * xScale;
       var yPt = canvas.height - (i * yScale);
 //    console.log("i:" + i + ", " + xPt + "/" + yPt);
       if (i === 0)
@@ -111,7 +212,7 @@ function TWSEvolution(cName)     // Canvas name
     var space = 18;
     var col1 = 10, col2 = 90;
     context.fillText("TWS", col1, txtY);
-    context.fillText(lastTWS + "kts", col2, txtY);
+    context.fillText(lastTWS.speed + "kts", col2, txtY);
     txtY += space;    
   };
 
@@ -157,14 +258,18 @@ function TWSEvolution(cName)     // Canvas name
         var coords = relativeMouseCoords(evt, canvas);
         x = coords.x;
         y = coords.y;
+        var yInBuffer = Math.floor(twsBuffer.length * ((canvas.height - y) / canvas.height));
+        
         var str1 = "TWS " + Math.round(60 * x / canvas.width) + "kts";
+        var str2 = ((twsBuffer[yInBuffer] !== undefined) ? new Date(twsBuffer[yInBuffer].time).format("H:i:s") : "");
         instance.drawGraph();
         context.fillStyle = "rgba(250, 250, 210, .6)"; 
 //      context.fillStyle = 'yellow';
-        context.fillRect(x + 10, y + 10, 70, 20); // Background
+        context.fillRect(x + 10, y + 10, 70, 40); // Background
         context.fillStyle = 'black';
         context.font = 'bold 12px verdana';
         context.fillText(str1, x + 15, y + 25, 60); 
+        context.fillText(str2, x + 15, y + 25 + 14, 60); 
       }, 0);
      instance.drawGraph();
    })(); // Invoked automatically when new is invoked.  
