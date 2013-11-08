@@ -55,20 +55,7 @@ function TWSEvolution(cName)     // Canvas name
   this.getLifeSpanFormatted = function()
   {
     var ms = this.getLifeSpan();
-    var fmt = "0";
-    if (ms !== 0)
-    {
-      var sec = Math.floor(ms / 1000);
-      var min = Math.floor(sec / 60);
-      var hrs = Math.floor(min / 60);
-      var day = Math.floor(hrs / 24);
-      
-      fmt = (day > 0 ? day.toString() + "d " : "") +
-            ((hrs > 0 || day > 0) ? (hrs - (24 * day)).toString() + "h " : "") +
-            ((min > 0 || hrs > 0 || day > 0) ? (min - (60 * hrs) - (24 * day)).toString() + "m " : "") +
-            (sec - (min * 60) - (60 * hrs) - (24 * day)).toString() + "s.";
-    }
-    return fmt;
+    return formattedTime(ms);
   };
   
   this.getFromBoundary = function()
@@ -274,3 +261,25 @@ function TWSEvolution(cName)     // Canvas name
      instance.drawGraph();
    })(); // Invoked automatically when new is invoked.  
 };
+
+var formattedTime = function(ms)
+{
+  var fmt = "0";
+  if (ms !== 0)
+  {
+    var sec = Math.floor(ms / 1000);
+    var min = Math.floor(sec / 60);
+    var hrs = Math.floor(min / 60);
+    var day = Math.floor(hrs / 24);
+    
+    fmt = (day > 0 ? day.toString() + "d " : "") +
+          ((hrs > 0 || day > 0) ? (hrs - (24 * day)).toString() + "h " : "") +
+          ((min > 0 || hrs > 0 || day > 0) ? (min - (60 * hrs)).toString() + "m " : "") +
+          (sec - (min * 60)).toString() + "s";
+  }
+  return fmt;
+};
+  
+//var ms = 6457205; // 1h 47m 37s.
+//console.log(formattedTime(ms));
+   
