@@ -1,4 +1,7 @@
-function TWSEvolution(cName)     // Canvas name
+/*
+ * @author Olivier Le Diouris
+ */
+function TWSEvolution(cName)  // Canvas name
 {
   var instance = this;
   var cWidth, cHeight;

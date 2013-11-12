@@ -1,3 +1,6 @@
+/*
+ * @author Olivier Le Diouris
+ */
 function Direction(cName, dSize, majorTicks, minorTicks)
 {
   if (majorTicks === undefined)

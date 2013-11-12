@@ -1,3 +1,6 @@
+/*
+ * @author Olivier Le Diouris
+ */
 function AnalogDisplay(cName,                     // Canvas Name
                        dSize,                     // Display radius
                        maxValue,                  // default 10

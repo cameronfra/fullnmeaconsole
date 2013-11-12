@@ -1,3 +1,7 @@
+/*
+ * @author Olivier Le Diouris
+ */
+
 // Date formatting
 
 // Provide month names

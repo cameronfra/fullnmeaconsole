@@ -1,3 +1,6 @@
+/*
+ * @author Olivier Le Diouris
+ */
 function JumboDisplay(cName,                     // Canvas Name
                       title,
                       width,                     // Display width
