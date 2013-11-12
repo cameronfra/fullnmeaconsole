@@ -1,3 +1,6 @@
+/*
+ * @author Olivier Le Diouris
+ */
 function TWDEvolution(cName)     // Canvas name
 {
   var instance = this;

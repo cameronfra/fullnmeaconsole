@@ -1,3 +1,6 @@
+/*
+ * @author Olivier Le Diouris
+ */
 var displayBSP, displayTWD, displayTWS, thermometer, displayHDG, rose, displayOverview,
     jumboBSP, jumboHDG, jumboTWD, jumboLWY, jumboAWA, jumboTWA, jumboAWS, jumboTWS, jumboCOG, jumboCDR, jumboSOG, jumboCSP, jumboVMG,
     displayAW,

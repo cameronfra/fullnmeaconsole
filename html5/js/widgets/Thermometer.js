@@ -1,3 +1,6 @@
+/*
+ * @author Olivier Le Diouris
+ */
 function Thermometer(cName, dSize, minValue, maxValue, majorTicks, minorTicks)
 {
   if (minValue === undefined)

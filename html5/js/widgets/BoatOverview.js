@@ -1,3 +1,6 @@
+/*
+ * @author Olivier Le Diouris
+ */
 function BoatOverview(cName)     // Canvas name
 {
   var instance = this;

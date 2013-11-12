@@ -1,3 +1,6 @@
+/*
+ * @author Olivier Le Diouris
+ */
 function AWDisplay(cName, dSize, majorTicks, minorTicks, withDigits)
 {
   if (majorTicks === undefined)

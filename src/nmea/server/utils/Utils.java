@@ -131,7 +131,7 @@ public class Utils
     String helpContent = "NMEA Reader and Console.\n";
     helpContent += "Displays NMEA Data read from some stream (Serial Port, TCP Port, UDP Port, RMI, Logged Data File)\n";
     helpContent += "Can log NMEA Data.\n";
-    helpContent += "Can rebroadcast NMEA data to an HTTP port in XML format, TCP, UDP, RMI, GPSd.\n";
+    helpContent += "Can rebroadcast NMEA data to an HTTP port in XML format, TCP, UDP, RMI.\n"; // , GPSd.\n";
     
     String hostname = "localhost";
     String ip       = "127.0.0.1";
@@ -150,7 +150,7 @@ public class Utils
     } 
     catch (UnknownHostException e) { }           
     
-    helpContent += ("Default URL (form XML) would be http://" + hostname + ":6666/ or http://" + ip + ":6666/\n");
+    helpContent += ("Default URL (form XML) would be http://" + hostname + ":9999/ or http://" + ip + ":9999/\n");
     
     JOptionPane.showMessageDialog(parent, helpContent, "NMEA Console", JOptionPane.INFORMATION_MESSAGE);
   }
