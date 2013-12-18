@@ -33,6 +33,7 @@ dependencies {
   compile     'jdev:rt:1.0'
   compile     project(':CoreUtilities')
   compile     project(':ChartComponents')
+  compile     project(':PolarSmoother')
   compile     project(':JavaNMEAParser')
 }
 
