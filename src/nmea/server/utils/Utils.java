@@ -51,6 +51,7 @@ import java.util.HashMap;
 
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -77,6 +78,7 @@ import ocss.nmea.parser.OverGround;
 import ocss.nmea.parser.RMB;
 import ocss.nmea.parser.RMC;
 
+import ocss.nmea.parser.SVData;
 import ocss.nmea.parser.SolarDate;
 import ocss.nmea.parser.Speed;
 import ocss.nmea.parser.StringParsers;
@@ -382,9 +384,12 @@ public class Utils
           ndc.put(NMEADataCache.BSP, new Speed(bsp));
       }
       // QUESTION for NMEA, HDG is TRUE when there is a Dec in HDG, or RMC
-      double dec = ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DECLINATION)).getValue();
-      if (dec == -Double.MAX_VALUE)
-        dec = ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEFAULT_DECLINATION)).getValue();
+      if (false)
+      {
+        double dec = ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DECLINATION)).getValue();
+        if (dec == -Double.MAX_VALUE)
+          dec = ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEFAULT_DECLINATION)).getValue();
+      }
       if (ndc == null)
         NMEAContext.getInstance().putDataCache(NMEADataCache.HDG_COMPASS, new Angle360(hdm /* - dec */));        
       else
@@ -581,6 +586,17 @@ public class Utils
       else
         ndc.put(NMEADataCache.DBT, new Depth(f));
     }
+    else if ("GSV".equals(sentenceId))     // Satelites in view
+    {
+      Map<Integer, SVData> satmap = StringParsers.parseGSV(value);
+      if (satmap != null)
+      {
+        if (ndc == null)
+          NMEAContext.getInstance().putDataCache(NMEADataCache.SAT_IN_VIEW, satmap);
+        else
+          ndc.put(NMEADataCache.SAT_IN_VIEW, satmap);
+      }
+    }
     if (ndc == null)
     {
       computeAndSendValuesToCache(NMEAContext.getInstance().getCache());
@@ -726,7 +742,8 @@ public class Utils
       
       if ("true".equals(System.getProperty("verbose", "false")))
       {
-        System.out.println("Polar file: [" + cache.get(NMEADataCache.POLAR_FILE_NAME).toString() + "], coeff available:" + PolarHelper.arePolarsAvailable());
+        if (!"yes".equals(System.getProperty("headless", "no")))        
+          System.out.println("Polar file: [" + cache.get(NMEADataCache.POLAR_FILE_NAME).toString() + "], coeff available:" + PolarHelper.arePolarsAvailable());
       }
       
       double speedCoeff = PolarHelper.getPolarCoeff();
