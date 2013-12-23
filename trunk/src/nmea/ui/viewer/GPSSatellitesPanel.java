@@ -14,6 +14,14 @@ import java.awt.RenderingHints;
 
 import java.awt.Stroke;
 
+import java.awt.font.TextAttribute;
+
+import java.text.AttributedString;
+
+import java.text.DecimalFormat;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import nmea.event.NMEAReaderListener;
@@ -33,7 +41,8 @@ import ocss.nmea.parser.SVData;
 public class GPSSatellitesPanel
   extends javax.swing.JPanel
 {
-
+  private final static DecimalFormat DF2 = new DecimalFormat("00");
+  
   /** Creates new form GPSSatellitesPanel */
   public GPSSatellitesPanel()
   {
@@ -104,7 +113,7 @@ public class GPSSatellitesPanel
                                       RenderingHints.VALUE_ANTIALIAS_ON);  
     int width  = this.getWidth();
     int height = this.getHeight();
-    int radius = Math.min(width, height) / 2;
+    int radius = (int)(0.9 * Math.min(width, height) / 2);
     Point center = new Point(width / 2, height / 2);
 //  gr.setColor(Color.black);
 //  gr.fillOval(center.x - radius, center.y - radius, 2 * radius, 2 * radius);
@@ -118,7 +127,7 @@ public class GPSSatellitesPanel
       g2d.setPaint(rgp);
       g2d.fillRect(0, 0, width, height);
     }
-    drawGlossyCircularDisplay((Graphics2D)gr, center, (int)radius, Color.lightGray, Color.black, 1f);
+    drawGlossyCircularDisplay((Graphics2D)gr, center, radius, Color.lightGray, Color.black, 1f);
     // Grid
     gr.setColor(Color.gray);
     Stroke origin = g2d.getStroke();
@@ -156,8 +165,13 @@ public class GPSSatellitesPanel
         Map<Integer, SVData> hm = ( Map<Integer, SVData>)NMEAContext.getInstance().getCache().get(NMEADataCache.SAT_IN_VIEW);
         
         gr.setColor(Color.red);
+        Font f = gr.getFont();
+        gr.setFont(f.deriveFont(Font.BOLD));
         gr.drawString(hm.size() + " Satellites in view", 5, 20);
         int inUse = 0;
+        // Display All Data Values:
+        List<Object[]> dataTable = new ArrayList<Object[]>();
+        dataTable.add(new Object[] {"Sat.#", "El.(\272)", "Z(\272)", "SNR(db)", Color.red}); // Titles
         for (Integer sn : hm.keySet())
         {
           SVData svd = hm.get(sn);
@@ -174,10 +188,18 @@ public class GPSSatellitesPanel
           gr.setColor(getSNRColor(snr));
           gr.fillOval(x - 10, y - 10, 20, 20);
           gr.drawString(Integer.toString(sID), x + 12, y + 12);
-          System.out.println("Satellite #" + svd.getSvID() + " Elev:" + svd.getElevation() + ", Z:" + svd.getAzimuth() + ", SNR:" + svd.getSnr() + "db. ");
+          System.out.println("Sat.#" + svd.getSvID() + " Elev:" + svd.getElevation() + ", Z:" + svd.getAzimuth() + ", SNR:" + svd.getSnr() + "db. ");
+          dataTable.add(new Object[] { DF2.format(svd.getSvID()), 
+                                       Integer.toString(svd.getElevation()), 
+                                       Integer.toString(svd.getAzimuth()), 
+                                       Integer.toString(svd.getSnr()), 
+                                       Color.red });
         }
         gr.setColor(Color.red);
         gr.drawString(inUse + " Satellites in use", 5, 34);
+        //
+        int y = drawDataTable(dataTable, gr, 5, 40);
+        gr.setFont(f);
       }
     }
     catch (Exception ex)
@@ -186,6 +208,53 @@ public class GPSSatellitesPanel
     }
   } 
 
+  private int drawDataTable(List<Object[]> data, Graphics gr, int startX, int startY)
+  {
+    int x = startX;
+    // Determine biggest title width
+    int maxLen1 = 0, maxLen2 = 0, maxLen3 = 0, maxLen4 = 0;
+    for (Object[] sa : data)
+    {
+      String one   = (String)sa[0];
+      String two   = (String)sa[1];
+      String three = (String)sa[2];
+      String four  = (String)sa[3];
+      int len1 = gr.getFontMetrics(gr.getFont()).stringWidth(one);
+      int len2 = gr.getFontMetrics(gr.getFont()).stringWidth(two);
+      int len3 = gr.getFontMetrics(gr.getFont()).stringWidth(three);
+      int len4 = gr.getFontMetrics(gr.getFont()).stringWidth(four);
+      maxLen1 = Math.max(len1, maxLen1);
+      maxLen2 = Math.max(len2, maxLen2);
+      maxLen3 = Math.max(len3, maxLen3);
+      maxLen4 = Math.max(len4, maxLen4);
+    }
+    Font f = gr.getFont();
+    int fontSize = f.getSize();
+    int y = startY + fontSize * 2;
+    for (Object[] sa : data)
+    {
+      String s1 = (String)sa[0]; // Sat #
+      String s2 = (String)sa[1]; // Elev
+      String s3 = (String)sa[2]; // Z
+      String s4 = (String)sa[3]; // SNR
+      
+      gr.setColor((Color)sa[4]);
+      // Justified left
+      gr.drawString(s1, x, y);                        
+      // Justified right
+      int l = gr.getFontMetrics(gr.getFont()).stringWidth(s2);
+      gr.drawString(s2, maxLen1 + 5 + x + maxLen2 - l, y);
+      // Justified right
+      l = gr.getFontMetrics(gr.getFont()).stringWidth(s3);
+      gr.drawString(s3, maxLen1 + maxLen2 + maxLen3 + 10 + x - l, y);
+      // Justified right
+      l = gr.getFontMetrics(gr.getFont()).stringWidth(s4);
+      gr.drawString(s4, maxLen1 + maxLen2 + maxLen3 + maxLen4 + 15 + x - l, y);
+      y += (fontSize + 2);
+    }
+    return y;
+  }
+  
   private static void drawGlossyCircularDisplay(Graphics2D g2d, Point center, int radius, Color lightColor, Color darkColor, float transparency)
   {
     g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, transparency));
