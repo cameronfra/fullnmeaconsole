@@ -18,6 +18,8 @@ import java.awt.Component;
 
 import java.awt.Font;
 
+import java.util.Map;
+
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -37,7 +39,9 @@ import ocss.nmea.parser.Angle360;
 import ocss.nmea.parser.Depth;
 import ocss.nmea.parser.Distance;
 import ocss.nmea.parser.GeoPos;
+import ocss.nmea.parser.SVData;
 import ocss.nmea.parser.Speed;
+import ocss.nmea.parser.StringParsers;
 import ocss.nmea.parser.Temperature;
 import ocss.nmea.parser.TrueWindDirection;
 import ocss.nmea.parser.TrueWindSpeed;
@@ -94,7 +98,9 @@ public class CalculatedDataTablePane
       { NMEADataCache.HDG_OFFSET,  0d },
       { NMEADataCache.DEVIATION_FILE, "zero-deviation.csv" },
       { NMEADataCache.DEFAULT_DECLINATION, new Angle180EW() },
-      { NMEADataCache.DAMPING,     1 }
+      { NMEADataCache.DAMPING,     1 },
+      // Extra
+      { NMEADataCache.SAT_IN_VIEW, null }
     };
 
   
@@ -185,7 +191,16 @@ public class CalculatedDataTablePane
             Object o = cache.get(k);
 //          if (o != null)
             {
-              data[i][1] = o;
+              if (NMEADataCache.SAT_IN_VIEW == data[i][0])
+              {
+                if (o != null)
+                {
+                  Map<Integer, SVData> hm = (Map<Integer, SVData>)o;
+                  data[i][1] = StringParsers.GSVtoString(hm);
+                }
+              }
+              else
+                data[i][1] = o;
             }
           }
           ((AbstractTableModel)dataModel).fireTableDataChanged();
@@ -301,7 +316,8 @@ public class CalculatedDataTablePane
             defaultTable[row][0] == NMEADataCache.WP_POS ||
             defaultTable[row][0] == NMEADataCache.B2WP ||
             defaultTable[row][0] == NMEADataCache.S2WP ||
-            defaultTable[row][0] == NMEADataCache.S2STEER)
+            defaultTable[row][0] == NMEADataCache.S2STEER || 
+            defaultTable[row][0] == NMEADataCache.SAT_IN_VIEW)
           this.setForeground(Color.blue);
         else if (defaultTable[row][0] == NMEADataCache.HDG_COMPASS ||  // NMEA
                  defaultTable[row][0] == NMEADataCache.DECLINATION ||

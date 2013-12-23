@@ -50,6 +50,7 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
   public final static String LEEWAY      = "Leeway";
   public final static String CMG         = "CMG";
   public final static String PERF        = "Performance";
+  public final static String SAT_IN_VIEW = "Satellites in view";
   
   public final static String BSP_FACTOR  = "BSP Factor";
   public final static String AWS_FACTOR  = "AWS Factor";
@@ -119,6 +120,7 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
     TOOLTIP_MAP.put(S2STEER,     "<html>Steer left or right<br>From the GPS</html>");  
     TOOLTIP_MAP.put(LEEWAY,      "<html>Leeway<br>Estimated</html>");
     TOOLTIP_MAP.put(CMG,         "<html>Course Made Good<br>Calculated</html>");
+    TOOLTIP_MAP.put(SAT_IN_VIEW, "<html>Satellites in view<br>From the GPS</html>");
     
     TOOLTIP_MAP.put(BSP_FACTOR, "<html>Coefficient to apply to Boat Speed<br>(1.0 = 100%)</html>");
     TOOLTIP_MAP.put(AWS_FACTOR, "<html>Coefficient to apply to Appaprent Wind Speed<br>(1.0 = 100%)</html>");

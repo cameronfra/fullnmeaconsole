@@ -45,6 +45,7 @@ import nmea.ui.deviation.DeviationPanelHolder;
 import nmea.ui.journal.JournalPanel;
 import nmea.ui.viewer.BulkPanel;
 import nmea.ui.viewer.Full2DPanel;
+import nmea.ui.viewer.GPSSatellitesPanel;
 import nmea.ui.viewer.ViewerTablePane;
 
 import ocss.nmea.api.NMEAEvent;
@@ -91,6 +92,8 @@ public class NMEAMasterPanel
   private Full2DPanel            f2d = new Full2DPanel();                 // 2D Graphical Display
   
   private JPanel                  ep = new JPanel(new BorderLayout());
+  private JPanel                  gps = new GPSSatellitesPanel();  
+  private int gpsTabIndex = -1;
   
   private JTabbedPane tabbedPane = new JTabbedPane();
   private JLabel status = new JLabel(LogisailResourceBundle.buildMessage("ready"));
@@ -166,6 +169,15 @@ public class NMEAMasterPanel
       public void manageNMEAString(String str)
       {
         dispatchData(str);
+        try
+        {
+          if (NMEAContext.getInstance().getCache().get(NMEADataCache.SAT_IN_VIEW) != null)
+            nmeaTabbedPane.setEnabledAt(gpsTabIndex, true);
+        }
+        catch (Exception ex)
+        {
+          // No cache yet
+        }
       }
 
       public void log(boolean b)
@@ -263,6 +275,9 @@ public class NMEAMasterPanel
     nmeaTabbedPane.add(LogisailResourceBundle.buildMessage("bulk-data"), bp);
     nmeaTabbedPane.add(LogisailResourceBundle.buildMessage("viewer"), vp);
     nmeaTabbedPane.add(LogisailResourceBundle.buildMessage("data-viewer"), cp);
+    nmeaTabbedPane.add("GPS", gps);
+    gpsTabIndex = nmeaTabbedPane.getTabCount() - 1;
+    nmeaTabbedPane.setEnabledAt(gpsTabIndex, false);
       
     tabbedPane.add(LogisailResourceBundle.buildMessage("nmea-data"), nmeaTabbedPane);
     tabbedPane.add(LogisailResourceBundle.buildMessage("2d-visualization"), f2d);
@@ -280,6 +295,7 @@ public class NMEAMasterPanel
     ep.add(shifLeftPanel, BorderLayout.NORTH);
     ep.add(new DeviationPanelHolder(), BorderLayout.CENTER);
     tabbedPane.add(LogisailResourceBundle.buildMessage("deviation-curve"), ep);
+    
     
     this.add(tabbedPane, BorderLayout.CENTER);
 
