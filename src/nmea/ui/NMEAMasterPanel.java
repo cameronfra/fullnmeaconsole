@@ -45,8 +45,10 @@ import nmea.ui.deviation.DeviationPanelHolder;
 import nmea.ui.journal.JournalPanel;
 import nmea.ui.viewer.BulkPanel;
 import nmea.ui.viewer.Full2DPanel;
-import nmea.ui.viewer.GPSSatellitesPanel;
+import nmea.ui.viewer.gsv.GPSSatellitesPanel;
 import nmea.ui.viewer.ViewerTablePane;
+
+import nmea.ui.viewer.gsv.GSVPanelHolder;
 
 import ocss.nmea.api.NMEAEvent;
 import ocss.nmea.api.NMEAListener;
@@ -92,7 +94,7 @@ public class NMEAMasterPanel
   private Full2DPanel            f2d = new Full2DPanel();                 // 2D Graphical Display
   
   private JPanel                  ep = new JPanel(new BorderLayout());
-  private JPanel                  gps = new GPSSatellitesPanel();  
+  private JPanel                 gps = new GSVPanelHolder();  
   private int gpsTabIndex = -1;
   
   private JTabbedPane tabbedPane = new JTabbedPane();
