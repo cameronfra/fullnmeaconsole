@@ -18,7 +18,6 @@ public class GSVPanelHolder
 
   private void jbInit()
   {
-
     satPanel = new GPSSatellitesPanel();
     dataPanel = new ExtraData();
 
@@ -27,5 +26,4 @@ public class GSVPanelHolder
     add(satPanel, java.awt.BorderLayout.CENTER);
     add(dataPanel, java.awt.BorderLayout.EAST);
   }
-
 }
