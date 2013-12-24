@@ -128,7 +128,7 @@ public class GPSChartPanel
       Point pt = chartPanel.getPanelPoint(plot);
 //    gr.fillOval(pt.x - 5, pt.y - 5, 10, 10);
       Color lightColor = ChartColor.YELLOW;
-      Color darkColor = ChartColor.DARK_BLUE; 
+      Color darkColor  = ChartColor.DARK_BLUE; 
       drawGlossyCircularBall(g2d, pt, 5, lightColor, darkColor, 0.9f);
     }
   }
@@ -181,5 +181,4 @@ public class GPSChartPanel
                  (int)(2 * radius * 0.9), 
                  (int)(2 * radius * 0.95));
   }
-  
 }
