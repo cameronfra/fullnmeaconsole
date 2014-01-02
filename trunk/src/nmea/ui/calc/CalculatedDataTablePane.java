@@ -46,6 +46,8 @@ import ocss.nmea.parser.Temperature;
 import ocss.nmea.parser.TrueWindDirection;
 import ocss.nmea.parser.TrueWindSpeed;
 
+import user.util.GeomUtil;
+
 public class CalculatedDataTablePane
   extends JPanel
 {
@@ -198,6 +200,11 @@ public class CalculatedDataTablePane
                   Map<Integer, SVData> hm = (Map<Integer, SVData>)o;
                   data[i][1] = StringParsers.GSVtoString(hm);
                 }
+              }
+              else if (NMEADataCache.POSITION == data[i][0])
+              {
+                GeoPos pos = (GeoPos)o;
+                data[i][1] = pos.toString() + " (Grid Square: " + GeomUtil.gridSquare(pos.lat, pos.lng) + ")";
               }
               else
                 data[i][1] = o;
