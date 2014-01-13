@@ -1,6 +1,8 @@
 
 package nmea.ui.viewer.gsv;
 
+import astro.calc.GeoPoint;
+
 import coreutilities.Utilities;
 
 import java.awt.Color;
@@ -22,7 +24,10 @@ import nmea.event.NMEAReaderListener;
 import nmea.server.ctx.NMEAContext;
 import nmea.server.ctx.NMEADataCache;
 
+import ocss.nmea.parser.GeoPos;
 import ocss.nmea.parser.SVData;
+
+import user.util.GeomUtil;
 
 public class GSVExtraData
   extends javax.swing.JPanel
@@ -99,6 +104,21 @@ public class GSVExtraData
         }
         gr.setColor(Color.red);
         gr.drawString(inUse + " Satellites in use", 5, 34);
+        // Position and GRID
+        try
+        {
+          GeoPos pos = (GeoPos)NMEAContext.getInstance().getCache().get(NMEADataCache.POSITION);
+          if (pos != null)
+          {
+            int x = this.getWidth() / 2;
+            gr.drawString("Position:" + pos.toString(), x, 20);
+            gr.drawString("Square GRID:" + GeomUtil.gridSquare(pos.lat, pos.lng), x, 34);
+          }
+        }
+        catch (Exception ex)
+        {
+          // No Cache
+        }
         //
         String[][] data = new String[dataTable.size()][4];
         int i = 0;
