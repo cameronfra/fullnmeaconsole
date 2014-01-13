@@ -127,8 +127,23 @@ function TWSEvolution(cName)  // Canvas name
     
     context.strokeStyle = 'white';
     context.fillStyle = 'white';
+    
+    var minTWS = 120.0;
+    var maxTWS = 0.0;
+    var minDate, maxDate;
+    
     for (var i=0; i<twsBuffer.length; i++)
     {
+      if (twsBuffer[i].speed > maxTWS)
+      {
+        maxTWS = twsBuffer[i].speed;
+        maxDate = twsBuffer[i].time;
+      }
+      if (twsBuffer[i].speed < minTWS)
+      {
+        minTWS = twsBuffer[i].speed;
+        minDate = twsBuffer[i].time;
+      }
       if (Math.floor(twsBuffer[i].time / SEC) % (timeStep / SEC) == 0)
       {
         var y = canvas.height - (i * (canvas.height / twsBuffer.length));
@@ -204,6 +219,11 @@ function TWSEvolution(cName)  // Canvas name
     context.fillText("TWS", col1, txtY);
     context.fillText(lastTWS.speed + "kts", col2, txtY);
     txtY += space;    
+    context.fillStyle = 'blue';
+    context.fillText("Min:" + minTWS + "kts, at " + new Date(minDate).format("H:i:s"), col1, txtY);
+    txtY += space;    
+    context.fillText("Max:" + maxTWS + "kts, at " + new Date(maxDate).format("H:i:s"), col1, txtY);
+    txtY += space;    
   };
 
   var relativeMouseCoords = function (event, element)
@@ -252,6 +272,7 @@ function TWSEvolution(cName)  // Canvas name
         
         var str1 = "TWS " + Math.round(60 * x / canvas.width) + "kts";
         var str2 = ((twsBuffer[yInBuffer] !== undefined) ? new Date(twsBuffer[yInBuffer].time).format("H:i:s") : "");
+        
         instance.drawGraph();
         context.fillStyle = "rgba(250, 250, 210, .6)"; 
 //      context.fillStyle = 'yellow';
