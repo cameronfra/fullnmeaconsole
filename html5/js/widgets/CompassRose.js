@@ -1,6 +1,35 @@
 /*
  * @author Olivier Le Diouris
  */
+var compassRoseColorConfigWhite =
+{
+  borderColor:    'black',
+  borderTickness: 3,
+  bgColor:        'white',
+  textColor:      'black',
+  withGradient:   true,
+  displayBackgroundGradient:{ from: 'LightGrey', to: 'white' },
+  tickColor:      'gray',
+  font:           'Source Code Pro',
+  valueColor:     'black',
+  indexColor:     'red'
+};
+
+var compassRoseColorConfigBlack =
+{
+  borderColor:    'white',
+  borderTickness: 3,
+  bgColor:        'black',
+  textColor:      '#ffffd0', // ivory
+  withGradient:   true,
+  displayBackgroundGradient: { from: 'black', to: 'gray' },
+  tickColor:      'white',
+  font:           'Arial',
+  valueColor:     'lightgreen',
+  indexColor:     'red'
+};
+var compassRoseColorConfig = compassRoseColorConfigBlack;
+
 function CompassRose(cName,                     // Canvas Name
                      title,
                      width,                     // Display width
@@ -22,11 +51,16 @@ function CompassRose(cName,                     // Canvas Name
   if (value !== undefined)
     valueToDisplay = value;
   if (textColor === undefined)
-    textColor = '#ffffd0';   // ivory
+    textColor = compassRoseColorConfig.textColor;
   
   var instance = this;
   
   (function(){ drawDisplay(canvasName, displayWidth, displayHeight); })(); // Invoked automatically
+  
+  this.repaint = function()
+  {
+    drawDisplay(canvasName, displayWidth, displayHeight);
+  };
   
   this.setValue = function(val)
   {
@@ -44,22 +78,49 @@ function CompassRose(cName,                     // Canvas Name
   
   function drawDisplay(displayCanvasName, displayW, displayH)
   {
+    var schemeColor = getCSSClass(".display-scheme");
+    if (schemeColor !== undefined && schemeColor !== null)
+    {
+      var styleElements = schemeColor.split(";");
+      for (var i=0; i<styleElements.length; i++)
+      {
+        var nv = styleElements[i].split(":");
+        if ("color" === nv[0])
+        {
+//        console.log("Scheme Color:[" + nv[1].trim() + "]");
+          if (nv[1].trim() === 'black')
+            compassRoseColorConfig = compassRoseColorConfigBlack;
+          else if (nv[1].trim() === 'white')
+            compassRoseColorConfig = compassRoseColorConfigWhite;
+        }
+      }
+    }
+
     if (displayW !== undefined && displayH !== undefined)
     {
       scale = Math.min(displayW / 200, displayH / 50);
     }
     var canvas = document.getElementById(displayCanvasName);
     var context = canvas.getContext('2d');
-
-    var grd = context.createLinearGradient(0, 5, 0, document.getElementById(cName).height);
-    grd.addColorStop(0, 'black'); // 0  Beginning
-    grd.addColorStop(1, 'gray');  // 1  End
-    context.fillStyle = grd;
-  
+    
+    if (compassRoseColorConfig.withGradient)
+    {
+      var grd = context.createLinearGradient(0, 5, 0, document.getElementById(cName).height);
+      grd.addColorStop(0, compassRoseColorConfig.displayBackgroundGradient.from); // 0  Beginning
+      grd.addColorStop(1, compassRoseColorConfig.displayBackgroundGradient.to);  // 1  End
+      context.fillStyle = grd;
+    }
+    else
+      context.fillStyle = compassRoseColorConfig.bgColor;      
     // Background
     roundRect(context, 0, 0, canvas.width, canvas.height, 10, true, false);    
+    // frame/border
+    context.strokeStyle = compassRoseColorConfig.borderColor;
+    context.lineWidth = compassRoseColorConfig.borderTickness;
+    roundRect(context, 0, 0, canvas.width, canvas.height, 10, false, false);
+    context.stroke();
     // Ticks
-    context.strokeStyle = 'white'; // 'rgba(255, 255, 255, 0.7)';
+    context.strokeStyle = compassRoseColorConfig.tickColor;
     context.lineWidth   = 0.5;
     
     var startValue = valueToDisplay - (totalViewAngle / 2);
@@ -70,7 +131,7 @@ function CompassRose(cName,                     // Canvas Name
       if (tick % 5 === 0)
         tickHeight = canvas.height / 2;
       var x = (tick - startValue) * (canvas.width / totalViewAngle);
-      context.strokeStyle = 'white'; // 'rgba(255, 255, 255, 0.7)';
+      context.strokeStyle = compassRoseColorConfig.tickColor; // 'rgba(255, 255, 255, 0.7)';
       context.beginPath();
       context.moveTo(x, 0);
       context.lineTo(x, tickHeight);
@@ -89,20 +150,20 @@ function CompassRose(cName,                     // Canvas Name
           if (tick === 270) txt = "W";
           if (tick === 360) txt = "N";
         }
-        context.font = "bold " + Math.round(scale * 20) + "px Arial"; // "bold 16px Arial"
+        context.font = "bold " + Math.round(scale * 20) + "px " + compassRoseColorConfig.font; // "bold 16px Arial"
         var metrics = context.measureText(txt);
         len = metrics.width;    
-        context.fillStyle = textColor;
+        context.fillStyle = compassRoseColorConfig.textColor;
         context.fillText(txt, x - (len / 2), canvas.height - 5);
       }
     }
 
-    context.fillStyle = 'green';
+    context.fillStyle = compassRoseColorConfig.valueColor;
     // Value, top left corner
-    context.font = "bold " + Math.round(scale * 16) + "px Courier New"; // "bold 16px Arial"
+    context.font = "bold " + Math.round(scale * 16) + "px " + compassRoseColorConfig.font; // "bold 16px Arial"
     context.fillText(valueToDisplay.toString() + "\272", 5, 14);
     
-    context.strokeStyle = 'red';
+    context.strokeStyle = compassRoseColorConfig.indexColor;
     context.beginPath();
     context.moveTo(canvas.width / 2, 0);
     context.lineTo(canvas.width / 2, canvas.height);

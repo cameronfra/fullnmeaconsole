@@ -1,6 +1,38 @@
 /*
  * @author Olivier Le Diouris
  */
+var thermometerColorConfigWhite = 
+{
+  withShadow:        true,
+  shadowColor:       'LightGrey',
+  scaleColor:        'black',
+  bgColor:           'white',
+  majorTickColor:    'LightGrey',
+  minorTickColor:    'DarkGrey',
+  valueOutlineColor: 'black',
+  valueColor:        'DarkGrey',
+  tubeOutlineColor:  'pink',
+  hgOutlineColor:    'DarkGrey',
+  font:              'Arial'
+};
+
+var thermometerColorConfigBlack = 
+{
+  withShadow:        true,
+  shadowColor:       'black',
+  scaleColor:        'LightGrey',
+  bgColor:           'black',
+  majorTickColor:    'LightGrey',
+  minorTickColor:    'DarkGrey',
+  valueOutlineColor: 'black',
+  valueColor:        'LightGrey',
+  tubeOutlineColor:  'pink',
+  hgOutlineColor:    'DarkGrey',
+  font:              'Arial'
+};
+
+var thermometerColorConfig = thermometerColorConfigBlack; // Black is the default
+
 function Thermometer(cName, dSize, minValue, maxValue, majorTicks, minorTicks)
 {
   if (minValue === undefined)
@@ -25,6 +57,11 @@ function Thermometer(cName, dSize, minValue, maxValue, majorTicks, minorTicks)
 //try { console.log('in the Thermometer constructor for ' + cName + " (" + dSize + ")"); } catch (e) {}
   
   (function(){ drawDisplay(canvasName, displaySize, previousValue); })(); // Invoked automatically
+  
+  this.repaint = function()
+  {
+    drawDisplay(canvasName, displaySize, previousValue);
+  };
   
   this.setDisplaySize = function(ds)
   {
@@ -64,9 +101,9 @@ function Thermometer(cName, dSize, minValue, maxValue, majorTicks, minorTicks)
 //  console.log(canvasName + " going from " + previousValue + " to " + value);
     
     if (diff > 0)
-      incr = 0.01 * maxValue;
+      incr = 1; // 0.1 * maxValue; // 0.01 is nocer, but too slow...
     else 
-      incr = -0.01 * maxValue;
+      incr = -1; // -0.1 * maxValue;
     intervalID = window.setInterval(function () { displayAndIncrement(incr, value); }, 50);
   };
 
@@ -89,7 +126,25 @@ function Thermometer(cName, dSize, minValue, maxValue, majorTicks, minorTicks)
 
   function drawDisplay(displayCanvasName, displayRadius, displayValue)
   {
-    var digitColor = 'red';
+    var schemeColor = getCSSClass(".display-scheme");
+    if (schemeColor !== undefined && schemeColor !== null)
+    {
+      var styleElements = schemeColor.split(";");
+      for (var i=0; i<styleElements.length; i++)
+      {
+        var nv = styleElements[i].split(":");
+        if ("color" === nv[0])
+        {
+//        console.log("Scheme Color:[" + nv[1].trim() + "]");
+          if (nv[1].trim() === 'black')
+            thermometerColorConfig = thermometerColorConfigBlack;
+          else if (nv[1].trim() === 'white')
+            thermometerColorConfig = thermometerColorConfigWhite;
+        }
+      }
+    }
+
+    var digitColor = thermometerColorConfig.scaleColor;
     
     var canvas = document.getElementById(displayCanvasName);
     var context = canvas.getContext('2d');
@@ -97,13 +152,15 @@ function Thermometer(cName, dSize, minValue, maxValue, majorTicks, minorTicks)
     var radius = 10; // The ball at the bottom. The tube is (radius / 2) wide.
   
     // Cleanup
+    context.fillStyle = thermometerColorConfig.bgColor;
   //context.fillStyle = "#ffffff";
   //context.fillStyle = "LightBlue";
-    context.fillStyle = "transparent";
+  //context.fillStyle = "transparent";
     context.fillRect(0, 0, canvas.width, canvas.height);    
   //context.fillStyle = 'rgba(255, 255, 255, 0.0)';
   //context.fillRect(0, 0, canvas.width, canvas.height);    
   
+  //context.fillStyle = "transparent";
      // Bottom of the tube at (canvas.height - 10 - radius)
     var bottomTube = (canvas.height - 10 - radius);
     var topTube = 40;// Top of the tube at y = 20
@@ -122,7 +179,7 @@ function Thermometer(cName, dSize, minValue, maxValue, majorTicks, minorTicks)
       context.lineTo(xTo, yTo);
     }
     context.lineWidth = 1;
-    context.strokeStyle = 'darkGrey';
+    context.strokeStyle = thermometerColorConfig.majorTickColor;
     context.stroke();
     context.closePath();
 
@@ -140,7 +197,7 @@ function Thermometer(cName, dSize, minValue, maxValue, majorTicks, minorTicks)
         context.lineTo(xTo, yTo);
       }
       context.lineWidth = 1;
-      context.strokeStyle = 'darkGrey';
+      context.strokeStyle = thermometerColorConfig.minorTickColor;
       context.stroke();
       context.closePath();
     }
@@ -154,16 +211,21 @@ function Thermometer(cName, dSize, minValue, maxValue, majorTicks, minorTicks)
     context.lineWidth = 1;
   
     var grd = context.createLinearGradient(0, 5, 0, radius);
-    grd.addColorStop(0, 'black');// 0  Beginning
-    grd.addColorStop(1, 'LightGrey');// 1  End
+    grd.addColorStop(0, 'LightGrey'); // 0  Beginning. black
+    grd.addColorStop(1, 'white');     // 1  End. LightGrey
     context.fillStyle = grd;
-    
-    context.shadowBlur  = 20;
-    context.shadowColor = 'black';
+
+    if (thermometerColorConfig.withShadow)
+    {    
+      context.shadowOffsetX = 3;
+      context.shadowOffsetY = 3;
+      context.shadowBlur  = 3;
+      context.shadowColor = thermometerColorConfig.shadowColor;
+    }
   
     context.lineJoin    = "round";
     context.fill();
-    context.strokeStyle = 'DarkGrey';
+    context.strokeStyle = thermometerColorConfig.tubeOutlineColor; // Tube outline color
     context.stroke();
     context.closePath();
         
@@ -173,7 +235,7 @@ function Thermometer(cName, dSize, minValue, maxValue, majorTicks, minorTicks)
     {
       xTo = (canvas.width / 2) + 20;
       yTo = bottomTube - ((tubeLength) * ((i - minValue) / (maxValue - minValue)));;
-      context.font = "bold 10px Arial";
+      context.font = "bold 10px " + thermometerColorConfig.font;
       context.fillStyle = digitColor;
       str = i.toString();
       len = context.measureText(str).width;
@@ -184,15 +246,15 @@ function Thermometer(cName, dSize, minValue, maxValue, majorTicks, minorTicks)
     // Value
     text = displayValue.toFixed(2);
     len = 0;
-    context.font = "bold 20px Arial";
+    context.font = "bold 20px " + thermometerColorConfig.font;
     var metrics = context.measureText(text);
     len = metrics.width;
   
     context.beginPath();
-    context.fillStyle = 'LightRed';
+    context.fillStyle = thermometerColorConfig.valueColor;
     context.fillText(text, (canvas.width / 2) - (len / 2), ((radius * .75) + 10));
     context.lineWidth = 1;
-    context.strokeStyle = 'black';
+    context.strokeStyle = thermometerColorConfig.valueOutlineColor;
     context.strokeText(text, (canvas.width / 2) - (len / 2), ((radius * .75) + 10)); // Outlined  
     context.closePath();
   
@@ -208,18 +270,19 @@ function Thermometer(cName, dSize, minValue, maxValue, majorTicks, minorTicks)
     context.lineWidth = 1;
   
     var _grd = context.createLinearGradient(0, topTube, 0, tubeLength);
-    _grd.addColorStop(0,   'red');    // 0  Beginning
+    // Colors are hard-coded
+    _grd.addColorStop(0,   'red');    // 0  Beginning, top
     _grd.addColorStop(0.6, 'orange');   
     _grd.addColorStop(0.8, 'blue'); 
-    _grd.addColorStop(1,   'navy');   // 1  End
+    _grd.addColorStop(1,   'navy');   // 1  End, bottom
     context.fillStyle = _grd;
     
-    context.shadowBlur  = 20;
-    context.shadowColor = 'black';
+//  context.shadowBlur  = 20;
+//  context.shadowColor = 'black';
   
     context.lineJoin    = "round";
     context.fill();
-    context.strokeStyle = 'DarkGrey';
+    context.strokeStyle = thermometerColorConfig.hgOutlineColor;
     context.stroke();
     context.closePath();
   };

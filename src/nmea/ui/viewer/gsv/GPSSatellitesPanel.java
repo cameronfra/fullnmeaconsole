@@ -1,4 +1,3 @@
-
 package nmea.ui.viewer.gsv;
 
 import java.awt.AlphaComposite;
