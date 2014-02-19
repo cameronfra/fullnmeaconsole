@@ -15,6 +15,7 @@
     </style>
     <link rel="stylesheet" href="css/black.css" type="text/css" id="theme"/>
     <script type="text/javascript" src="js/date.proto.js"></script>
+    <script type="text/javascript" src="js/cssutils.js"></script>
     <script type="text/javascript" src="js/widgets/AnalogDisplay.js"></script>
     <script type="text/javascript" src="js/widgets/CompassRose.js"></script>
     <script type="text/javascript" src="js/widgets/BoatOverview.js"></script>
@@ -158,6 +159,11 @@
     var themeList = document.getElementById("theme-select");
     var selected = themeList.options[themeList.selectedIndex].value;
     cssLink.href = 'css/' + selected + '.css';
+    // Repaint the displays
+    displayBSP.repaint();    
+    displayTWS.repaint();
+    rose.repaint();
+    thermometer.repaint();
   };
   
   var resetTWBuffer = function()
@@ -207,7 +213,7 @@
       <button id="showCalPrms" onclick="showCalPrms();">Calibration Prms</button>
     </small>
     <select id="theme-select" onchange="changeTheme();">
-      <option value="black">Black theme</option>
+      <option value="black" selected>Black theme</option>
       <option value="white">White theme</option>
     </select>
     <div id="displays" style="display: inline;">
