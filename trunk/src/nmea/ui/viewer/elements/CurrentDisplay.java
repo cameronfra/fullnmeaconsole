@@ -191,6 +191,11 @@ public class CurrentDisplay
     dataValueLabel.setText(speedFmt.format(speed));
   }
 
+  public void setAngleValue(double angle)
+  {
+    dataValueLabel.setText(angleFmt.format(angle));
+  }
+
   public void setDisplayColor(Color c)
   {
     displayColor = c;

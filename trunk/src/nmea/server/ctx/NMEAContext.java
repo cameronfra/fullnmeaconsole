@@ -20,8 +20,12 @@ import java.util.List;
 
 import nmea.event.NMEAReaderListener;
 
+import nmea.ui.viewer.spot.utils.SpotParser.SpotLine;
+
 import ocss.nmea.api.NMEAEvent;
 import ocss.nmea.api.NMEAListener;
+
+import ocss.nmea.parser.GeoPos;
 
 import oracle.xml.parser.v2.DOMParser;
 
@@ -181,6 +185,14 @@ public class NMEAContext implements Serializable
       cme.printStackTrace();
     }
   }
+  
+  public void fireNewSpotData(List<SpotLine> spotLines, GeoPos pos)
+  {
+    for (NMEAReaderListener l : NMEAReaderListeners)
+    {
+      l.newSpotData(spotLines, pos);
+    }
+  }
 
   public void setReplayFile(final String replayFile)
   {
@@ -267,6 +279,24 @@ public class NMEAContext implements Serializable
     {
       NMEAReaderListener l = NMEAReaderListeners.get(i);
       l.internalFrameClosed();
+    }
+  }
+  
+  public void firePositionManuallyChanged(GeoPos gp)
+  {
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
+    {
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
+      l.positionManuallyUpdated(gp);
+    }
+  }
+  
+  public void fireSetSpotLineIndex(int idx)
+  {
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
+    {
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
+      l.setSpotLineIndex(idx);
     }
   }
   

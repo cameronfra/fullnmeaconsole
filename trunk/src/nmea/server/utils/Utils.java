@@ -966,9 +966,13 @@ public class Utils
   
   public static void drawArrow(Graphics2D g, Point from, Point to, Color c)
   {
+    drawArrow(g, from, to, c, 30);
+  }
+  public static void drawArrow(Graphics2D g, Point from, Point to, Color c, int hl)
+  {
     Color orig = null;
     if (g != null) orig = g.getColor();
-    int headLength = 30;
+    int headLength = hl;
     double headHalfAngle = 15D;
     
     double dir = getDir((float)(from.x - to.x), (float)(to.y - from.y));

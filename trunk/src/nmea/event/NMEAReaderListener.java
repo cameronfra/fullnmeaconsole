@@ -5,6 +5,13 @@ import java.util.EventListener;
 import java.util.Hashtable;
 import java.util.List;
 
+import nmea.ui.viewer.spot.utils.SpotParser.SpotLine;
+
+import ocss.nmea.parser.GeoPos;
+
+/*
+ * Specific listener for the NMEA Console.
+ */
 public abstract class NMEAReaderListener implements EventListener
 {
   private String groupID = "";
@@ -44,4 +51,8 @@ public abstract class NMEAReaderListener implements EventListener
   public void setAutoScale(boolean b) {}
   public void setWindScale(float f) {}
   public void dampingHasChanged(int damping) {}
+  
+  public void positionManuallyUpdated(GeoPos gp) {}
+  public void newSpotData(List<SpotLine> spotLines, GeoPos pos) {}
+  public void setSpotLineIndex(int i) {}
 }
