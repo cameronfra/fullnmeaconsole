@@ -215,6 +215,7 @@ public class SpotParserPanel
               // Set min max TWS
               double maxWind = 0D, maxPress = 0D;
               double minWind = Double.MAX_VALUE, minPress = Double.MAX_VALUE;
+              float maxRain = 0f;
               for (SpotLine sp : spotLines)
               {
                 double tws = sp.getTws();
@@ -223,9 +224,12 @@ public class SpotParserPanel
                 double prmsl = sp.getPrmsl();
                 maxPress = Math.max(maxPress, prmsl);
                 minPress = Math.min(minPress, prmsl);
+                double rain = sp.getRain();
+                maxRain = (float)Math.max((double)maxRain, rain);
               }
               twsSpeedoPanel.setMinMax(minWind, maxWind);
               prmslDisplay.setMinMax(minPress, maxPress);
+              windGauge.setMax(10 * maxRain);
             }
             repaint();
           }
