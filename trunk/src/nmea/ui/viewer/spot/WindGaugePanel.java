@@ -93,6 +93,8 @@ public class WindGaugePanel
                                    Color.lightGray, 
                                    Color.black, 
                                    1f); 
+      g2d.setColor(Color.white);
+      g2d.drawRoundRect(topLeft.x , topLeft.y, this.getWidth(), this.getHeight(), 10, 10);
     }
     // Data
     final int MAX_RANGE = 60;

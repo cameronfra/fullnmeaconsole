@@ -53,6 +53,7 @@ public class SpotPanelHolder
     mainTabbedPanel.setEnabledAt(2, false);
 
     setLayout(new BorderLayout());
+    setPreferredSize(new Dimension(900, 500));
 
     add(mainTabbedPanel, java.awt.BorderLayout.CENTER);
     add(dataPanel, java.awt.BorderLayout.EAST);

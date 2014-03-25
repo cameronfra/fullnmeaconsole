@@ -6,6 +6,7 @@ import coreutilities.Utilities;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -20,6 +21,10 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import java.net.URI;
+
+import java.net.URLEncoder;
 
 import java.text.DecimalFormat;
 
@@ -71,6 +76,8 @@ public class SpotComposerPanel
   private JCheckBox rainCheckBox = new JCheckBox();
   private JLabel generatedRequestLabel = new JLabel();
   private JButton clipBoardButton = new JButton();
+  private JButton mailButton = new JButton();
+  private JPanel buttonPanel = new JPanel();
 
   public SpotComposerPanel()
   {
@@ -184,17 +191,25 @@ public class SpotComposerPanel
         clipBoardButton_actionPerformed(e);
       }
     });
+    mailButton.setText("email client");
+    mailButton.addActionListener(new ActionListener()
+    {
+      public void actionPerformed(ActionEvent e)
+      {
+        mailButton_actionPerformed(e);
+      }
+    });
     topPanel.add(gpsRadioButton,
-             new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-                                    new Insets(0, 0, 0, 0), 0, 0));
+                 new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+                                        new Insets(0, 0, 0, 0), 0, 0));
     topPanel.add(manualPosRadioButton,
-             new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-                                    new Insets(0, 0, 0, 0), 0, 0));
+                 new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+                                        new Insets(0, 0, 0, 0), 0, 0));
     topPanel.add(positionOriginLabel,
-                 new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE,
+                 new GridBagConstraints(2, 0, 2, 1, 0.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE,
                                         new Insets(0, 0, 0, 0), 0, 0));
     topPanel.add(positionPanel,
-                 new GridBagConstraints(0, 2, 2, 1, 0.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH,
+                 new GridBagConstraints(2, 2, 2, 1, 0.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 0, 0), 0, 0));
     positionPanel.setEnabled(false);
     positionPanel.showButton(false);
@@ -215,21 +230,24 @@ public class SpotComposerPanel
     durationPanel.add(intervalInHoursLabel, null);
     durationPanel.add(hoursComboBox, null);
     topPanel.add(durationPanel,
-                 new GridBagConstraints(0, 3, 2, 1, 0.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH,
+                 new GridBagConstraints(2, 3, 2, 1, 0.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH,
                                         new Insets(5, 0, 0, 0), 0, 0));
     dataPanel.add(windCheckBox, null);
     dataPanel.add(prmslCheckBox, null);
     dataPanel.add(rainCheckBox, null);
     topPanel.add(dataPanel,
-                 new GridBagConstraints(0, 4, 2, 1, 0.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH,
+                 new GridBagConstraints(2, 4, 2, 1, 0.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 0, 0), 0, 0));
     topPanel.add(generatedRequestLabel,
-             new GridBagConstraints(0, 5, 2, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                    new Insets(0, 0, 0, 0), 0, 0));
-    topPanel.add(clipBoardButton,
-                 new GridBagConstraints(0, 6, 2, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
-                                        new Insets(0, 0, 10, 0), 0, 0));
-    
+                 new GridBagConstraints(2, 5, 2, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                        new Insets(0, 0, 0, 0), 0, 0));
+
+    buttonPanel.add(clipBoardButton, null);
+    buttonPanel.add(mailButton, null);
+    mailButton.setToolTipText("In case you're connected on the Internet...");
+    topPanel.add(buttonPanel,
+                 new GridBagConstraints(2, 6, 2, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+                                        new Insets(0, 0, 0, 0), 0, 0));
     generatedRequestLabel.setText(composeRequest());
     NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener()
       {
@@ -404,5 +422,24 @@ public class SpotComposerPanel
   {
     positionPanel.setEnabled(manualPosRadioButton.isSelected());
     positionPanel.showButton(manualPosRadioButton.isSelected());
+  }
+
+  private void mailButton_actionPerformed(ActionEvent e)
+  {
+    try
+    {
+      String href = "mailto:query@saildocs.com?subject=SPOT%20Request&body=" + URLEncoder.encode(generatedRequestLabel.getText(), "UTF-8").replace("+", "%20");
+      System.out.println("Emailing [" + href + "]");
+      JOptionPane.showMessageDialog(this, "Make sure to send your email in PLAIN text.", "SPOT Request", JOptionPane.WARNING_MESSAGE);
+      Desktop.getDesktop().mail(new URI(href));      
+    }
+    catch (UnsupportedOperationException uoe)
+    {
+      JOptionPane.showMessageDialog(this, "Operation not supported here!", "SPOT Request", JOptionPane.ERROR_MESSAGE);
+    }
+    catch (Exception ex)
+    {
+      ex.printStackTrace();
+    }
   }
 }
