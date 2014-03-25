@@ -20,7 +20,13 @@ public class WindGaugePanel
   extends JPanel
 {
   float tws = 0f;
-  
+  float max = -1f;
+
+  public void setMax(float max)
+  {
+    this.max = max;
+  }
+
   public WindGaugePanel()
   {
     try
@@ -135,6 +141,12 @@ public class WindGaugePanel
           go = false;
         go = false;
       }
+    }
+    if (max != -1)
+    {
+      gr.setColor(Color.red);
+      int hMax = gaugeHeight - (int)(gaugeHeight * (max / (float)MAX_RANGE));
+      gr.drawLine(0, hMax, this.getWidth(), hMax);
     }
   }
 

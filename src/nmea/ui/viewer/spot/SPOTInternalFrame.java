@@ -60,7 +60,7 @@ public class SPOTInternalFrame
     throws Exception
   {
     getContentPane().setLayout(borderLayout1);
-    setSize(new Dimension(950, 500));
+    setSize(new Dimension(1200, 650));
     setTitle("SPOT Bulletins");
     try { this.setFrameIcon(new ImageIcon(this.getClass().getResource("anchor.png"))); } catch (Exception ignore) {}
     this.addInternalFrameListener(new InternalFrameAdapter()
