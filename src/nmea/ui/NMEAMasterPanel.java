@@ -97,7 +97,7 @@ public class NMEAMasterPanel
   
   private JPanel                  ep = new JPanel(new BorderLayout());
   private JPanel                 gps = new GSVPanelHolder();  
-  private JPanel                spot = new SpotPanelHolder();  
+//private JPanel                spot = new SpotPanelHolder();  
   private int gpsTabIndex = -1;
   
   private JTabbedPane tabbedPane = new JTabbedPane();
@@ -282,7 +282,7 @@ public class NMEAMasterPanel
     nmeaTabbedPane.add(LogisailResourceBundle.buildMessage("data-viewer"), cp);
     nmeaTabbedPane.add("GPS", gps);
     gpsTabIndex = nmeaTabbedPane.getTabCount() - 1;
-    nmeaTabbedPane.add("SPOT", spot);
+//  nmeaTabbedPane.add("SPOT", spot);
     nmeaTabbedPane.setEnabledAt(gpsTabIndex, false);
       
     tabbedPane.add(LogisailResourceBundle.buildMessage("nmea-data"), nmeaTabbedPane);

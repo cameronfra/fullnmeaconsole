@@ -43,7 +43,7 @@ public class SpotCanvas
   {
     SDF.setTimeZone(TimeZone.getTimeZone("Etc/UTC"));
   }
-  private boolean withRawData = true, withSmoothData = true;
+  private boolean withDate = true, withRawData = true, withSmoothData = true;
   
   @Override
   public void mouseClicked(MouseEvent mouseEvent)
@@ -131,6 +131,12 @@ public class SpotCanvas
     this.addMouseMotionListener(this);
   }
   
+  public void setWithDate(boolean b)
+  {
+    this.withDate = b;
+    this.repaint();
+  }
+  
   public void setWithRawData(boolean b)
   {
     this.withRawData = b;
@@ -145,8 +151,15 @@ public class SpotCanvas
   
   public void setTimeZone(String tzID)
   {
-    SDF.setTimeZone(TimeZone.getTimeZone(tzID));
-    this.repaint();
+    if (tzID != null)
+    {
+      try { SDF.setTimeZone(TimeZone.getTimeZone(tzID)); }
+      catch (NullPointerException npe)
+      {
+        System.out.println("NPE for [" + tzID + "]");
+      }
+      this.repaint();
+    }
   }
   
   public void paintComponent(Graphics gr)
@@ -236,7 +249,7 @@ public class SpotCanvas
       ((Graphics2D) gr).setStroke(origStroke);
       
       g2d.setColor(Color.black);
-      for (int i=0; i<this.spotLines.size(); i++)
+      for (int i=0; i<this.spotLines.size() && withDate; i++)
       {
         int xPos = (int)(i * xScale);
         g2d.rotate(Math.toRadians(-90), xPos, this.getHeight() - 2);
