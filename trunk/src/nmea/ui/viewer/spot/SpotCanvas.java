@@ -9,6 +9,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 
+import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -38,12 +39,12 @@ public class SpotCanvas
      extends JPanel
   implements MouseListener, MouseMotionListener
 {
-  private final static SimpleDateFormat SDF = new SimpleDateFormat("dd-MMM-YYYY HH:mm Z");
+  private final static SimpleDateFormat SDF = new SimpleDateFormat("E dd-MMM HH:mm Z");
   static 
   {
     SDF.setTimeZone(TimeZone.getTimeZone("Etc/UTC"));
   }
-  private boolean withDate = true, withRawData = true, withSmoothData = true;
+  private boolean withDate = true, withRawData = true, withSmoothData = true, withRain = false;
   
   @Override
   public void mouseClicked(MouseEvent mouseEvent)
@@ -137,6 +138,12 @@ public class SpotCanvas
     this.repaint();
   }
   
+  public void setWithRain(boolean b)
+  {
+    this.withRain = b;
+    this.repaint();
+  }
+  
   public void setWithRawData(boolean b)
   {
     this.withRawData = b;
@@ -165,6 +172,10 @@ public class SpotCanvas
   public void paintComponent(Graphics gr)
   {    
     Graphics2D g2d = (Graphics2D) gr;
+    g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                         RenderingHints.VALUE_TEXT_ANTIALIAS_ON);      
+    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                         RenderingHints.VALUE_ANTIALIAS_ON);  
     gr.setColor(Color.lightGray);
     gr.fillRect(0, 0, this.getWidth(), this.getHeight());
     gr.setColor(Color.darkGray);
@@ -184,11 +195,13 @@ public class SpotCanvas
       Date fromDate = null;
       Date toDate   = null;
       double maxWind = 0D;
+      double maxRain = 0D;
       for (SpotLine sp : this.spotLines)
       {
         Date date = sp.getDate();
         double tws = sp.getTws();
         maxWind = Math.max(maxWind, tws);
+        maxRain = Math.max(maxRain, sp.getRain());
         if (fromDate == null)
           fromDate = date;
         toDate = date;
@@ -247,7 +260,45 @@ public class SpotCanvas
         Utils.drawArrow((Graphics2D)gr, new Point(xPos, (this.getHeight() / 2)), new Point(x, y), Color.blue, 12);    
       }
       ((Graphics2D) gr).setStroke(origStroke);
+
+      // Rain ?
+      if (withRain && maxRain > 0)
+      {
+        yScale = this.getHeight() / maxRain;
+        gr.setColor(Color.blue);
+        prevPoint = null;
+        for (int i=0; i<this.spotLines.size() && withRawData; i++)
+        {
+          Point currPoint = new Point((int)(i * xScale), this.getHeight() - (int)(this.spotLines.get(i).getRain() * yScale));
+          if (prevPoint != null)
+          {
+            gr.drawLine(prevPoint.x, prevPoint.y, currPoint.x, currPoint.y);
+          }
+          prevPoint = currPoint;
+        }
+        origStroke = ((Graphics2D) gr).getStroke();
+        if (withSmoothData)
+        {
+          gr.setColor(Color.blue);
+          stroke = new BasicStroke(4, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL);
+          g2d.setStroke(stroke);
+          List<Double> smoothedRain = smoothRainData();
+          double smothedXScale = (double)this.getWidth() / (double)(smoothedRain.size() - 1);
+          prevPoint = null;
+          for (int i=0; i<smoothedRain.size(); i++)
+          {
+            Point currPoint = new Point((int)(i * smothedXScale), this.getHeight() - (int)(smoothedRain.get(i).doubleValue() * yScale));
+            if (prevPoint != null)
+            {
+              gr.drawLine(prevPoint.x, prevPoint.y, currPoint.x, currPoint.y);
+            }
+            prevPoint = currPoint;
+          }
+          g2d.setStroke(origStroke);
+        }
+      }
       
+      // Dates
       g2d.setColor(Color.black);
       for (int i=0; i<this.spotLines.size() && withDate; i++)
       {
@@ -296,6 +347,43 @@ public class SpotCanvas
     return smoothData;
   }
   
+  private List<Double> smoothRainData()
+  {
+    List<Double> smoothData = new ArrayList<Double>();
+    // 1 - More data (10 times more)
+    for (int i=0; i<this.spotLines.size() - 1; i++)
+    {
+      for (int j=0; j<10; j++)
+      {
+        double _rain = this.spotLines.get(i).getRain() + (j * (this.spotLines.get(i + 1).getRain() - this.spotLines.get(i).getRain()) / 10);
+        smoothData.add(_rain);
+      }
+    }
+    // 2 - Smooth
+    List<Double>  _smoothData = new ArrayList<Double>();
+    int smoothWidth = 20;
+    for (int i=0; i<smoothData.size(); i++)
+    {
+      double yAccu = 0;
+      for (int acc=i-(smoothWidth / 2); acc<i+(smoothWidth/2); acc++)
+      {
+        double y;
+        if (acc < 0)
+          y = smoothData.get(0).doubleValue();
+        else if (acc > (smoothData.size() - 1))
+          y = smoothData.get(smoothData.size() - 1).doubleValue();
+        else
+          y = smoothData.get(acc).doubleValue();
+        yAccu += y;
+      }
+      yAccu = yAccu / smoothWidth;
+      _smoothData.add(yAccu);
+  //    console.log("I:" + smoothData[i].getX() + " y from " + smoothData[i].getY() + " becomes " + yAccu);
+    }
+    smoothData = _smoothData;
+    return smoothData;
+  }
+    
   private void setSpotLines(List<SpotLine> spotLines)
   {
     this.spotLines = spotLines;

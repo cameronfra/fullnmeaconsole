@@ -60,6 +60,7 @@ public class SpotParserPanel
   private JLabel rainLabel = new JLabel();
   private PartCircularDisplay prmslDisplay = null;
   private JLabel prmslLabel = new JLabel();
+  private JCheckBox rainCheckBox = new JCheckBox();
 
   public SpotParserPanel()
   {
@@ -70,7 +71,7 @@ public class SpotParserPanel
   {
     this.setLayout(borderLayout1);
     this.setBackground(Color.black);
-    this.setSize(new Dimension(615, 385));
+    this.setSize(new Dimension(801, 478));
     parsedDataPanel.setBackground(Color.black);
 //  spotScrollPane.setMaximumSize(new Dimension(32767, 37));
     parsedDataPanel.setLayout(gridBagLayout1);
@@ -138,6 +139,7 @@ public class SpotParserPanel
     controlPanel.add(dateCheckBox, null);
     controlPanel.add(rawCheckBox, null);
     controlPanel.add(smoothCheckBox, null);
+    controlPanel.add(rainCheckBox, null);
     controlPanel.add(timeZoneComboBox, null);
     controlPanel.add(narrowTextField, null);
     narrowTextField.setToolTipText("Restriction on the Time Zone (filter, regex)");
@@ -159,6 +161,14 @@ public class SpotParserPanel
     rainLabel.setForeground(new Color(247, 247, 247));
     prmslLabel.setText("PRMSL");
     prmslLabel.setForeground(new Color(247, 247, 247));
+    rainCheckBox.setText("Rain");
+    rainCheckBox.addActionListener(new ActionListener()
+    {
+      public void actionPerformed(ActionEvent e)
+      {
+        rainCheckBox_actionPerformed(e);
+      }
+    });
     narrowTextField.getDocument().addDocumentListener(new DocumentListener()
     {
       public void insertUpdate(DocumentEvent e)
@@ -311,5 +321,10 @@ public class SpotParserPanel
     spotCanvas.setWithDate(dateCheckBox.isSelected());
     timeZoneComboBox.setEnabled(dateCheckBox.isSelected());
     narrowTextField.setEnabled(dateCheckBox.isSelected());
+  }
+
+  private void rainCheckBox_actionPerformed(ActionEvent e)
+  {
+    spotCanvas.setWithRain(rainCheckBox.isSelected());
   }
 }
