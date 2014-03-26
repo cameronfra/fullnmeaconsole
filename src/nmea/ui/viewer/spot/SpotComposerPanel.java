@@ -244,7 +244,7 @@ public class SpotComposerPanel
 
     buttonPanel.add(clipBoardButton, null);
     buttonPanel.add(mailButton, null);
-    mailButton.setToolTipText("In case you're connected on the Internet...");
+    mailButton.setToolTipText("<html>Will launch your default email client<br>so you can send your request to query@saildocs.com<br>... in case you're connected on the Internet.</html>");
     topPanel.add(buttonPanel,
                  new GridBagConstraints(2, 6, 2, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
                                         new Insets(0, 0, 0, 0), 0, 0));
