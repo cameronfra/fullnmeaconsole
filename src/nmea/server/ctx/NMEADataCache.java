@@ -26,6 +26,8 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
   public final static String LOG         = "Log";
   public final static String DAILY_LOG   = "Daily";
   public final static String WATER_TEMP  = "Water Temperature";
+  public final static String AIR_TEMP    = "Air Temperature";
+  public final static String BARO_PRESS  = "Barometric Pressure";
   public final static String AWA         = "AWA";
   public final static String AWS         = "AWS";
   public final static String HDG_COMPASS = "HDG c.";
@@ -97,6 +99,8 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
     TOOLTIP_MAP.put(LOG,         "<html>Log<br>From the NMEA Station</html>");
     TOOLTIP_MAP.put(DAILY_LOG,   "<html>Daily Log<br>From the NMEA Station</html>");
     TOOLTIP_MAP.put(WATER_TEMP,  "<html>Water Temperature<br>From the NMEA Station</html>");
+    TOOLTIP_MAP.put(AIR_TEMP,    "<html>Air Temperature<br>From the NMEA Station or an extra sensor</html>");
+    TOOLTIP_MAP.put(BARO_PRESS,  "<html>Barometric Pressure<br>From the NMEA Station or an extra sensor</html>");
     TOOLTIP_MAP.put(AWA,         "<html>Apparent Wind Angle<br>From the NMEA Station</html>");
     TOOLTIP_MAP.put(AWS,         "<html>Apparent Wind Speed<br>From the NMEA Station</html>");
     TOOLTIP_MAP.put(HDG_COMPASS, "<html>Heading, Compass<br>From the NMEA Station</html>");

@@ -347,6 +347,7 @@ public class NMEAMasterPanel
       }
     }
     NMEAContext.getInstance().addNMEAListener(nmeaDataListener);
+    // TODO Multiplexing (other NMEA Sources, like the RasPI)
   }
 
   private void read()

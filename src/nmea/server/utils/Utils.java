@@ -75,6 +75,7 @@ import ocss.nmea.parser.Depth;
 import ocss.nmea.parser.Distance;
 import ocss.nmea.parser.GeoPos;
 import ocss.nmea.parser.OverGround;
+import ocss.nmea.parser.Pressure;
 import ocss.nmea.parser.RMB;
 import ocss.nmea.parser.RMC;
 
@@ -415,6 +416,22 @@ public class Utils
       else
         ndc.put(NMEADataCache.WATER_TEMP, new Temperature(t));
     }
+    else if ("MTA".equals(sentenceId)) // Air Temperature
+    {
+      double t = StringParsers.parseMTA(value);
+      if (ndc == null)
+        NMEAContext.getInstance().putDataCache(NMEADataCache.AIR_TEMP, new Temperature(t));
+      else
+        ndc.put(NMEADataCache.AIR_TEMP, new Temperature(t));
+    }
+    else if ("MMB".equals(sentenceId)) // Barometric Pressure
+    {
+      double p = StringParsers.parseMMB(value); // in mb
+      if (ndc == null)
+        NMEAContext.getInstance().putDataCache(NMEADataCache.BARO_PRESS, new Pressure(p));
+      else
+        ndc.put(NMEADataCache.BARO_PRESS, new Pressure(p));
+    }
     else if ("MWV".equals(sentenceId)) // Apparent Wind Speed and Direction
     {
       Wind wind = StringParsers.parseMWV(value);
@@ -597,6 +614,8 @@ public class Utils
           ndc.put(NMEADataCache.SAT_IN_VIEW, satmap);
       }
     }
+    // TODO Add MMB, MTA, add also in the cache
+    
     if (ndc == null)
     {
       computeAndSendValuesToCache(NMEAContext.getInstance().getCache());

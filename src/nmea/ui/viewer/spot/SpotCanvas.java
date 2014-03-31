@@ -15,6 +15,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
@@ -35,11 +36,17 @@ import nmea.ui.viewer.spot.utils.SpotParser.SpotLine;
 
 import ocss.nmea.parser.GeoPos;
 
+import polarmaker.polars.smooth.gui.components.widgets.TWSPanel;
+
 public class SpotCanvas
      extends JPanel
   implements MouseListener, MouseMotionListener
 {
   private final static SimpleDateFormat SDF = new SimpleDateFormat("E dd-MMM HH:mm Z");
+  private final static DecimalFormat TWS_FORMAT = new DecimalFormat("##0.0");
+  private final static DecimalFormat TWD_FORMAT = new DecimalFormat("000");
+  private final static DecimalFormat PRMSL_FORMAT = new DecimalFormat("#000.0");
+  private final static DecimalFormat RAIN_FORMAT = new DecimalFormat("#0.0");
   static 
   {
     SDF.setTimeZone(TimeZone.getTimeZone("Etc/UTC"));
@@ -96,18 +103,52 @@ public class SpotCanvas
       int x = mouseEvent.getX();
       double xScale = (double)this.getWidth() / (double)(this.spotLines.size() - 1);
       int i = (int)((double)x / xScale);
+      double decimalI = ((double)x / (double)this.getWidth()) * (this.spotLines.size() - 1);
+//    System.out.println("I:" + i + " decI:" + decimalI);
+      double fraction = decimalI - i;
       NMEAContext.getInstance().fireSetSpotLineIndex(i);
+      
+      long date = (long)(this.spotLines.get(i).getDate().getTime() + (fraction * (this.spotLines.get(i + 1).getDate().getTime() - this.spotLines.get(i).getDate().getTime())));
+      Date smoothDate = new Date(date);
+      double smoothedTWS = this.spotLines.get(i).getTws() + (fraction * (this.spotLines.get(i + 1).getTws() - this.spotLines.get(i).getTws()));
+      double smoothedTWD = smoothDegreeAngle(this.spotLines.get(i).getTwd(), this.spotLines.get(i + 1).getTwd(), fraction);
+      double smoothedPRMSL = this.spotLines.get(i).getPrmsl() + (fraction * (this.spotLines.get(i + 1).getPrmsl() - this.spotLines.get(i).getPrmsl()));
+      double smoothedRAIN = this.spotLines.get(i).getRain() + (fraction * (this.spotLines.get(i + 1).getRain() - this.spotLines.get(i).getRain()));
+      
       String tt = "<html>";
-      tt += SDF.format(this.spotLines.get(i).getDate());
+//    tt += SDF.format(this.spotLines.get(i).getDate());
+      tt += SDF.format(smoothDate);
       tt += "<br>";
-      tt += ("WIND:" + this.spotLines.get(i).getTws() + "kts @ " + this.spotLines.get(i).getTwd() + "\272");
+//    tt += ("WIND:" + this.spotLines.get(i).getTws() + "kts @ " + this.spotLines.get(i).getTwd() + "\272");
+      tt += ("WIND:" + TWS_FORMAT.format(smoothedTWS) + "kts @ " + TWD_FORMAT.format(smoothedTWD) + "\272");
       tt += "<br>";
-      tt += ("PRMSL:" + this.spotLines.get(i).getPrmsl() + "hPa");
+//    tt += ("PRMSL:" + this.spotLines.get(i).getPrmsl() + "hPa");
+      tt += ("PRMSL:" + PRMSL_FORMAT.format(smoothedPRMSL) + "hPa");
       tt += "<br>";
-      tt += ("RAIN:" + this.spotLines.get(i).getRain() + "mm/h");
+//    tt += ("RAIN:" + this.spotLines.get(i).getRain() + "mm/h");
+      tt += ("RAIN:" + RAIN_FORMAT.format(smoothedRAIN) + "mm/h");
       tt += "</html>";
       this.setToolTipText(tt);
     }
+  }
+  
+  private static double smoothDegreeAngle(double a1, double a2, double fraction)
+  {
+    double smoothed = 0D;
+    if (Math.abs(a1 - a2) > 180 && Math.signum(Math.cos(Math.toRadians(a1))) == Math.signum(Math.cos(Math.toRadians(a2))))
+    {
+      if (a1 > a2)
+        a2 += 360;
+      else
+        a1 += 360;
+    }
+    smoothed = a1 + (fraction * (a2 - a1));
+    while (smoothed > 360)
+      smoothed -= 360;
+    while (smoothed < 0)
+      smoothed += 360;
+    
+    return smoothed;
   }
   
   private List<SpotLine> spotLines = null;
@@ -121,13 +162,13 @@ public class SpotCanvas
   {
     this.setBackground(Color.lightGray);
     this.setPreferredSize(new Dimension(400, 300));
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener()
-      {
-        public void newSpotData(List<SpotLine> spotLines, GeoPos pos)
-        {
-          setSpotLines(spotLines);
-        }
-      });
+//    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener()
+//      {
+//        public void newSpotData(List<SpotLine> spotLines, GeoPos pos)
+//        {
+//          setSpotLines(spotLines);
+//        }
+//      });
     this.addMouseListener(this);
     this.addMouseMotionListener(this);
   }
@@ -384,8 +425,17 @@ public class SpotCanvas
     return smoothData;
   }
     
-  private void setSpotLines(List<SpotLine> spotLines)
+  public void setSpotLines(List<SpotLine> spotLines)
   {
     this.spotLines = spotLines;
+  }
+  
+  // For tests
+  public static void main_(String[] args)
+  {
+    System.out.println("350-24, 0.125:" + smoothDegreeAngle(350, 24, 0.125));
+    System.out.println("24-350, 0.125:" + smoothDegreeAngle(24, 350, 0.125));
+    System.out.println("160-200, 0.725:" + smoothDegreeAngle(160, 200, 0.725));
+    System.out.println("200-160, 0.725:" + smoothDegreeAngle(200, 160, 0.725));
   }
 }
