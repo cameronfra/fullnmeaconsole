@@ -33,6 +33,7 @@ public class Constants
     { "HSC", "Heading Steering Command" },
     { "LCD", "Loran-C Signal Data" },
     { "MTA", "Air Temperature" },
+    { "MMB", "Barometric Pressure" },
     { "MTW", "Water Temperature" },
     { "MWV", "Wind Speed and Angle" },
     { "MWD", "Wind Speed and Direction" },

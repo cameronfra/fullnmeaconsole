@@ -292,9 +292,10 @@ public class SpotParserPanel
     adjustingTZ = false;
   }
 
-  private void setSpotLines(List<SpotLine> spotLines)
+  public void setSpotLines(List<SpotLine> spotLines)
   {
     this.spotLines = spotLines;
+    spotCanvas.setSpotLines(spotLines);
   }
   
   private void rawCheckBox_actionPerformed(ActionEvent e)

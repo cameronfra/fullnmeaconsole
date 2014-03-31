@@ -39,6 +39,7 @@ import ocss.nmea.parser.Angle360;
 import ocss.nmea.parser.Depth;
 import ocss.nmea.parser.Distance;
 import ocss.nmea.parser.GeoPos;
+import ocss.nmea.parser.Pressure;
 import ocss.nmea.parser.SVData;
 import ocss.nmea.parser.Speed;
 import ocss.nmea.parser.StringParsers;
@@ -102,7 +103,9 @@ public class CalculatedDataTablePane
       { NMEADataCache.DEFAULT_DECLINATION, new Angle180EW() },
       { NMEADataCache.DAMPING,     1 },
       // Extra
-      { NMEADataCache.SAT_IN_VIEW, null }
+      { NMEADataCache.SAT_IN_VIEW, null },
+      { NMEADataCache.AIR_TEMP,   new Temperature() },
+      { NMEADataCache.BARO_PRESS, new Pressure() }
     };
 
   
@@ -332,6 +335,8 @@ public class CalculatedDataTablePane
                  defaultTable[row][0] == NMEADataCache.LOG ||
                  defaultTable[row][0] == NMEADataCache.DAILY_LOG ||
                  defaultTable[row][0] == NMEADataCache.WATER_TEMP ||
+                 defaultTable[row][0] == NMEADataCache.AIR_TEMP ||
+                 defaultTable[row][0] == NMEADataCache.BARO_PRESS ||
                  defaultTable[row][0] == NMEADataCache.DBT ||
                  defaultTable[row][0] == NMEADataCache.AWA ||
                  defaultTable[row][0] == NMEADataCache.AWS)
