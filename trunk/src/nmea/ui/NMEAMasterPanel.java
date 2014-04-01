@@ -455,7 +455,7 @@ public class NMEAMasterPanel
 
   private void dispatchData(String payload)
   {
-    if (payload.trim().length() < 6 || !payload.substring(1, 6).equals(payload.substring(1, 6).toUpperCase()))
+    if (payload.trim().length() < 6 || !payload.trim().substring(1, 6).equals(payload.trim().substring(1, 6).toUpperCase()))
       return;
 //  System.out.println("Substring:[" + payload.substring(1, 6) +"]");
 
@@ -463,7 +463,7 @@ public class NMEAMasterPanel
 
     try
     {
-      key = payload.substring(1);
+      key = payload.trim().substring(1);
       if (key.length() > 5)
         key = key.substring(0, 5);
       if (key.length() == 5)

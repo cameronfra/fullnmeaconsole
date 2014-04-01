@@ -190,7 +190,10 @@ public class NMEAContext implements Serializable
   {
     for (NMEAReaderListener l : NMEAReaderListeners)
     {
-      l.newSpotData(spotLines, pos);
+      synchronized (l)
+      {
+        l.newSpotData(spotLines, pos);
+      }
     }
   }
 
@@ -348,10 +351,12 @@ public class NMEAContext implements Serializable
   
   public void fireNMEAString(String s)
   {
-    for (int i=0; i<NMEAReaderListeners.size(); i++)
+    for (NMEAReaderListener l : NMEAReaderListeners)
     {
-      NMEAReaderListener l = NMEAReaderListeners.get(i);
-      l.manageNMEAString(s);
+      synchronized (l)
+      {
+        l.manageNMEAString(s);
+      }
     }
   }
   

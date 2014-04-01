@@ -32,6 +32,7 @@ public class Constants
     { "HDT", "Heading, True" },
     { "HSC", "Heading Steering Command" },
     { "LCD", "Loran-C Signal Data" },
+    { "MDA", "Meteorological Composite" },
     { "MTA", "Air Temperature" },
     { "MMB", "Barometric Pressure" },
     { "MTW", "Water Temperature" },
