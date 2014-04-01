@@ -207,7 +207,8 @@ public class CalculatedDataTablePane
               else if (NMEADataCache.POSITION == data[i][0])
               {
                 GeoPos pos = (GeoPos)o;
-                data[i][1] = pos.toString() + " (Grid Square: " + GeomUtil.gridSquare(pos.lat, pos.lng) + ")";
+                if (pos != null)
+                  data[i][1] = pos.toString() + " (Grid Square: " + GeomUtil.gridSquare(pos.lat, pos.lng) + ")";
               }
               else
                 data[i][1] = o;
