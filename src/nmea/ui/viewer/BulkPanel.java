@@ -139,7 +139,7 @@ public class BulkPanel
        {
 //       System.out.println("Displaying NMEA Sentences");
          // Add the new loine to the panel.
-         sentences.add(str);
+         sentences.add(str.trim());
          while (sentences.size() > nbLines)
            sentences.remove(0);
 

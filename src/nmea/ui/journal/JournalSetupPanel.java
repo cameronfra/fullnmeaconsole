@@ -1,37 +1,28 @@
 package nmea.ui.journal;
 
 import java.awt.BorderLayout;
-
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-
 import java.awt.Insets;
-
 import java.awt.event.ActionEvent;
-
 import java.awt.event.ActionListener;
 
 import java.io.BufferedWriter;
-
 import java.io.File;
 import java.io.FileWriter;
 
 import java.sql.Connection;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
 import java.sql.Timestamp;
 
 import java.text.DecimalFormat;
 
 import java.util.ArrayList;
-
 import java.util.Date;
-
 import java.util.List;
 
 import javax.swing.JButton;
@@ -49,16 +40,14 @@ import javax.swing.table.TableModel;
 import nmea.server.ctx.NMEAContext;
 import nmea.server.ctx.NMEADataCache;
 
-import nmea.server.utils.Utils;
-
 import ocss.nmea.parser.Angle180;
 import ocss.nmea.parser.Angle360;
 import ocss.nmea.parser.Depth;
 import ocss.nmea.parser.Distance;
 import ocss.nmea.parser.GeoPos;
+import ocss.nmea.parser.Pressure;
 import ocss.nmea.parser.Speed;
 import ocss.nmea.parser.Temperature;
-
 import ocss.nmea.parser.TrueWindDirection;
 import ocss.nmea.parser.TrueWindSpeed;
 
@@ -76,14 +65,14 @@ public class JournalSetupPanel
   private final static String INSERT_LOG_HEADER    = "insert into datalog values (?, ?)";
   private final static String INSERT_LOG_DETAIL    = "insert into datacell values (?, ?, ?)";
   
-  private LoggingThread lt = null;
+  private transient LoggingThread lt = null;
   
   private static final String KEY   = "Data";
   private static final String VALUE = "Write";
 
   private final String configNames[] = new String[] { KEY, VALUE };
-  private Object configData[][] = new Object[0][configNames.length];
-  private TableModel configDataModel;
+  private transient Object configData[][] = new Object[0][configNames.length];
+  private transient TableModel configDataModel;
   private JTable configTable;
   
   private JScrollPane centerScrollPane = null;
@@ -344,7 +333,7 @@ public class JournalSetupPanel
       
       for (String key : data2log)
       {
-//      System.out.println("Key [" + key + "]");
+//      System.out.println("== Log ==> Key [" + key + "]");
         double value2log = 0D;
         if (key.equals("BSP"))   
           value2log = ((Speed)cache.get(NMEADataCache.BSP)).getValue();
@@ -374,6 +363,10 @@ public class JournalSetupPanel
           value2log = ((Angle360)cache.get(NMEADataCache.CDR)).getValue();
         else if (key.equals("MWT"))   
           value2log = ((Temperature)cache.get(NMEADataCache.WATER_TEMP)).getValue();
+        else if (key.equals("MTA"))   
+          value2log = ((Temperature)cache.get(NMEADataCache.AIR_TEMP)).getValue();
+        else if (key.equals("MMB"))   
+          value2log = ((Pressure)cache.get(NMEADataCache.BARO_PRESS)).getValue();
         else if (key.equals("DBT"))   
           value2log = ((Depth)cache.get(NMEADataCache.DBT)).getValue();
         else 
