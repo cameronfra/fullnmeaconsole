@@ -652,12 +652,13 @@ public class Utils
       if (dec == -Double.MAX_VALUE)
         dec = ((Angle180EW) NMEAContext.getInstance().getCache().get(NMEADataCache.DEFAULT_DECLINATION)).getValue();
   //  System.out.println("Declination:" + dec);
-      heading = hdc + dec; // Magnetic
-      cache.put(NMEADataCache.HDG_MAG, new Angle360(heading));
-  //  System.out.println("HDG Mag: " + heading);
       double dev = Utils.getDeviation(heading);
       cache.put(NMEADataCache.DEVIATION, new Angle180EW(dev));
       
+      heading = hdc + dev; // Magnetic
+      cache.put(NMEADataCache.HDG_MAG, new Angle360(heading));
+      //  System.out.println("HDG Mag: " + heading);
+
       double w = dec + dev;
       cache.put(NMEADataCache.VARIATION, new Angle180EW(w));    
       heading = hdc + w; // true    
