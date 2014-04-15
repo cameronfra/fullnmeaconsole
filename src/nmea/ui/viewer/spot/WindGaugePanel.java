@@ -21,6 +21,19 @@ public class WindGaugePanel
 {
   float tws = 0f;
   float max = -1f;
+  
+  private boolean glossy = true;
+
+  public void setGlossy(boolean glossy)
+  {
+    this.glossy = glossy;
+  }
+
+  public void setCustomBG(Color customBG)
+  {
+    this.customBG = customBG;
+  }
+  private Color customBG = null;
 
   public void setMax(float max)
   {
@@ -89,7 +102,7 @@ public class WindGaugePanel
                    this.getWidth(), 
                    gaugeHeight);
     }
-    if (true)
+    if (glossy)
     {
       Point topLeft     = new Point(0, 0);
       Point bottomRight = new Point(this.getWidth(), this.getHeight());
@@ -101,6 +114,11 @@ public class WindGaugePanel
                                    1f); 
       g2d.setColor(Color.white);
       g2d.drawRoundRect(topLeft.x , topLeft.y, this.getWidth(), this.getHeight(), 10, 10);
+    }
+    else if (customBG != null)
+    {
+      g2d.setColor(customBG);
+      g2d.fillRect(0 , 0, this.getWidth(), this.getHeight());
     }
     // Data
     final int MAX_RANGE = 60;
