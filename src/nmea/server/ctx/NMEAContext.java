@@ -351,11 +351,14 @@ public class NMEAContext implements Serializable
   
   public void fireNMEAString(String s)
   {
-    for (NMEAReaderListener l : NMEAReaderListeners)
+    synchronized (NMEAReaderListeners)
     {
-      synchronized (l)
+      for (NMEAReaderListener l : NMEAReaderListeners)
       {
-        l.manageNMEAString(s);
+        synchronized (l)
+        {
+          l.manageNMEAString(s);
+        }
       }
     }
   }
