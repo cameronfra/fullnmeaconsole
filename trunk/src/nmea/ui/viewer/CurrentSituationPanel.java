@@ -1,5 +1,9 @@
 package nmea.ui.viewer;
 
+import coreutilities.gui.HeadingPanel;
+import coreutilities.gui.JumboDisplay;
+import coreutilities.gui.SpeedoPanel;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -15,44 +19,33 @@ import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-
-import nmea.server.ctx.NMEAContext;
-import nmea.server.ctx.NMEADataCache;
-import nmea.server.utils.Utils;
 
 import nmea.event.NMEAReaderListener;
 
 import nmea.server.constants.Constants;
+import nmea.server.ctx.NMEAContext;
+import nmea.server.ctx.NMEADataCache;
+import nmea.server.utils.Utils;
 
 import nmea.ui.viewer.elements.AWDisplay;
 import nmea.ui.viewer.elements.CurrentDisplay;
 import nmea.ui.viewer.elements.DrawingBoard;
-import coreutilities.gui.HeadingPanel;
-import coreutilities.gui.JumboDisplay;
-import coreutilities.gui.SpeedoPanel;
-
-import javax.swing.JComboBox;
-
-import javax.swing.JOptionPane;
-
 import nmea.ui.viewer.minimaxi.boatspeed.BoatSpeed;
 import nmea.ui.viewer.minimaxi.wind.WindSpeed;
 
 import ocss.nmea.parser.Angle180;
 import ocss.nmea.parser.Angle180LR;
 import ocss.nmea.parser.Angle360;
-import ocss.nmea.parser.Distance;
 import ocss.nmea.parser.Speed;
 import ocss.nmea.parser.TrueWindDirection;
 import ocss.nmea.parser.TrueWindSpeed;
 import ocss.nmea.utils.WindUtils;
-
-import utils.PolarHelper;
 
 public class CurrentSituationPanel
   extends JPanel

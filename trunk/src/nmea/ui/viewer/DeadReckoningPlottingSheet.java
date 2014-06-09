@@ -31,6 +31,8 @@ import java.util.EventObject;
 
 import java.util.List;
 
+import java.util.Map;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -376,7 +378,6 @@ public class DeadReckoningPlottingSheet
       });
   }
 
-
   private final static Stroke STROKE_5 = new BasicStroke(5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
   private final static Stroke STROKE_3 = new BasicStroke(3f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
   private final static Stroke STROKE_2 = new BasicStroke(1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
@@ -573,6 +574,10 @@ public class DeadReckoningPlottingSheet
           gr.drawString("Current dir  :" + NMEAContext.DF3.format(dir) + "\272", 10, 10);
           gr.drawString("Current speed:" + NMEAContext.DF22.format(speed) + " kts", 10, 25);
           gr.setFont(f);
+          // Inject in the cache
+//        System.out.println("Current display on " + ((TimeObject)timeComboBox.getSelectedItem()).getLabel() + ":" + NMEAContext.DF3.format(dir) + "\272 @" + NMEAContext.DF22.format(speed) + " kts");
+          ((Map<Long, NMEADataCache.CurrentDefinition>)NMEAContext.getInstance().getCache().get(NMEADataCache.CALCULATED_CURRENT)).put(bufferLength, new NMEADataCache.CurrentDefinition(bufferLength, new Speed(speed), new Angle360(dir)));
+          
           currentDisplay.setDirection(dir);
           currentDisplay.setSpeed(speed);
           currentDisplay.repaint();

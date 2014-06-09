@@ -428,8 +428,18 @@ public class SpotComposerPanel
   {
     try
     {
-      String href = "mailto:query@saildocs.com?subject=SPOT%20Request&body=" + URLEncoder.encode(generatedRequestLabel.getText(), "UTF-8").replace("+", "%20");
+      String href = null;
       System.out.println("Emailing [" + href + "]");
+      
+      if (Desktop.isDesktopSupported() && (Desktop.getDesktop()).isSupported(Desktop.Action.MAIL)) 
+      {
+        href = "mailto:query@saildocs.com?subject=SPOT%20Request&body=" + URLEncoder.encode(generatedRequestLabel.getText(), "UTF-8").replace("+", "%20");
+      } 
+      else 
+      {
+        JOptionPane.showMessageDialog(this, "Desktop doesn't support mailto.\nPlease send the request manually.", "SPOT Request", JOptionPane.ERROR_MESSAGE);
+        throw new RuntimeException("Desktop doesn't support mailto.");
+      }
       JOptionPane.showMessageDialog(this, "Make sure to send your email in PLAIN text.", "SPOT Request", JOptionPane.WARNING_MESSAGE);
       Desktop.getDesktop().mail(new URI(href));      
     }
