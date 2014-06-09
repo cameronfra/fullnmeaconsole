@@ -8,8 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import nmea.ui.calc.CalculatedDataTablePane;
+
 import ocss.nmea.parser.Angle;
+import ocss.nmea.parser.Angle360;
 import ocss.nmea.parser.NMEADoubleValueHolder;
+import ocss.nmea.parser.Speed;
 
 public class NMEADataCache extends HashMap<String, Object> implements Serializable
 {
@@ -53,6 +57,9 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
   public final static String CMG         = "CMG";
   public final static String PERF        = "Performance";
   public final static String SAT_IN_VIEW = "Satellites in view";
+  
+  public final static String BATTERY     = "Battery Voltage"; 
+  public final static String CALCULATED_CURRENT = "Current calculated with damping";
   
   public final static String BSP_FACTOR  = "BSP Factor";
   public final static String AWS_FACTOR  = "AWS Factor";
@@ -125,6 +132,9 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
     TOOLTIP_MAP.put(LEEWAY,      "<html>Leeway<br>Estimated</html>");
     TOOLTIP_MAP.put(CMG,         "<html>Course Made Good<br>Calculated</html>");
     TOOLTIP_MAP.put(SAT_IN_VIEW, "<html>Satellites in view<br>From the GPS</html>");
+
+    TOOLTIP_MAP.put(BATTERY, "<html>Battery Voltage<br>From Raspberry PI</html>");
+    TOOLTIP_MAP.put(CALCULATED_CURRENT, "<html>Curent calculated with damping (0, 1 minute, 10 minutes...)</html>");
     
     TOOLTIP_MAP.put(BSP_FACTOR, "<html>Coefficient to apply to Boat Speed<br>(1.0 = 100%)</html>");
     TOOLTIP_MAP.put(AWS_FACTOR, "<html>Coefficient to apply to Appaprent Wind Speed<br>(1.0 = 100%)</html>");
@@ -152,6 +162,9 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
     dampingMap.put(COG,      new ArrayList<Object>());
     dampingMap.put(SOG,      new ArrayList<Object>());
     dampingMap.put(LEEWAY,   new ArrayList<Object>());
+    
+    // Initialization
+    this.put(CALCULATED_CURRENT, new HashMap<Long, CurrentDefinition>());
   }
 
   @Override
@@ -292,5 +305,34 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
     Set<String> keys = dampingMap.keySet();
     for (String k : keys)
       dampingMap.get(k).clear();
+  }
+  
+  public static class CurrentDefinition
+  {
+    private long bufferLength; // in ms
+    private Speed speed;
+
+    public long getBufferLength()
+    {
+      return bufferLength;
+    }
+
+    public Speed getSpeed()
+    {
+      return speed;
+    }
+
+    public Angle360 getDirection()
+    {
+      return direction;
+    }
+    private Angle360 direction;
+    
+    public CurrentDefinition(long bl, Speed sp, Angle360 dir)
+    {
+      this.bufferLength = bl;
+      this.speed = sp;
+      this.direction = dir;
+    }
   }
 }

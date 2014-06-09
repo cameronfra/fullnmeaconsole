@@ -351,7 +351,7 @@ public class NMEAContext implements Serializable
   
   public void fireNMEAString(String s)
   {
-    synchronized (NMEAReaderListeners)
+    synchronized (this.NMEAReaderListeners)
     {
       for (NMEAReaderListener l : NMEAReaderListeners)
       {

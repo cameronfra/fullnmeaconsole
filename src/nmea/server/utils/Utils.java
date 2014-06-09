@@ -614,7 +614,17 @@ public class Utils
           ndc.put(NMEADataCache.SAT_IN_VIEW, satmap);
       }
     }
-    // TODO Add MMB, MTA, add also in the cache
+    else if ("BAT".equals(sentenceId))     // Battery Voltgae. Not Standard, from the Raspberry PI
+    {
+      float volt = StringParsers.parseBAT(value);
+      if (volt > -1)
+      {
+        if (ndc == null)
+          NMEAContext.getInstance().putDataCache(NMEADataCache.BATTERY, new Float(volt));
+        else
+          ndc.put(NMEADataCache.BATTERY, new Float(volt));
+      }
+    }
     
     if (ndc == null)
     {
