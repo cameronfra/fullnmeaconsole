@@ -17,66 +17,66 @@ import ocss.nmea.parser.Speed;
 
 public class NMEADataCache extends HashMap<String, Object> implements Serializable
 {
-  public final static String LAST_NMEA_SENTENCE = "NMEA";
+  public static final String LAST_NMEA_SENTENCE = "NMEA";
 
-  public final static String SOG         = "SOG";
-  public final static String POSITION    = "Boat Position";
-  public final static String GPS_DATE_TIME = "GPS Date & Time";
-  public final static String GPS_TIME    = "GPS Time";
-  public final static String GPS_SOLAR_TIME = "Solar Time";
-  public final static String COG         = "COG";
-  public final static String DECLINATION = "D";
-  public final static String BSP         = "BSP";
-  public final static String LOG         = "Log";
-  public final static String DAILY_LOG   = "Daily";
-  public final static String WATER_TEMP  = "Water Temperature";
-  public final static String AIR_TEMP    = "Air Temperature";
-  public final static String BARO_PRESS  = "Barometric Pressure";
-  public final static String AWA         = "AWA";
-  public final static String AWS         = "AWS";
-  public final static String HDG_COMPASS = "HDG c.";
-  public final static String HDG_MAG     = "HDG mag.";
-  public final static String HDG_TRUE    = "HDG true";
-  public final static String DEVIATION   = "d";
-  public final static String VARIATION   = "W";
-  public final static String TWA         = "TWA";
-  public final static String TWS         = "TWS";
-  public final static String TWD         = "TWD";
-  public final static String CSP         = "CSP";
-  public final static String CDR         = "CDR";
-  public final static String XTE         = "XTE";
-  public final static String FROM_WP     = "From Waypoint";
-  public final static String TO_WP       = "To Waypoint";
-  public final static String WP_POS      = "WayPoint pos";
-  public final static String DBT         = "Depth";
-  public final static String D2WP        = "Distance to WP";
-  public final static String B2WP        = "Bearing to WP";
-  public final static String S2WP        = "Speed to WP";
-  public final static String S2STEER     = "Steer";  
-  public final static String LEEWAY      = "Leeway";
-  public final static String CMG         = "CMG";
-  public final static String PERF        = "Performance";
-  public final static String SAT_IN_VIEW = "Satellites in view";
+  public static final String SOG         = "SOG";
+  public static final String POSITION    = "Boat Position";
+  public static final String GPS_DATE_TIME = "GPS Date & Time";
+  public static final String GPS_TIME    = "GPS Time";
+  public static final String GPS_SOLAR_TIME = "Solar Time";
+  public static final String COG         = "COG";
+  public static final String DECLINATION = "D";
+  public static final String BSP         = "BSP";
+  public static final String LOG         = "Log";
+  public static final String DAILY_LOG   = "Daily";
+  public static final String WATER_TEMP  = "Water Temperature";
+  public static final String AIR_TEMP    = "Air Temperature";
+  public static final String BARO_PRESS  = "Barometric Pressure";
+  public static final String AWA         = "AWA";
+  public static final String AWS         = "AWS";
+  public static final String HDG_COMPASS = "HDG c.";
+  public static final String HDG_MAG     = "HDG mag.";
+  public static final String HDG_TRUE    = "HDG true";
+  public static final String DEVIATION   = "d";
+  public static final String VARIATION   = "W";
+  public static final String TWA         = "TWA";
+  public static final String TWS         = "TWS";
+  public static final String TWD         = "TWD";
+  public static final String CSP         = "CSP";
+  public static final String CDR         = "CDR";
+  public static final String XTE         = "XTE";
+  public static final String FROM_WP     = "From Waypoint";
+  public static final String TO_WP       = "To Waypoint";
+  public static final String WP_POS      = "WayPoint pos";
+  public static final String DBT         = "Depth";
+  public static final String D2WP        = "Distance to WP";
+  public static final String B2WP        = "Bearing to WP";
+  public static final String S2WP        = "Speed to WP";
+  public static final String S2STEER     = "Steer";  
+  public static final String LEEWAY      = "Leeway";
+  public static final String CMG         = "CMG";
+  public static final String PERF        = "Performance";
+  public static final String SAT_IN_VIEW = "Satellites in view";
   
-  public final static String BATTERY     = "Battery Voltage"; 
-  public final static String CALCULATED_CURRENT = "Current calculated with damping";
+  public static final String BATTERY     = "Battery Voltage"; 
+  public static final String CALCULATED_CURRENT = "Current calculated with damping";
   
-  public final static String BSP_FACTOR  = "BSP Factor";
-  public final static String AWS_FACTOR  = "AWS Factor";
-  public final static String AWA_OFFSET  = "AWA Offset";
-  public final static String HDG_OFFSET  = "HDG Offset";
-  public final static String MAX_LEEWAY  = "Max Leeway";
+  public static final String BSP_FACTOR  = "BSP Factor";
+  public static final String AWS_FACTOR  = "AWS Factor";
+  public static final String AWA_OFFSET  = "AWA Offset";
+  public static final String HDG_OFFSET  = "HDG Offset";
+  public static final String MAX_LEEWAY  = "Max Leeway";
 
-  public final static String DEVIATION_FILE      = "Deviation file name";
-  public final static String DEFAULT_DECLINATION = "Default Declination";
-  public final static String DAMPING             = "Damping";
+  public static final String DEVIATION_FILE      = "Deviation file name";
+  public static final String DEFAULT_DECLINATION = "Default Declination";
+  public static final String DAMPING             = "Damping";
   
-  public final static String POLAR_FILE_NAME = "Polar File name";
-  public final static String POLAR_FACTOR    = "Polar Factor";
+  public static final String POLAR_FILE_NAME = "Polar File name";
+  public static final String POLAR_FACTOR    = "Polar Factor";
 
   private final static boolean DEBUG = false;
 
-  public final static HashMap<String, String> TOOLTIP_MAP = new HashMap<String, String>();
+  public static final HashMap<String, String> TOOLTIP_MAP = new HashMap<String, String>();
 
   // Damping ArrayList's
   private int dampingSize = 1;  
