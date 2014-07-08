@@ -55,4 +55,6 @@ public abstract class NMEAReaderListener implements EventListener
   public void positionManuallyUpdated(GeoPos gp) {}
   public void newSpotData(List<SpotLine> spotLines, GeoPos pos) {}
   public void setSpotLineIndex(int i) {}
+  
+  public void enableHttpServer(boolean b) {}
 }

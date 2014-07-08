@@ -461,6 +461,15 @@ public class NMEAContext implements Serializable
       l.showRawData(b);
     }
   }
+  
+  public void fireEnableHTTPserver(boolean b)
+  {    
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
+    {
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
+      l.enableHttpServer(b);
+    }
+  }
     
   public synchronized NMEADataCache getCache()
   {
