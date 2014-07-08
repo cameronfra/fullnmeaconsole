@@ -25,9 +25,12 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import nmea.event.NMEAReaderListener;
+
 import nmea.server.ctx.NMEAContext;
 import nmea.server.ctx.NMEADataCache;
 
+import ocss.nmea.api.NMEAListener;
 import ocss.nmea.parser.Angle180;
 import ocss.nmea.parser.Angle180EW;
 import ocss.nmea.parser.Angle180LR;
@@ -64,6 +67,8 @@ public class HTTPServer
   private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd MMM yyyy HH:mm:ss 'UTC'");
   private final static SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss 'UTC'");
   
+  private boolean enabled = true;
+
   public HTTPServer()
   {
   }
@@ -118,6 +123,15 @@ public class HTTPServer
       }
     }
     
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener()
+    {
+      public void enableHttpServer(boolean b) 
+      {
+//      System.out.println("HTTP Server enabled:" + b);
+        enabled = b;
+      }
+    });
+    
     try
     {
       _port = Integer.parseInt(port);
@@ -154,7 +168,7 @@ public class HTTPServer
             hdg = hdm = bsp = sog = cog = awa = aws = twa = tws = false;
             String line;
             String fileToFetch = "";
-            while ((line = in.readLine()) != null)
+            while ((line = in.readLine()) != null && enabled)
             {
               if (verbose) System.out.println("HTTP Request:" + line);
               if (line.length() == 0)
@@ -377,7 +391,7 @@ public class HTTPServer
             else
               content = (generateContent());
             
-            if (content.length() > 0)
+            if (content.length() > 0 && enabled)
             {
               // Headers?
               out.print("HTTP/1.1 200 \r\n"); 
@@ -408,6 +422,16 @@ public class HTTPServer
       Utils.playSound(this.getClass().getResource("saberup.wav")); 
     } 
     catch (Exception ex) { ex.printStackTrace(); }
+  }
+
+  public void setEnabled(boolean enabled)
+  {
+    this.enabled = enabled;
+  }
+
+  public boolean isEnabled()
+  {
+    return enabled;
   }
 
   private enum CacheToQSMatch
