@@ -3,15 +3,21 @@ package nmea.server.datareader.specific;
 import nmea.server.ctx.NMEAContext;
 
 import java.io.InputStream;
+
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
 
 import java.net.SocketException;
 
+import java.sql.Connection;
+
 import java.util.ArrayList;
 import java.util.Date;
 
 import java.util.List;
+
+import javax.swing.JOptionPane;
 
 import nmea.server.constants.Constants;
 
@@ -136,7 +142,38 @@ public class CustomTCPReader extends NMEAReader implements DataReader
       else if (se.getMessage().indexOf("Connection reset") > -1)
         System.out.println("Reset (2)");
       else
-        manageError(se);
+      {
+        if (se instanceof ConnectException && "Connection timed out: connect".equals(se.getMessage())) // : Connection timed out: connect)
+        {
+          // Wait and try again
+          try
+          {
+            Thread userThread = new Thread()
+            {
+              public void run()
+              {
+                try { JOptionPane.showMessageDialog(null, "Timeout on TCP.\nWill re-try to connect again in 10s", "TCP Connection", JOptionPane.WARNING_MESSAGE);  }
+                catch (Exception ex)
+                {
+                  System.out.println("Timeout on TCP.\nWill re-try to connect again in 10s");
+                }
+              }
+            };
+            userThread.start();
+//          System.out.println("Timeout on TCP. Re-trying to connect in 10s");
+            closeReader();
+            Thread.sleep(10000L);
+            System.out.println("Re-trying now.");
+            read();
+          }
+          catch (Exception ex)
+          {
+            ex.printStackTrace();
+          }
+        }
+        else
+          manageError(se);
+      }
     }
     catch(Exception e)
     {
