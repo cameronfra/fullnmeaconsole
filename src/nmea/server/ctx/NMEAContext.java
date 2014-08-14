@@ -163,7 +163,7 @@ public class NMEAContext implements Serializable
       NMEAListeners.remove(l);
     }
   }
-  
+
   public void fireBulkDataRead(NMEAEvent ne)
   {
     try

@@ -22,15 +22,29 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import java.io.BufferedWriter;
+import java.io.File;
+
+import java.io.FileWriter;
+
 import java.net.URI;
 
 import java.net.URLEncoder;
 
 import java.text.DecimalFormat;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import java.util.TimeZone;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -77,6 +91,7 @@ public class SpotComposerPanel
   private JLabel generatedRequestLabel = new JLabel();
   private JButton clipBoardButton = new JButton();
   private JButton mailButton = new JButton();
+  private JButton airmailButton = new JButton();
   private JPanel buttonPanel = new JPanel();
 
   public SpotComposerPanel()
@@ -199,6 +214,14 @@ public class SpotComposerPanel
         mailButton_actionPerformed(e);
       }
     });
+    airmailButton.setText("Generate Airmail Request");
+    airmailButton.addActionListener(new ActionListener()
+    {
+      public void actionPerformed(ActionEvent e)
+      {
+        airmailButton_actionPerformed(e);
+      }
+    });
     topPanel.add(gpsRadioButton,
                  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
                                         new Insets(0, 0, 0, 0), 0, 0));
@@ -244,7 +267,9 @@ public class SpotComposerPanel
 
     buttonPanel.add(clipBoardButton, null);
     buttonPanel.add(mailButton, null);
+    buttonPanel.add(airmailButton, null);
     mailButton.setToolTipText("<html>Will launch your default email client<br>so you can send your request to query@saildocs.com<br>... in case you're connected on the Internet.</html>");
+    airmailButton.setToolTipText("<html>Will compose an email and place it in your Airmail outbox. Appropriate preferences need to be correctly set.</html>");
     topPanel.add(buttonPanel,
                  new GridBagConstraints(2, 6, 2, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
                                         new Insets(0, 0, 0, 0), 0, 0));
@@ -351,6 +376,78 @@ public class SpotComposerPanel
     JOptionPane.showMessageDialog(this, "Request is in the clipboard.\nEmail it in plain text to query@saildocs.com.", "SPOT Request", JOptionPane.PLAIN_MESSAGE);
   }
   
+  private void airmailButton_actionPerformed(ActionEvent e)
+  {
+    final SimpleDateFormat MESS_DATE_FMT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    final Format MESS_NUM_FMT = new DecimalFormat("#0000");
+    MESS_DATE_FMT.setTimeZone(TimeZone.getTimeZone("Etc/UTC"));
+    
+    String airmailLocation = System.getProperty("airmail.location");
+    String airmailId       = System.getProperty("airmail.id");
+    
+    if (airmailLocation == null) 
+    {
+      throw new RuntimeException("Property airmail.location not set. See your preferences (SailMail)");
+    }
+    if (airmailId == null) 
+    {
+      throw new RuntimeException("Property airmail.id not set. See your preferences (SailMail)");
+    }
+    File airmailDir = new File(airmailLocation);
+    if (!airmailDir.exists() || !airmailDir.isDirectory())
+    {
+      throw new RuntimeException(airmailLocation + " does not exist, or is not a directory. See your preferences (SailMail)");
+    }
+    int messnum = 0;
+    File outboxDir = new File(airmailDir, "outbox"); // TODO Make sure this is right
+    if (!outboxDir.exists())
+      outboxDir.mkdirs();
+    
+    Pattern pattern = Pattern.compile("([0-9]*)_" + airmailId.toUpperCase() + ".msg");
+    
+    File[] messages = outboxDir.listFiles();
+    for (File mess : messages)
+    {
+      if (mess.isFile())
+      {
+        String messName = mess.getName();
+        Matcher matcher = pattern.matcher(messName);
+        while (matcher.find())
+        {  
+          String match = matcher.group(1).trim();
+          messnum = Math.max(messnum, Integer.parseInt(match));
+        }        
+      }
+    }
+    messnum += 1;
+    String messageName = MESS_NUM_FMT.format(messnum) + "_" + airmailId;
+    
+    String strReq = generatedRequestLabel.getText();
+    String messageContent = 
+      "X-Priority: 4\n" + 
+      "X-MID: " + messageName + "\n" +
+      "X-Status: Posted\n" + 
+      "To: query@saildocs.com\n" + 
+      "X-Type: Email; Outmail\n" + 
+      "Subject: Saildocs Request\n" + 
+      "X-Via: Sailmail\n" + 
+      "X-Date: " + MESS_DATE_FMT.format(new Date()) + "\n" + 
+      "\n" + 
+      strReq;
+    // Write in the outbox
+    System.out.println("Message:\n" + messageContent);
+    try
+    {
+      BufferedWriter br = new BufferedWriter(new FileWriter(new File(outboxDir, messageName + ".msg")));
+      br.write(messageContent);
+      br.close();
+    }
+    catch (Exception ex)
+    {
+      ex.printStackTrace();
+    }
+  }
+  
   private String composeRequest()
   {
     String request = "send spot:"; // 37.5N,122.5W|5,3|PRMSL,WIND,RAIN";
@@ -450,6 +547,24 @@ public class SpotComposerPanel
     catch (Exception ex)
     {
       ex.printStackTrace();
+    }
+  }
+  
+  public static void main_(String[] args)
+  {
+
+    Pattern pattern = Pattern.compile("([0-9]*)_WDC7278.msg");
+    
+    String[] messages = new String[] { "1234_WDC7278.msg", "1235_WDC7278.msg", "1236_WDC7278.msg" };
+    for (String mess : messages)
+    {
+        String messName = mess;
+        Matcher matcher = pattern.matcher(messName);
+        while (matcher.find())
+        {  
+          String match = matcher.group(1).trim();
+          System.out.println(match);
+        }        
     }
   }
 }
