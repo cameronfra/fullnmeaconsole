@@ -424,15 +424,15 @@ public class SpotComposerPanel
     
     String strReq = generatedRequestLabel.getText();
     String messageContent = 
-      "X-Priority: 4\n" + 
-      "X-MID: " + messageName + "\n" +
-      "X-Status: Posted\n" + 
-      "To: query@saildocs.com\n" + 
-      "X-Type: Email; Outmail\n" + 
-      "Subject: Saildocs Request\n" + 
-      "X-Via: Sailmail\n" + 
-      "X-Date: " + MESS_DATE_FMT.format(new Date()) + "\n" + 
-      "\n" + 
+      "X-Priority: 4\r\n" + 
+      "X-MID: " + messageName + "\r\n" +
+      "X-Status: Posted\r\n" + 
+      "To: query@saildocs.com\r\n" + 
+      "X-Type: Email; Outmail\r\n" + 
+      "Subject: Saildocs Request\r\n" + 
+      "X-Via: Sailmail\r\n" + 
+      "X-Date: " + MESS_DATE_FMT.format(new Date()) + "\r\n" + 
+      "\r\n" + 
       strReq;
     // Write in the outbox
     System.out.println("Message:\n" + messageContent);
