@@ -33,6 +33,8 @@ public abstract class NMEAReaderListener implements EventListener
   public void saveUserConfig() {}
   
   public void internalFrameClosed() {}
+  public void internalTxFrameClosed() {}
+  public void internalAnalyzerFrameClosed() {}
   
   public void dataUpdate() {}
   public void loadDataPointsForDeviation(List<double[]> dp) {}

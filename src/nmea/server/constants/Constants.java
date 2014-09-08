@@ -1,6 +1,12 @@
 package nmea.server.constants;
 
+import java.io.File;
+import java.io.FileReader;
+
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 public class Constants
 {
@@ -78,7 +84,26 @@ public class Constants
   private Constants()
   {
     for (int i=0; i<nmeaSentences.length; i++)
-      nmeaMap.put(nmeaSentences[i][0], nmeaSentences[i][1]);    
+      nmeaMap.put(nmeaSentences[i][0], nmeaSentences[i][1]);   
+    // Extra sentences (non standard), properties file
+    Properties extraSentences = new Properties();
+    try
+    {
+      extraSentences.load(new FileReader("config" + File.separator + "extra.nmea.properties"));
+      Set<Map.Entry<Object, Object>> keys = extraSentences.entrySet();
+      for (Map.Entry<Object, Object> k : keys)
+      {
+//      System.out.println(k.toString());
+        String key = k.getKey().toString();
+        String value = k.getValue().toString();
+//      System.out.println("KEY:" + key + ", VALUE:" + value);
+        nmeaMap.put(key, value);   
+      }
+    }
+    catch (Exception ex)
+    {
+      ex.printStackTrace();
+    }
   }
   
   public synchronized static Constants getInstance()
