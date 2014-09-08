@@ -285,6 +285,24 @@ public class NMEAContext implements Serializable
     }
   }
   
+  public void fireInternalTxFrameClosed()
+  {
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
+    {
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
+      l.internalTxFrameClosed();
+    }
+  }
+  
+  public void fireInternalAnalyzerFrameClosed()
+  {
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
+    {
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
+      l.internalAnalyzerFrameClosed();
+    }
+  }
+  
   public void firePositionManuallyChanged(GeoPos gp)
   {
     for (int i=0; i<NMEAReaderListeners.size(); i++)
