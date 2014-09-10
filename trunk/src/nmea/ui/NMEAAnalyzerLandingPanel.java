@@ -4,6 +4,7 @@ import astro.calc.GeoPoint;
 
 import coreutilities.Utilities;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -27,6 +28,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
@@ -62,13 +64,14 @@ import utils.NMEAAnalyzer.WaterTemp;
 import utils.log.LogAnalysis;
 import utils.log.LoggedDataSelectedInterface;
 
-
 public class NMEAAnalyzerLandingPanel 
      extends JPanel
   implements LoggedDataSelectedInterface
 {
   @SuppressWarnings("compatibility:-4182475730283721677")
   public final static long serialVersionUID = 1L;
+  
+  private NMEAAnalyzerLandingPanel instance = this;
 
   private GridBagLayout layout  = new GridBagLayout();
   private JLabel fileInLabel = new JLabel();
@@ -80,13 +83,17 @@ public class NMEAAnalyzerLandingPanel
   private transient NMEAAnalyzer na = null;
   private transient LogAnalysis[] laa = null;
   private PositionPanel positionPanel = new PositionPanel();
-  private JPanel radioButtonPanel = new JPanel();
   private ButtonGroup group = new ButtonGroup();
   private JRadioButton gpsRadioButton = new JRadioButton();
   private JRadioButton manualRadioButton = new JRadioButton();
   private JComboBox timeZoneComboBox = new JComboBox();
   private JTextField narrowTextField = new JTextField();
   private JPanel tzPanel = new JPanel();
+  
+  private JPanel mainPanel = new JPanel();
+  private JPanel bottomPanel = new JPanel();
+  private JLabel status = new JLabel("");
+  private JProgressBar progressBar = new JProgressBar();
 
   public NMEAAnalyzerLandingPanel()
   {
@@ -100,6 +107,12 @@ public class NMEAAnalyzerLandingPanel
     }
   }
 
+  @Override
+  public void setNbRecordProcessed(int nb)
+  {
+    status.setText(Integer.toString(nb) + " record(s) processed.");
+  }
+  
   @Override
   public void setSelectedData(String data, boolean b)
   {
@@ -186,9 +199,14 @@ public class NMEAAnalyzerLandingPanel
         }
         newData = new TreeMap<Date, ScalarValue>();
         Map<Date, Object> datamap = fullData.get(data);
-        Set<Date> dates = datamap.keySet();
+        Set<Date> dates = datamap.keySet();        
+        System.out.println(data + ":selected " + Integer.toString(dates.size()) + " record(s).");
+        int nb = 0;
         for (Date d : dates)
         {
+          nb++;
+//          if (nb % 1000 == 0)
+//            System.out.println("... Processed " + Integer.toString(nb) + " records.");
           if ("BAT".equals(data))
           {            
             NMEAAnalyzer.BatteryVoltage bv = (NMEAAnalyzer.BatteryVoltage)datamap.get(d);
@@ -234,7 +252,8 @@ public class NMEAAnalyzerLandingPanel
             NMEAAnalyzer.AtmPressure ap = (NMEAAnalyzer.AtmPressure)datamap.get(d);
             newData.put(d, ap);
           }
-        }        
+        }  
+        System.out.println(data + ":Step one completed.");        
       }
       if (laa[idx] == null)
       {
@@ -266,8 +285,9 @@ public class NMEAAnalyzerLandingPanel
   private void jbInit()
     throws Exception
   {
+    this.setLayout(new BorderLayout());
     loggedDataTable = new LoggedDataTable(this);
-    this.setLayout(layout);
+    mainPanel.setLayout(layout);
     setSize(new Dimension(450, 440));
     fileInLabel.setText("Log file Name:");
     fileInTextField.setPreferredSize(new Dimension(200, 19));
@@ -287,35 +307,37 @@ public class NMEAAnalyzerLandingPanel
         parseButton_actionPerformed(e);
       }
     });
-    this.add(fileInLabel,
-             new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE,
-                                    new Insets(0, 0, 0, 0), 0, 0));
-    this.add(fileOutLabel,
-             new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE,
-                                    new Insets(0, 0, 0, 0), 0, 0));
-    this.add(fileInTextField,
-             new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
-                                    new Insets(0, 0, 0, 0), 0, 0));
-    this.add(browseFileInButton,
-             new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
-                                    new Insets(0, 0, 0, 0), 0, 0));
-    this.add(parseButton,
-             new GridBagConstraints(0, 3, 3, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
-                                    new Insets(10, 0, 0, 0), 0, 0));
-    this.add(loggedDataTable,
-             new GridBagConstraints(0, 5, 3, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                                    new Insets(5, 0, 0, 0), 0, 0));
-    this.add(positionPanel,
-             new GridBagConstraints(0, 1, 3, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                                    new Insets(5, 0, 5, 0), 0, 0));
-    radioButtonPanel.add(gpsRadioButton, null);
-    radioButtonPanel.add(manualRadioButton, null);
-    this.add(radioButtonPanel,
-             new GridBagConstraints(0, 0, 3, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                                    new Insets(0, 0, 0, 0), 0, 0));
-    this.add(tzPanel,
-             new GridBagConstraints(0, 4, 3, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                                    new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(fileInLabel,
+                  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE,
+                                         new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(fileOutLabel,
+                  new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE,
+                                         new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(fileInTextField,
+                  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+                                         new Insets(0, 5, 0, 5), 0, 0));
+    mainPanel.add(browseFileInButton,
+                  new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+                                         new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(parseButton,
+                  new GridBagConstraints(0, 3, 3, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+                                         new Insets(5, 0, 5, 0), 0, 0));
+    mainPanel.add(loggedDataTable,
+                  new GridBagConstraints(0, 5, 3, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                                         new Insets(5, 0, 0, 0), 0, 0));
+    mainPanel.add(positionPanel,
+                  new GridBagConstraints(1, 0, 2, 2, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.NONE,
+                                         new Insets(5, 0, 5, 0), 0, 0));
+    positionPanel.setToolTipText("Used to calculate daylight on the graphs");
+    mainPanel.add(tzPanel,
+                  new GridBagConstraints(0, 4, 3, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                                         new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(gpsRadioButton,
+                  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE,
+                                         new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(manualRadioButton,
+                  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE,
+                                         new Insets(0, 0, 0, 0), 0, 0));
     timeZoneComboBox.removeAllItems();
     String[] tzIDs = TimeZone.getAvailableIDs();
     for (String tz : tzIDs)
@@ -391,6 +413,12 @@ public class NMEAAnalyzerLandingPanel
         }
       }
     });
+    
+    this.add(mainPanel, BorderLayout.CENTER);
+    bottomPanel.setLayout(new BorderLayout());
+    this.add(bottomPanel, BorderLayout.SOUTH);
+    bottomPanel.add(status, BorderLayout.CENTER);
+    bottomPanel.add(progressBar, BorderLayout.EAST);
   }
 
   private void narrowTZList(String filter)
@@ -427,36 +455,79 @@ public class NMEAAnalyzerLandingPanel
 
   private void parseButton_actionPerformed(ActionEvent e)
   {
-    String fIn  = fileInTextField.getText();
-    parseButton.setEnabled(false);
-    try
+    // Clean the table, remove all opened frames.
+    loggedDataTable.clear();
+    loggedDataTable.repaint();
+    if (laa != null)
     {
-      GeoPoint gp = positionPanel.getPosition();   
-      this.na = new NMEAAnalyzer(fIn, new GeoPos(gp.getL(), gp.getG()));
-      
-      Map<String, Integer> map = na.getDataMap();
-      // Dump
-      for (String s : map.keySet())
-        System.out.println(s + ":" + map.get(s).intValue() + ", " + (Constants.getInstance().getNMEAMap().get(s) == null ? "[Non standard]" : Constants.getInstance().getNMEAMap().get(s)));
-      System.out.println("================================");
-      
-      Map<String, Map<Date, Object>> fullData = na.getFullData();
-      System.out.println("Full Data: " + fullData.size() + " entry(ies).");
-      
-      Set<String> keys = fullData.keySet();
-      for (String k : keys)
-        loggedDataTable.addLineInTable(k);
-      
-      laa = new LogAnalysis[keys.size()];
       for (int i=0; i<laa.length; i++)
-        laa[i] = null;
-      
-      loggedDataTable.repaint();
+      {
+        if (laa[i] != null)
+        {
+          laa[i].hide();
+          laa[i].close();
+        }
+      }
     }
-    catch (Exception ex)
+    laa = null;
+    
+    Thread parser = new Thread()
     {
-      ex.printStackTrace();
-    }
-    parseButton.setEnabled(true);
+      public void run()
+      {
+        System.out.println(">>> Parser Thread started");
+        try
+        {
+          parseButton.setEnabled(false);
+          GeoPoint gp = positionPanel.getPosition();   
+          String fIn = fileInTextField.getText();
+          na = new NMEAAnalyzer(fIn, instance);
+          Map<String, Integer> map = na.getDataMap();
+          // Dump
+          for (String s : map.keySet())
+            System.out.println(s + ":" + map.get(s).intValue() + ", " + (Constants.getInstance().getNMEAMap().get(s) == null ? "[Non standard]" : Constants.getInstance().getNMEAMap().get(s)));
+          System.out.println("================================");
+          
+          Map<String, Map<Date, Object>> fullData = na.getFullData();
+          System.out.println("Full Data: " + fullData.size() + " entry(ies).");
+          
+          Set<String> keys = fullData.keySet();
+          for (String k : keys)
+            loggedDataTable.addLineInTable(k);
+          
+          laa = new LogAnalysis[keys.size()];
+          for (int i=0; i<laa.length; i++)
+            laa[i] = null;
+        }
+        catch (Exception ex)
+        {
+          ex.printStackTrace();
+        }
+        finally
+        {
+          System.out.println(">>> Parser Thread done working.");
+          loggedDataTable.repaint();
+          parseButton.setEnabled(true);
+//        status.setText("Parsing completed"); // Taken care of by the interface
+          progressBar.setIndeterminate(false);
+          progressBar.setEnabled(false);
+          progressBar.repaint();
+        }
+      }
+    };
+    parser.start();
+    
+    Thread progress = new Thread()
+    {
+      public void run()
+      {
+        System.out.println(">>> Progress Thread started");
+        status.setText("Parsing...");
+        progressBar.setIndeterminate(true);   
+        progressBar.setEnabled(true);
+        progressBar.repaint();
+      }
+    };
+    progress.start();
   }
 }

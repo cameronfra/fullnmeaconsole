@@ -6,11 +6,14 @@ import java.io.FileReader;
 
 import java.io.FileWriter;
 
+import java.text.SimpleDateFormat;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.TreeMap;
 
 import nmea.server.constants.Constants;
@@ -22,9 +25,14 @@ import ocss.nmea.parser.StringParsers;
 import ocss.nmea.parser.Wind;
 
 import utils.log.LogAnalysis;
+import utils.log.LoggedDataSelectedInterface;
 
 public class NMEAAnalyzer
 {
+  private final static SimpleDateFormat SDF_UT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+  static { SDF_UT.setTimeZone(TimeZone.getTimeZone("etc/UTC")); }
+  
+  private LoggedDataSelectedInterface parent = null;
   /*
    * VWR: Wind
    * MWV: Wind
@@ -100,9 +108,12 @@ public class NMEAAnalyzer
       if (line != null)
       {
         nbl++;
+        if (nbl % 1000 == 0)
+          parent.setNbRecordProcessed(nbl);
+        
         if (line.startsWith("$") && line.length() > 6 && StringParsers.validCheckSum(line))
         {
-          String prefix = line.substring(3, 6);
+          String prefix = line.substring(3, 6);          
           if ("RMC".equals(prefix))
           {
             RMC rmc = StringParsers.parseRMC(line);
@@ -111,6 +122,37 @@ public class NMEAAnalyzer
               date = rmc.getRmcDate();
               if (date != null)
               {
+                if (prevDate != null && date != null)
+                {
+                  long diff = date.getTime() - prevDate.getTime();
+                  if (Math.abs(diff) > (DAY - (5 * SEC)) && Math.abs(diff) < DAY + (5 * SEC)) // Day change, probably
+                  {
+                    if (Math.abs(diff) < DAY)
+                      diff += DAY;
+                    if (Math.abs(diff) > DAY)
+                      diff -= DAY;
+                  }
+                  if (diff < 0)
+                  {
+                    System.out.println("** Line " + nbl + ", Backward jump in time: found " + SDF_UT.format(date) + " after " + SDF_UT.format(prevDate) + "...");
+                    date = prevDate; // Reset
+                    continue; // Tossion...
+                  }
+                  if (diff > (10 * MIN)) // More than 10 minutes
+                  {
+                    System.out.println("** Line " + nbl + ", More than 10 minutes between dates: " + SDF_UT.format(date) + ", " + SDF_UT.format(prevDate));
+                //                continue;
+                  }
+                  min = Math.min(min, diff);
+                  if (diff > max)
+                  {
+                    maxGapFrom = prevDate;
+                    maxGapTo = date;
+                  }
+                  max = Math.max(max, diff);
+                }
+                prevDate = date;
+                //
                 Map<Date, Object> map = dataMap.get("RMC");
                 if (map == null)
                   map = new TreeMap<Date, Object>();
@@ -122,27 +164,6 @@ public class NMEAAnalyzer
           if ("VWR".equals(prefix))
           {
             Wind wind = StringParsers.parseVWR(line);
-            if (prevDate != null && date != null)
-            {
-              long diff = date.getTime() - prevDate.getTime();
-              if (Math.abs(diff) > (DAY - (5 * SEC)) && Math.abs(diff) < DAY + (5 * SEC)) // Day change, probably
-              {
-                if (Math.abs(diff) < DAY)
-                  diff += DAY;
-                if (Math.abs(diff) > DAY)
-                  diff -= DAY;
-              }
-              if (diff < 0)
-                System.out.println("** Line " + nbl + ", Watafok??! " + date.toString() + ", " + prevDate.toString());
-              min = Math.min(min, diff);
-              if (diff > max)
-              {
-                maxGapFrom = prevDate;
-                maxGapTo = date;
-              }
-              max = Math.max(max, diff);
-            }
-            prevDate = date;
             if (date != null)
             {
               Map<Date, Object> map = dataMap.get("VWR");
@@ -256,6 +277,8 @@ public class NMEAAnalyzer
       }
     }
     br.close();
+    System.out.println("... Processed " + Integer.toString(nbl) + " line(s).");
+    parent.setNbRecordProcessed(nbl);
     return dataMap;
   }
   
@@ -277,8 +300,9 @@ public class NMEAAnalyzer
     return this.fullData;
   }
   
-  public NMEAAnalyzer(String fileName, GeoPos position) throws Exception
+  public NMEAAnalyzer(String fileName, LoggedDataSelectedInterface parent) throws Exception
   {
+    this.parent = parent;
     this.dataMap  = this.getGenericDataMap(fileName);
     this.fullData = this.getDataMap(fileName);
   }
