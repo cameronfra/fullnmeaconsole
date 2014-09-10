@@ -3,7 +3,6 @@ package nmea.ui.widgets;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.GridBagLayout;
 import java.awt.KeyboardFocusManager;
 
 import javax.swing.JComponent;
@@ -25,25 +24,24 @@ public final class LoggedDataTable
   extends JPanel
 {
   private LoggedDataTable instance = this;
-  private LoggedDataSelectedInterface parent;
+  private transient LoggedDataSelectedInterface parent;
   
-  BorderLayout borderLayout1 = new BorderLayout();
-  JPanel centerPane = new JPanel();
+  private BorderLayout borderLayout1 = new BorderLayout();
+  private JPanel centerPane = new JPanel();
 
-  static final String NAME = "Data";
-  static final String SHOW = "Show";
+  private static final String NAME = "Data";
+  private static final String SHOW = "Show";
 
-  static final String[] names =
+  private static final String[] names =
   { NAME, SHOW };
 
-  TableModel dataModel;
+  private transient TableModel dataModel;
 
-  protected Object[][] data = new Object[0][0];
+  protected transient Object[][] data = new Object[0][0];
 
-  JTable table;
-  JScrollPane scrollPane;
-  BorderLayout borderLayout2 = new BorderLayout();
-  GridBagLayout gridBagLayout1 = new GridBagLayout();
+  private JTable table;
+  private JScrollPane scrollPane;
+  private BorderLayout borderLayout2 = new BorderLayout();
 
   public LoggedDataTable(LoggedDataSelectedInterface caller)
   {
@@ -104,12 +102,19 @@ public final class LoggedDataTable
             return col == 1;
           }
 
-          public void setValueAt(Object aValue, int row, int column)
+          public void setValueAt(Object aValue, final int row, final int column)
           {
             data[row][column] = aValue;
             if (column == 1) // Show/Hide
             {
-              parent.setSelectedData((String)data[row][0], (Boolean)data[row][1]);
+              Thread thread = new Thread()
+              {
+                public void run()
+                {
+                  parent.setSelectedData((String)data[row][0], (Boolean)data[row][1]);
+                }
+              };
+              thread.start();
             }
           }
         };
@@ -172,6 +177,11 @@ public final class LoggedDataTable
     return newData;
   }
 
+  public void clear()
+  {
+    setData(new Object[0][0]);
+  }
+  
   protected void refreshTable()
   {
     ((AbstractTableModel) dataModel).fireTableDataChanged();    

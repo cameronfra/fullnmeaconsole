@@ -9,6 +9,8 @@ import java.io.IOException;
 
 import java.text.ParseException;
 
+import java.text.SimpleDateFormat;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -16,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import java.util.TimeZone;
 import java.util.TreeMap;
 
 import utils.astro.*;
@@ -23,12 +26,17 @@ import utils.astro.*;
 import ocss.nmea.parser.GeoPos;
 
 import utils.NMEAAnalyzer.ScalarValue;
-
+/**
+ * Will dissplay one ONE-DATA frame
+ */
 public class LogAnalysis
 {
+  private final static SimpleDateFormat SDF_UT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+  static { SDF_UT.setTimeZone(TimeZone.getTimeZone("etc/UTC")); }
+
   private LogAnalysisFrame frame = null;
   private static double valueCoeff = 1f; // MULTIPLYING VALUE by this one !
-  private static int hourOffset   = 0;
+  private static int hourOffset    = 0;
   private final Map<Date, ScalarValue> logdata = new HashMap<Date, ScalarValue>();
   private GeoPos pos = null;
   private String timeZone = null;
@@ -76,9 +84,15 @@ public class LogAnalysis
     boolean withSmoothing = "true".equals(System.getProperty("with.smoothing", "true"));
     Set<Date> keys = data.keySet();
     long recNum = 0;
+    {
+      Date[] ka = keys.toArray(new Date[keys.size()]);
+      System.out.println("Processing min/max..., between " + SDF_UT.format(ka[0]) + " and " + SDF_UT.format(ka[ka.length - 1]));
+    }
     for (Date d : keys)
     {
       recNum++;
+//      if (recNum % 1000 == 0)
+//        System.out.println("... Processed " + Long.toString(recNum) + " records.");
       ScalarValue ld = data.get(d);
       try
       {
@@ -88,9 +102,14 @@ public class LogAnalysis
         if (withSmoothing && previousDate != -1)
         { 
           // Smooth...
+//        System.out.println("Between [" + new Date(previousDate) + "] and [" + logDate + "]");
           long deltaT = (logDate.getTime() - previousDate) / 1000; // in seconds
           double deltaValue = (value - prevValue);
-          for (int i=0; i<deltaT; i++)
+          if (deltaT > (10 * MIN))
+          {
+            System.out.println("Weird date interval: " + SDF_UT.format(logDate) + " and " + SDF_UT.format(new Date(previousDate)));
+          }
+          for (int i=0; i<deltaT && deltaT < (10 * MIN); i++) // DeltaT < 10m (aberrations occur)
           {
             Date smoothDate  = new Date(previousDate + (i * 1000));
             double smoothValue = prevValue + (float)((double)deltaValue * ((double)i / (double)deltaT));
@@ -129,7 +148,8 @@ public class LogAnalysis
       {
         ex.printStackTrace();
       }
-  }
+    }
+    System.out.println("Min/max processing completed");
   // Sort
 //  SortedSet<Date> keys = new TreeSet<Date>(logdata.keySet());
 //  for (Date key : keys) 
@@ -211,6 +231,11 @@ public class LogAnalysis
   public void hide()
   {
     frame.setVisible(false);
+  }
+  
+  public void close()
+  {
+    frame.dispose();
   }
   
   public static class LogData
