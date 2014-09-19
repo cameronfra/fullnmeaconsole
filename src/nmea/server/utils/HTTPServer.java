@@ -37,7 +37,9 @@ import ocss.nmea.parser.Angle180LR;
 import ocss.nmea.parser.Angle360;
 import ocss.nmea.parser.ApparentWind;
 import ocss.nmea.parser.Depth;
+import ocss.nmea.parser.Distance;
 import ocss.nmea.parser.GeoPos;
+import ocss.nmea.parser.Pressure;
 import ocss.nmea.parser.RMC;
 import ocss.nmea.parser.SVData;
 import ocss.nmea.parser.SolarDate;
@@ -584,7 +586,7 @@ public class HTTPServer
 //  private DecimalFormat df22 = new DecimalFormat("00.00");
 
   private DecimalFormat df3  = new DecimalFormat("##0");
-  private DecimalFormat df31 = new DecimalFormat("##0.0");
+  private DecimalFormat df41 = new DecimalFormat("###0.0");
   private DecimalFormat df22 = new DecimalFormat("#0.00");
 
   private String generateLatitude()
@@ -741,7 +743,7 @@ public class HTTPServer
           RMC rmc = StringParsers.parseRMC(getSentence("RMC"));
           double cog = rmc.getCog();
   //      System.out.println("Returning COG:" + df31.format(cog));
-          return df31.format(cog);
+          return df41.format(cog);
         }
         catch (Exception e)
         {
@@ -753,7 +755,7 @@ public class HTTPServer
     {
       double cog = 0d; 
       try { cog = ((Angle360) NMEAContext.getInstance().getCache().get(NMEADataCache.COG)).getValue(); } catch (Exception ignore) {}
-      return df31.format(cog);
+      return df41.format(cog);
     }
   }
   
@@ -820,7 +822,7 @@ public class HTTPServer
     {
       double awa = 0d; 
       try { awa = ((Angle180) NMEAContext.getInstance().getCache().get(NMEADataCache.AWA)).getValue(); } catch (Exception ignore) {}
-      return df31.format(awa);
+      return df41.format(awa);
     }
   }
 
@@ -832,7 +834,7 @@ public class HTTPServer
     {
       double twa = 0d; 
       try { twa = ((Angle180) NMEAContext.getInstance().getCache().get(NMEADataCache.TWA)).getValue(); } catch (Exception ignore) {}
-      return df31.format(twa);
+      return df41.format(twa);
     }
   }
   
@@ -1041,6 +1043,42 @@ public class HTTPServer
             str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(((Temperature)cached).getValue()), "wtemp", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
             first = false;
           }
+          else if (k.equals(NMEADataCache.AIR_TEMP))
+          {
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df22.format(((Temperature)cached).getValue()), "atemp", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }
+        }
+        else if (cached instanceof Distance)
+        {
+          if (k.equals(NMEADataCache.LOG))
+          {
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df41.format(((Distance)cached).getValue()), "log", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }          
+          else if (k.equals(NMEADataCache.DAILY_LOG))
+          {
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df41.format(((Distance)cached).getValue()), "day-log", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }          
+          else if (k.equals(NMEADataCache.XTE))
+          {
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df41.format(((Distance)cached).getValue()), "xte", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }          
+          else if (k.equals(NMEADataCache.D2WP))
+          {
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df41.format(((Distance)cached).getValue()), "d2wp", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }          
+        }
+        else if (cached instanceof Pressure)
+        {
+          if (k.equals(NMEADataCache.BARO_PRESS))
+          {
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(df41.format(((Pressure)cached).getValue()), "prmsl", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            first = false;
+          }          
         }
         else if (cached instanceof UTCTime)
         {
@@ -1082,12 +1120,14 @@ public class HTTPServer
             first = false;
           }
         }
-        else if (false) 
+        else if (false) // Extra data
         {
           try 
           { 
   //        str += ("  <obj name='" + URLEncoder.encode(k, "UTF-8") + "'><![CDATA[" + URLEncoder.encode(cached.toString(), "UTF-8") + "]]></obj>\n"); 
-            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(URLEncoder.encode(cached.toString(), "UTF-8"), URLEncoder.encode(k, "UTF-8"), output, CHARACTER_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+  //        str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(URLEncoder.encode(cached.toString(), "UTF-8"), URLEncoder.encode(k, "UTF-8"), output, CHARACTER_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat(cached.toString(), k.replace(' ', '_'), output, CHARACTER_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+            System.out.println(">>> EXTRA >>> " + k + " is a " + cached.getClass().getName());
             first = false;
           } 
           catch (Exception ex) { ex.printStackTrace(); }

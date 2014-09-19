@@ -489,6 +489,15 @@ public class NMEAContext implements Serializable
     }
   }
     
+  public void fireFrameHasBeenClosed(String id)
+  {      
+    for (int i=0; i<NMEAReaderListeners.size(); i++)
+    {
+      NMEAReaderListener l = NMEAReaderListeners.get(i);
+      l.loggedDataAnalyzerFrameClosed(id);
+    }
+  }
+  
   public synchronized NMEADataCache getCache()
   {
 //  System.out.println("NMEAContext getCache:" + Integer.toString(dataCache.size()) + " pos.");

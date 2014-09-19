@@ -15,6 +15,7 @@ import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -110,6 +111,8 @@ public class LogAnalysisFrame
                              public void windowClosing(WindowEvent e) 
                              {
                                System.out.println(">>> Closing " + getTitle());
+                           //  Broadcast this to the table.. (check box)
+                               caller.frameHasBeenClosed();
                                setVisible(false);
                              }
                            });

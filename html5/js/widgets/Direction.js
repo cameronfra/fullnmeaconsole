@@ -1,28 +1,6 @@
 /*
  * @author Olivier Le Diouris
  */
-var directionDisplayColorConfig = 
-{
-  bgColor:           'white',
-  digitColor:        'black',
-  withGradient:      true,
-  displayBackgroundGradient: { from: 'LightGrey', to: 'white' },
-  withDisplayShadow: true,
-  shadowColor:       'rgba(0, 0, 0, 0.75)',
-  outlineColor:      'DarkGrey',
-  majorTickColor:    'black',
-  minorTickColor:    'black',
-  valueColor:        'grey',
-  valueOutlineColor: 'black',
-  valueNbDecimal:    0,
-  handColor:         'rgba(0, 0, 100, 0.25)',
-  handOutlineColor:  'black',
-  withHandShadow:    true,
-  knobColor:         'DarkGrey',
-  knobOutlineColor:  'black',
-  font:               'Source Code Pro'
-};
-
 function Direction(cName, dSize, majorTicks, minorTicks)
 {
   if (majorTicks === undefined)
@@ -156,7 +134,7 @@ function Direction(cName, dSize, majorTicks, minorTicks)
 
   this.drawDisplay = function(displayCanvasName, displayRadius, displayValue)
   {
-    var digitColor = directionDisplayColorConfig.digitColor;
+    var digitColor = 'LightBlue';
     
     var canvas = document.getElementById(displayCanvasName);
     var context = canvas.getContext('2d');
@@ -165,8 +143,8 @@ function Direction(cName, dSize, majorTicks, minorTicks)
   
     // Cleanup
   //context.fillStyle = "#ffffff";
-    context.fillStyle = directionDisplayColorConfig.bgColor;
-//  context.fillStyle = "transparent";
+  //context.fillStyle = "LightBlue";
+    context.fillStyle = "transparent";
     context.fillRect(0, 0, canvas.width, canvas.height);    
   //context.fillStyle = 'rgba(255, 255, 255, 0.0)';
   //context.fillRect(0, 0, canvas.width, canvas.height);    
@@ -176,26 +154,17 @@ function Direction(cName, dSize, majorTicks, minorTicks)
     context.arc(canvas.width / 2, radius + 10, radius, 0, 2 * Math.PI, false);
     context.lineWidth = 5;
   
-    if (directionDisplayColorConfig.withGradient)
-    {
-      var grd = context.createLinearGradient(0, 5, 0, radius);
-      grd.addColorStop(0, directionDisplayColorConfig.displayBackgroundGradient.from);// 0  Beginning
-      grd.addColorStop(1, directionDisplayColorConfig.displayBackgroundGradient.to);  // 1  End
-      context.fillStyle = grd;
-    }
-    else
-      context.fillStyle = directionDisplayColorConfig.displayBackgroundGradient.to;
+    var grd = context.createLinearGradient(0, 5, 0, radius);
+    grd.addColorStop(0, 'black');// 0  Beginning
+    grd.addColorStop(1, 'LightGrey');// 1  End
+    context.fillStyle = grd;
     
-    if (directionDisplayColorConfig.withDisplayShadow)
-    {
-      context.shadowOffsetX = 3;
-      context.shadowOffsetY = 3;
-      context.shadowBlur  = 3;
-      context.shadowColor = directionDisplayColorConfig.shadowColor;
-    }
+    context.shadowBlur  = 20;
+    context.shadowColor = 'black';
+  
     context.lineJoin    = "round";
     context.fill();
-    context.strokeStyle = directionDisplayColorConfig.outlineColor;
+    context.strokeStyle = 'DarkGrey';
     context.stroke();
     context.closePath();
     
@@ -211,7 +180,7 @@ function Direction(cName, dSize, majorTicks, minorTicks)
       context.lineTo(xTo, yTo);
     }
     context.lineWidth = 3;
-    context.strokeStyle = directionDisplayColorConfig.majorTickColor;
+    context.strokeStyle = 'LightGreen';
     context.stroke();
     context.closePath();
   
@@ -229,7 +198,7 @@ function Direction(cName, dSize, majorTicks, minorTicks)
         context.lineTo(xTo, yTo);
       }
       context.lineWidth = 1;
-      context.strokeStyle = directionDisplayColorConfig.minorTickColor;
+      context.strokeStyle = 'LightGreen';
       context.stroke();
       context.closePath();
     }
@@ -253,29 +222,22 @@ function Direction(cName, dSize, majorTicks, minorTicks)
     var dv = displayValue;
     while (dv > 360) dv -= 360;
     while (dv < 0) dv += 360;
-    text = displayValue.toFixed(directionDisplayColorConfig.valueNbDecimal);
+    text = dv.toFixed(0);
     len = 0;
-    context.font = "bold " + Math.round(scale * 40) + "px " + directionDisplayColorConfig.font; // "bold 40px Arial"
+    context.font = "bold " + Math.round(scale * 40) + "px Arial"; // "bold 40px Arial"
     var metrics = context.measureText(text);
     len = metrics.width;
   
     context.beginPath();
-    context.fillStyle = directionDisplayColorConfig.valueColor;
+    context.fillStyle = 'LightGreen';
     context.fillText(text, (canvas.width / 2) - (len / 2), ((radius * .75) + 10));
     context.lineWidth = 1;
-    context.strokeStyle = directionDisplayColorConfig.valueOutlineColor;
+    context.strokeStyle = 'black';
     context.strokeText(text, (canvas.width / 2) - (len / 2), ((radius * .75) + 10)); // Outlined  
     context.closePath();
   
     // Hand
     context.beginPath();
-    if (directionDisplayColorConfig.withHandShadow)
-    {
-      context.shadowColor = directionDisplayColorConfig.shadowColor;
-      context.shadowOffsetX = 3;
-      context.shadowOffsetY = 3;
-      context.shadowBlur = 3;
-    }
     // Center
     context.moveTo(canvas.width / 2, radius + 10);
     // Left
@@ -292,18 +254,18 @@ function Direction(cName, dSize, majorTicks, minorTicks)
     context.lineTo(x, y);
   
     context.closePath();
-    context.fillStyle = directionDisplayColorConfig.handColor;
+    context.fillStyle = 'rgba(100, 0, 0, 0.25)';
     context.fill();
     context.lineWidth = 1;
-    context.strokeStyle = directionDisplayColorConfig.handOutlineColor;
+    context.strokeStyle = 'red';
     context.stroke();
     // Knob
     context.beginPath();
     context.arc((canvas.width / 2), (radius + 10), 7, 0, 2 * Math.PI, false);
     context.closePath();
-    context.fillStyle = directionDisplayColorConfig.knobColor;
+    context.fillStyle = '#fa5858';
     context.fill();
-    context.strokeStyle = directionDisplayColorConfig.knobOutlineColor;
+    context.strokeStyle = 'red';
     context.stroke();
   };
   

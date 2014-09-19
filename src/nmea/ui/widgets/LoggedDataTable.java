@@ -192,4 +192,17 @@ public final class LoggedDataTable
     data = newData;
     ((AbstractTableModel) dataModel).fireTableDataChanged();
   }
+  
+  public void setSelectedRow(String id, boolean checked)
+  {
+    for (int i=0; i<data.length; i++)
+    {
+      if (id.equals((String)data[i][0]))
+      {
+        data[i][1] = checked;
+        ((AbstractTableModel) dataModel).fireTableDataChanged();
+        break;
+      }
+    }
+  }
 }

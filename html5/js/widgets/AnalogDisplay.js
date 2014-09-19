@@ -1,65 +1,6 @@
 /*
  * @author Olivier Le Diouris
  */
- // TODO This config in CSS
- // We wait for the var- custom properties to be implemented in CSS...
- // @see http://www.w3.org/TR/css-variables-1/
- 
- /*
-  * For now:
-  * Themes are applied based on a css class:
-  * .display-scheme
-  * {
-  *   color: black;
-  * }
-  * 
-  * if color is black, analogDisplayColorConfigBlack is applied
-  * if color is white, analogDisplayColorConfigWhite is applied, etc
-  */
-var analogDisplayColorConfigWhite = 
-{
-  bgColor:           'white',
-  digitColor:        'black',
-  withGradient:      true,
-  displayBackgroundGradient: { from: 'LightGrey', to: 'white' },
-  withDisplayShadow: true,
-  shadowColor:       'rgba(0, 0, 0, 0.75)',
-  outlineColor:      'DarkGrey',
-  majorTickColor:    'black',
-  minorTickColor:    'black',
-  valueColor:        'grey',
-  valueOutlineColor: 'black',
-  valueNbDecimal:    1,
-  handColor:         'rgba(0, 0, 100, 0.25)',
-  handOutlineColor:  'black',
-  withHandShadow:    true,
-  knobColor:         'DarkGrey',
-  knobOutlineColor:  'black',
-  font:              'Arial' /* 'Source Code Pro' */
-};
-
-var analogDisplayColorConfigBlack = 
-{
-  bgColor:           'black',
-  digitColor:        'LightBlue',
-  withGradient:      true,
-  displayBackgroundGradient: { from: 'black', to: 'LightGrey' },
-  shadowColor:       'black',
-  outlineColor:      'DarkGrey',
-  majorTickColor:    'LightGreen',
-  minorTickColor:    'LightGreen',
-  valueColor:        'LightGreen',
-  valueOutlineColor: 'black',
-  valueNbDecimal:    1,
-  handColor:         'rgba(0, 0, 100, 0.25)',
-  handOutlineColor:  'blue',
-  withHandShadow:    true,
-  knobColor:         '#8ED6FF', // Kind of blue
-  knobOutlineColor:  'blue',
-  font:              'Arial'
-};
-var analogDisplayColorConfig = analogDisplayColorConfigBlack; // Black is the default
-
 function AnalogDisplay(cName,                     // Canvas Name
                        dSize,                     // Display radius
                        maxValue,                  // default 10
@@ -92,6 +33,7 @@ function AnalogDisplay(cName,                     // Canvas Name
   var intervalID;
   var valueToDisplay = 0;
   var incr = 1;
+  var nbDec = 2;
   
   var instance = this;
   
@@ -99,11 +41,11 @@ function AnalogDisplay(cName,                     // Canvas Name
   
   (function(){ drawDisplay(canvasName, displaySize, previousValue); })(); // Invoked automatically
   
-  this.repaint = function()
+  this.setNbDec = function(nb) 
   {
-    drawDisplay(canvasName, displaySize, previousValue);
+    nbDec = nb;
   };
-  
+
   this.setDisplaySize = function(ds)
   {
     scale = ds / 100;
@@ -174,25 +116,7 @@ function AnalogDisplay(cName,                     // Canvas Name
 
   function drawDisplay(displayCanvasName, displayRadius, displayValue)
   {
-    var schemeColor = getCSSClass(".display-scheme");
-    if (schemeColor !== undefined && schemeColor !== null)
-    {
-      var styleElements = schemeColor.split(";");
-      for (var i=0; i<styleElements.length; i++)
-      {
-        var nv = styleElements[i].split(":");
-        if ("color" === nv[0])
-        {
-//        console.log("Scheme Color:[" + nv[1].trim() + "]");
-          if (nv[1].trim() === 'black')
-            analogDisplayColorConfig = analogDisplayColorConfigBlack;
-          else if (nv[1].trim() === 'white')
-            analogDisplayColorConfig = analogDisplayColorConfigWhite;
-        }
-      }
-    }
-
-    var digitColor = analogDisplayColorConfig.digitColor;
+    var digitColor = 'LightBlue';
     
     var canvas = document.getElementById(displayCanvasName);
     var context = canvas.getContext('2d');
@@ -201,8 +125,8 @@ function AnalogDisplay(cName,                     // Canvas Name
   
     // Cleanup
   //context.fillStyle = "#ffffff";
-    context.fillStyle = analogDisplayColorConfig.bgColor;
-  //context.fillStyle = "transparent";
+  //context.fillStyle = "LightBlue";
+    context.fillStyle = "transparent";
     context.fillRect(0, 0, canvas.width, canvas.height);    
   //context.fillStyle = 'rgba(255, 255, 255, 0.0)';
   //context.fillRect(0, 0, canvas.width, canvas.height);    
@@ -213,26 +137,17 @@ function AnalogDisplay(cName,                     // Canvas Name
     context.arc(canvas.width / 2, radius + 10, radius, Math.PI - toRadians(overlapOver180InDegree > 0?90:0), (2 * Math.PI) + toRadians(overlapOver180InDegree > 0?90:0), false);
     context.lineWidth = 5;
   
-    if (analogDisplayColorConfig.withGradient)
-    {
-      var grd = context.createLinearGradient(0, 5, 0, radius);
-      grd.addColorStop(0, analogDisplayColorConfig.displayBackgroundGradient.from);// 0  Beginning
-      grd.addColorStop(1, analogDisplayColorConfig.displayBackgroundGradient.to);  // 1  End
-      context.fillStyle = grd;
-    }
-    else
-      context.fillStyle = analogDisplayColorConfig.displayBackgroundGradient.to;
+    var grd = context.createLinearGradient(0, 5, 0, radius);
+    grd.addColorStop(0, 'black');// 0  Beginning
+    grd.addColorStop(1, 'LightGrey');// 1  End
+    context.fillStyle = grd;
     
-    if (analogDisplayColorConfig.withDisplayShadow)
-    {
-      context.shadowOffsetX = 3;
-      context.shadowOffsetY = 3;
-      context.shadowBlur  = 3;
-      context.shadowColor = analogDisplayColorConfig.shadowColor;
-    }
+    context.shadowBlur  = 20;
+    context.shadowColor = 'black';
+  
     context.lineJoin    = "round";
     context.fill();
-    context.strokeStyle = analogDisplayColorConfig.outlineColor;
+    context.strokeStyle = 'DarkGrey';
     context.stroke();
     context.closePath();
     
@@ -250,7 +165,7 @@ function AnalogDisplay(cName,                     // Canvas Name
       context.lineTo(xTo, yTo);
     }
     context.lineWidth = 3;
-    context.strokeStyle = analogDisplayColorConfig.majorTickColor;
+    context.strokeStyle = 'LightGreen';
     context.stroke();
     context.closePath();
   
@@ -270,7 +185,7 @@ function AnalogDisplay(cName,                     // Canvas Name
         context.lineTo(xTo, yTo);
       }
       context.lineWidth = 1;
-      context.strokeStyle = analogDisplayColorConfig.minorTickColor;
+      context.strokeStyle = 'LightGreen';
       context.stroke();
       context.closePath();
     }
@@ -286,7 +201,7 @@ function AnalogDisplay(cName,                     // Canvas Name
         var __currentAngle = (totalAngle * (i / (maxValue - startValue))) - toRadians(overlapOver180InDegree);
 //      context.rotate((Math.PI * (i / maxValue)) - (Math.PI / 2));
         context.rotate(__currentAngle - (Math.PI / 2));
-        context.font = "bold " + Math.round(scale * 15) + "px " + analogDisplayColorConfig.font; // Like "bold 15px Arial"
+        context.font = "bold " + Math.round(scale * 15) + "px Arial"; // Like "bold 15px Arial"
         context.fillStyle = digitColor;
         str = (i + startValue).toString();
         len = context.measureText(str).width;
@@ -296,29 +211,22 @@ function AnalogDisplay(cName,                     // Canvas Name
       context.closePath();
     }
     // Value
-    text = displayValue.toFixed(analogDisplayColorConfig.valueNbDecimal);
+    text = displayValue.toFixed(nbDec);
     len = 0;
-    context.font = "bold " + Math.round(scale * 40) + "px " + analogDisplayColorConfig.font; // "bold 40px Arial"
+    context.font = "bold " + Math.round(scale * 40) + "px Arial"; // "bold 40px Arial"
     var metrics = context.measureText(text);
     len = metrics.width;
   
     context.beginPath();
-    context.fillStyle = analogDisplayColorConfig.valueColor;
+    context.fillStyle = 'LightGreen';
     context.fillText(text, (canvas.width / 2) - (len / 2), ((radius * .75) + 10));
     context.lineWidth = 1;
-    context.strokeStyle = analogDisplayColorConfig.valueOutlineColor;
+    context.strokeStyle = 'black';
     context.strokeText(text, (canvas.width / 2) - (len / 2), ((radius * .75) + 10)); // Outlined  
     context.closePath();
   
     // Hand
     context.beginPath();
-    if (analogDisplayColorConfig.withHandShadow)
-    {
-      context.shadowColor = analogDisplayColorConfig.shadowColor;
-      context.shadowOffsetX = 3;
-      context.shadowOffsetY = 3;
-      context.shadowBlur = 3;
-    }
     // Center
     context.moveTo(canvas.width / 2, radius + 10);
     
@@ -337,18 +245,18 @@ function AnalogDisplay(cName,                     // Canvas Name
     context.lineTo(x, y);
   
     context.closePath();
-    context.fillStyle = analogDisplayColorConfig.handColor;
+    context.fillStyle = 'rgba(0, 0, 100, 0.25)';
     context.fill();
     context.lineWidth = 1;
-    context.strokeStyle = analogDisplayColorConfig.handOutlineColor;
+    context.strokeStyle = 'blue';
     context.stroke();
     // Knob
     context.beginPath();
     context.arc((canvas.width / 2), (radius + 10), 7, 0, 2 * Math.PI, false);
     context.closePath();
-    context.fillStyle = analogDisplayColorConfig.knobColor;
+    context.fillStyle = '#8ED6FF';
     context.fill();
-    context.strokeStyle = analogDisplayColorConfig.knobOutlineColor;
+    context.strokeStyle = 'blue';
     context.stroke();
   };
   

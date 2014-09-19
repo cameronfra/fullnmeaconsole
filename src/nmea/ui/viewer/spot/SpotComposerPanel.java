@@ -387,19 +387,19 @@ public class SpotComposerPanel
     
     if (airmailLocation == null) 
     {
-      throw new RuntimeException("Property airmail.location not set. See your preferences (SailMail)");
+      throw new RuntimeException("Property airmail.location not set. Please see your preferences (SailMail)");
     }
     if (airmailId == null) 
     {
-      throw new RuntimeException("Property airmail.id not set. See your preferences (SailMail)");
+      throw new RuntimeException("Property airmail.id not set. Please see your preferences (SailMail)");
     }
     File airmailDir = new File(airmailLocation);
     if (!airmailDir.exists() || !airmailDir.isDirectory())
     {
-      throw new RuntimeException(airmailLocation + " does not exist, or is not a directory. See your preferences (SailMail)");
+      throw new RuntimeException(airmailLocation + " does not exist, or is not a directory. Please see your preferences (SailMail)");
     }
     int messnum = 0;
-    File outboxDir = new File(airmailDir, "outbox"); // TODO Make sure this is right
+    File outboxDir = new File(airmailDir, "Outbox"); 
     if (!outboxDir.exists())
       outboxDir.mkdirs();
     

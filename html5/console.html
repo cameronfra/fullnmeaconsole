@@ -124,6 +124,9 @@
     // BSP
     document.getElementById('bspCanvas').width = 240 * (Math.min(ww, totalWidth) / totalWidth);
     document.getElementById('bspCanvas').height = 120 * (Math.min(ww, totalWidth) / totalWidth);
+    // Perf 
+    document.getElementById('prfCanvas').width = 240 * (Math.min(ww, totalWidth) / totalWidth);
+    document.getElementById('prfCanvas').height = 120 * (Math.min(ww, totalWidth) / totalWidth);
     // HDG
     document.getElementById('hdgCanvas').width = 240 * (Math.min(ww, totalWidth) / totalWidth);
     document.getElementById('hdgCanvas').height = 220 * (Math.min(ww, totalWidth) / totalWidth);
@@ -220,7 +223,7 @@
       <!-- Analog Displays -->
       <table align="center">
         <tr>
-          <td align="center">Boat Speed in knots</td>
+          <td align="center">Boat Speed in kt &amp; Perf in %</td>
           <td align="center">Heading in &deg;</td>
           <td align="center">Wind Dir in &deg;</td>
           <td align="center">Wind in knots</td>
@@ -230,19 +233,25 @@
           <td align="center" valign="top">
             <canvas id="bspCanvas" width="240" height="120" title="Boat Speed in knots"> <!-- class="displayCanvas" --></canvas>
           </td>
-          <td align="center" valign="top">
+          <td align="center" valign="top" rowspan="2">
             <canvas id="hdgCanvas" width="240" height="220" title="Heading in degrees"> <!-- class="displayCanvas" --></canvas>
           </td>
-          <td align="center" valign="top">
+          <td align="center" valign="top" rowspan="2">
             <canvas id="twdCanvas" width="240" height="220" title="True Wind Direction in degrees"> <!-- class="displayCanvas" --></canvas>
           </td>
-          <td align="center" valign="top">
+          <td align="center" valign="top" rowspan="2">
             <canvas id="twsCanvas" width="240" height="220" title="True Wind Speed in knots"> <!-- class="displayCanvas" --></canvas>
           </td>
-          <td align="center" valign="top">
+          <td align="center" valign="top" rowspan="2">
             <canvas id="tmpCanvas" width="100" height="240" title="Water Temperature in Celcius"> <!-- class="displayCanvas" --></canvas>
           </td>
         </tr>
+        <tr>
+          <td align="center" valign="top">
+            <div id="log">00.00</div>
+            <canvas id="prfCanvas" width="240" height="120" title="Performance in %"> <!-- class="displayCanvas" --></canvas>
+          </td>
+        </tr>        
         <tr>
           <td align="center" valign="top" colspan="5">
             <canvas id="roseCanvas" width="400" height="50" title="True Heading"> <!-- class="displayCanvas" --></canvas>
@@ -399,3 +408,4 @@
     <div id="err-mess"></div>
   </body>
 </html>
+  
