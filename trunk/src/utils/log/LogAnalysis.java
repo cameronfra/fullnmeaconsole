@@ -21,32 +21,36 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
 
+import nmea.server.ctx.NMEAContext;
+
 import utils.astro.*;
 
 import ocss.nmea.parser.GeoPos;
 
 import utils.NMEAAnalyzer.ScalarValue;
 /**
- * Will dissplay one ONE-DATA frame
+ * Will display one ONE-DATA frame
  */
 public class LogAnalysis
 {
   private final static SimpleDateFormat SDF_UT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
   static { SDF_UT.setTimeZone(TimeZone.getTimeZone("etc/UTC")); }
 
+  private String nmeaID = null;
   private LogAnalysisFrame frame = null;
-  private static double valueCoeff = 1f; // MULTIPLYING VALUE by this one !
+  private static double valueCoeff = 1f; // MULTIPLYING value by this one !
   private static int hourOffset    = 0;
   private final Map<Date, ScalarValue> logdata = new HashMap<Date, ScalarValue>();
   private GeoPos pos = null;
   private String timeZone = null;
   
-  public LogAnalysis(Map<Date, ScalarValue> data, String title, String unit) throws IOException, ParseException
+  public LogAnalysis(String dataId, Map<Date, ScalarValue> data, String title, String unit) throws IOException, ParseException
   {
-    this(data, title, unit, null, null);
+    this(dataId, data, title, unit, null, null);
   }
-  public LogAnalysis(Map<Date, ScalarValue> data, String title, String unit, GeoPos pos, String tz) throws IOException, ParseException
+  public LogAnalysis(String dataId, Map<Date, ScalarValue> data, String title, String unit, GeoPos pos, String tz) throws IOException, ParseException
   {
+    this.nmeaID = dataId;
     this.pos = pos;
     this.timeZone = tz;
     valueCoeff = Double.parseDouble(System.getProperty("value.coeff", "1.0"));
@@ -236,6 +240,12 @@ public class LogAnalysis
   public void close()
   {
     frame.dispose();
+  }
+  
+  public void frameHasBeenClosed()
+  {
+    // broadcast nmeaID
+    NMEAContext.getInstance().fireFrameHasBeenClosed(nmeaID);
   }
   
   public static class LogData

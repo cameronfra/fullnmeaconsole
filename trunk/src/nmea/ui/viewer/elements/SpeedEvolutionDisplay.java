@@ -221,8 +221,8 @@ public class SpeedEvolutionDisplay
     {
       if (!Double.isInfinite(value) && value != -Double.MAX_VALUE && (aldd.size() == 0 || (date.getTime() - aldd.get(aldd.size() - 1).getDate().getTime() > MINIMUM_DELAY)))
       {
-//      if ("BSP".equals(this.name))
-//        System.out.println("Adding value to BSP:" + sdf.format(date));
+//      if ("PERF".equals(this.name))
+//        System.out.println("Adding value to PERF:" + date.toString() + " " + value);
         aldd.add(new DatedData(date, value));
       }
       while (aldd.size() > maxDataLength)
@@ -509,6 +509,10 @@ public class SpeedEvolutionDisplay
       int w = this.getWidth();
       int h = this.getHeight();
       double stepV = ((double)h / (max - min));
+      Color c = gr.getColor();
+      gr.setColor(this.getBackground());
+      gr.fillRect(0, 0, w, h);
+      gr.setColor(c);
 //    gr.setColor(new Color(0, 128, 64));
       gr.setFont(gr.getFont().deriveFont(Font.PLAIN, fontSize));
       // Grid

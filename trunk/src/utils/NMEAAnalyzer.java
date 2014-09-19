@@ -330,7 +330,7 @@ public class NMEAAnalyzer
       NMEAAnalyzer.BatteryVoltage bv = (NMEAAnalyzer.BatteryVoltage)datamap.get(d);
       batData.put(d, bv);
     }
-    new LogAnalysis(batData, "Battery Voltage", "V");
+    new LogAnalysis("BAT", batData, "Battery Voltage", "V");
     
     // Example: DPT
     Map<Date, ScalarValue> dptData = new TreeMap<Date, ScalarValue>();
@@ -341,6 +341,6 @@ public class NMEAAnalyzer
       NMEAAnalyzer.Depth depth = (NMEAAnalyzer.Depth)datamap.get(d);
       dptData.put(d, depth);
     }
-    new LogAnalysis(dptData, "Depth", "m");
+    new LogAnalysis("DPT", dptData, "Depth", "m");
   }  
 }

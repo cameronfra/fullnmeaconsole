@@ -59,4 +59,5 @@ public abstract class NMEAReaderListener implements EventListener
   public void setSpotLineIndex(int i) {}
   
   public void enableHttpServer(boolean b) {}
+  public void loggedDataAnalyzerFrameClosed(String id) {}
 }

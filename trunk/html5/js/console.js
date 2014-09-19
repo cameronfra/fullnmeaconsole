@@ -1,7 +1,7 @@
 /*
  * @author Olivier Le Diouris
  */
-var displayBSP, displayTWD, displayTWS, thermometer, displayHDG, rose, displayOverview,
+var displayBSP, displayPRF, displayTWD, displayTWS, thermometer, displayHDG, rose, displayOverview,
     jumboBSP, jumboHDG, jumboTWD, jumboLWY, jumboAWA, jumboTWA, jumboAWS, jumboTWS, jumboCOG, jumboCDR, jumboSOG, jumboCSP, jumboVMG,
     displayAW,
     twdEvolution, twsEvolution;
@@ -13,6 +13,8 @@ var editing = false;
 var init = function() 
 {
   displayBSP      = new AnalogDisplay('bspCanvas', 100,   15,  5,  1);
+  displayPRF      = new AnalogDisplay('prfCanvas', 100,   200,  25,  5, false);
+  displayPRF.setNbDec(1);
   displayHDG      = new Direction('hdgCanvas', 100, 45, 5);
   displayTWD      = new Direction('twdCanvas', 100, 45, 5);
 //displayTWD      = new Direction('twdCanvas', 100, 1060,  10,  1, false, 60, 960);
@@ -52,6 +54,7 @@ var resizeDisplays = function(width)
   if (displayBSP !== undefined && displayTWS !== undefined) // TODO Other displays
   {
     displayBSP.setDisplaySize(100 * (Math.min(width, TOTAL_WIDTH) / TOTAL_WIDTH)); 
+    displayPRF.setDisplaySize(100 * (Math.min(width, TOTAL_WIDTH) / TOTAL_WIDTH)); 
     displayTWS.setDisplaySize(100 * (Math.min(width, TOTAL_WIDTH) / TOTAL_WIDTH)); 
     displayHDG.setDisplaySize(100 * (Math.min(width, TOTAL_WIDTH) / TOTAL_WIDTH)); 
     displayTWD.setDisplaySize(100 * (Math.min(width, TOTAL_WIDTH) / TOTAL_WIDTH)); 
@@ -91,36 +94,52 @@ var reloadMap = function()
  <!ENTITY deg     "&#176;">
 ]>
 <data>
-  <D>10</D>
-  <gps-date-time>1290377264165</gps-date-time>
-  <gps-date-time-fmt>21 Nov 2010 14:07:44 UTC</gps-date-time-fmt>
-  <aws>16.46</aws>
   <wtemp>26.50</wtemp>
-  <to-wp>RANGI   </to-wp>
-  <cdr>311</cdr>
-  <gps-time>1290377264165</gps-time>
-  <gps-time-fmt>14:07:44 UTC</gps-time-fmt>
-  <tws>21.20</tws>
-  <dbt>2.00</dbt>
+  <gps-time>1290377286000</gps-time>
+  <gps-time-fmt>14:08:06 UTC</gps-time-fmt>
+  <d2wp>561.7</d2wp>
   <cog>223</cog>
-  <awa>-115</awa>
-  <hdg>214</hdg>
-  <cmg>218</cmg>
-  <twd>82</twd>
   <leeway>0</leeway>
-  <d>-2</d>
-  <csp>1.05</csp>
-  <twa>-132</twa>
-  <sog>6.72</sog>
-  <lat>-9.10825</lat>
-  <lng>-140.20926666666668</lng>
-  <pos>S  09&deg;06.49' / W 140&deg;12.56'</pos>
-  <bsp>6.79</bsp>
+  <csp>0.79</csp>
+  <bsp>6.83</bsp>
+  <lat>-9.10875</lat>
+  <lng>-140.20975</lng>
+  <pos>S  09&deg;06.53' / W 140&deg;12.59'</pos>
   <b2wp>230</b2wp>
-  <gps-solar-date>1290343613941</gps-solar-date>
-  <vmg-wind>-5.21</vmg-wind>
-  <vmg-wp>6.66</vmg-wp>
-  <perf>0.96</perf>
+  <xte>3.0</xte>
+  <gps-date-time>1290377286000</gps-date-time>
+  <gps-date-time-fmt>21 Nov 2010 14:08:06 UTC</gps-date-time-fmt>
+  <D>10</D>
+  <aws>14.60</aws>
+  <cdr>140</cdr>
+  <to-wp>RANGI   </to-wp>
+  <tws>18.96</tws>
+  <dbt>1.60</dbt>
+  <log>3013.0</log>
+  <awa>-126</awa>
+  <hdg>229</hdg>
+  <cmg>227</cmg>
+  <twd>85</twd>
+  <prmsl>0.0</prmsl>
+  <d>-1</d>
+  <atemp>0.00</atemp>
+  <twa>-143</twa>
+  <day-log>12.3</day-log>
+  <sog>6.91</sog>
+  <gps-solar-date>1290343635660</gps-solar-date>
+  <vmg-wind>-5.11</vmg-wind>
+  <vmg-wp>6.85</vmg-wp>
+  <perf>1.03</perf>
+  <bsp-factor>1.0</bsp-factor>
+  <aws-factor>1.0</aws-factor>
+  <awa-offset>0.0</awa-offset>
+  <hdg-offset>0.0</hdg-offset>
+  <max-leeway>15.0</max-leeway>
+  <dev-file>D:\OlivSoft\all-scripts\dp_2011_04_15.csv</dev-file>
+  <default-decl>15.0</default-decl>
+  <damping>30</damping>
+  <polar-file>D:\OlivSoft\all-scripts\polars\CheoyLee42.polar-coeff</polar-file>
+  <polar-speed-factor>0.8</polar-speed-factor>
 </data>
 */
 var pingNMEAConsole = function()
@@ -163,6 +182,17 @@ var pingNMEAConsole = function()
       errMess += ((errMess.length > 0?"\n":"") + "Problem with boat speed...");
 //    displayBSP.animate(0.0);
       displayBSP.setValue(0.0);
+    }
+     try
+    {
+      var log = parseFloat(doc.getElementsByTagName("log")[0].childNodes[0].nodeValue);
+//    displayBSP.animate(bsp);
+      document.getElementById("log").innerText = log.toFixed(0);
+    }
+    catch (err)
+    {
+      console.log("Log problem...")
+      errMess += ((errMess.length > 0?"\n":"") + "Problem with log...:" + err);
     }
     try
     {
@@ -378,11 +408,13 @@ var pingNMEAConsole = function()
     {
       var perf = parseFloat(doc.getElementsByTagName("perf")[0].childNodes[0].nodeValue);
       perf *= 100;
+      displayPRF.setValue(perf);
       displayOverview.setPerf(perf);
     }
     catch (err)
     {
    // errMess += ((errMess.length > 0?"\n":"") + "Problem with Perf...");
+      displayPRF.setValue(100);
     }
     
     // Calibration Prms

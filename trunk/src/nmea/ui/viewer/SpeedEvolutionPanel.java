@@ -33,12 +33,13 @@ public class SpeedEvolutionPanel
 {
   private VerticalFlowLayout verticalFlowLayout = new VerticalFlowLayout();
 
-  private SpeedEvolutionDisplay bspLoggingDisplay = new SpeedEvolutionDisplay("BSP", "Boat Speed", 36);
-  private SpeedEvolutionDisplay awsLoggingDisplay = new SpeedEvolutionDisplay("AWS", "Apparent Wind Speed", 36);
-  private SpeedEvolutionDisplay twsLoggingDisplay = new SpeedEvolutionDisplay("TWS", "True Wind Speed", 36);
-  private SpeedEvolutionDisplay sogLoggingDisplay = new SpeedEvolutionDisplay("SOG", "Speed Over Ground", 36);
-  private SpeedEvolutionDisplay cspLoggingDisplay = new SpeedEvolutionDisplay("CSP", "Current Speed", 36);
-  private SpeedEvolutionDisplay xteLoggingDisplay = new SpeedEvolutionDisplay("XTE", "Cross Track Error", 36);
+  private SpeedEvolutionDisplay bspLoggingDisplay = new SpeedEvolutionDisplay("BSP",  "Boat Speed", 36);
+  private SpeedEvolutionDisplay awsLoggingDisplay = new SpeedEvolutionDisplay("AWS",  "Apparent Wind Speed", 36);
+  private SpeedEvolutionDisplay twsLoggingDisplay = new SpeedEvolutionDisplay("TWS",  "True Wind Speed", 36);
+  private SpeedEvolutionDisplay sogLoggingDisplay = new SpeedEvolutionDisplay("SOG",  "Speed Over Ground", 36);
+  private SpeedEvolutionDisplay cspLoggingDisplay = new SpeedEvolutionDisplay("CSP",  "Current Speed", 36);
+  private SpeedEvolutionDisplay xteLoggingDisplay = new SpeedEvolutionDisplay("XTE",  "Cross Track Error", 36);
+  private SpeedEvolutionDisplay prfLoggingDisplay = new SpeedEvolutionDisplay("PERF", "Performance", 36);
   
   public SpeedEvolutionPanel()
   {
@@ -65,7 +66,10 @@ public class SpeedEvolutionPanel
     this.add(sogLoggingDisplay, new GridBagConstraints(0, i++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 0, 0, 0), 0, 0));
     this.add(cspLoggingDisplay, new GridBagConstraints(0, i++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 0, 0, 0), 0, 0));        
     this.add(xteLoggingDisplay, new GridBagConstraints(0, i++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 0, 0, 0), 0, 0));
+    this.add(prfLoggingDisplay, new GridBagConstraints(0, i++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 0, 0, 0), 0, 0));
     xteLoggingDisplay.setUnit("nm");
+    this.add(prfLoggingDisplay, new GridBagConstraints(0, i++, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 0, 0, 0), 0, 0));
+    prfLoggingDisplay.setUnit("%");
 
     bspLoggingDisplay.setMax(10d);
     
@@ -78,6 +82,10 @@ public class SpeedEvolutionPanel
     sogLoggingDisplay.setMax(10d);
     cspLoggingDisplay.setMax(5d);
     xteLoggingDisplay.setMax(10d);
+
+    prfLoggingDisplay.setStep(10.0);
+    prfLoggingDisplay.setMin(0.0);
+    prfLoggingDisplay.setMax(200d);
 
     NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
     {
@@ -127,6 +135,17 @@ public class SpeedEvolutionPanel
             xteLoggingDisplay.addValue(d, ((Distance)cache.get(NMEADataCache.XTE)).getValue()); 
             xteLoggingDisplay.addNDValue(d, ((Distance)cache.get(NMEADataCache.XTE, false)).getValue()); 
             xteLoggingDisplay.repaint();
+          } 
+          catch (Exception ex) {}
+          try 
+          { 
+            double perf = 100.0 * ((Double)cache.get(NMEADataCache.PERF)).doubleValue();
+            if (!Double.isNaN(perf) && !Double.isInfinite(perf))
+            {
+              prfLoggingDisplay.addValue(d, perf); 
+              prfLoggingDisplay.addNDValue(d, perf); 
+              prfLoggingDisplay.repaint();
+            }
           } 
           catch (Exception ex) {}
         }
