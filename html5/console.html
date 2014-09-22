@@ -15,12 +15,14 @@
     </style>
     <link rel="stylesheet" href="css/black.css" type="text/css" id="theme"/>
     <script type="text/javascript" src="js/date.proto.js"></script>
-    <script type="text/javascript" src="js/cssutils.js"></script>
-    <script type="text/javascript" src="js/widgets/AnalogDisplay.js"></script>
+    <!--script type="text/javascript" src="js/widgets/AnalogDisplay.js"></script-->
+    <script type="text/javascript" src="analog.display/AnalogDisplay.js"></script>
+    <script type="text/javascript" src="js/widgets/NumericDisplay.js"></script>
     <script type="text/javascript" src="js/widgets/CompassRose.js"></script>
     <script type="text/javascript" src="js/widgets/BoatOverview.js"></script>
     <script type="text/javascript" src="js/widgets/Thermometer.js"></script>
-    <script type="text/javascript" src="js/widgets/Direction.js"></script>
+    <!--script type="text/javascript" src="js/widgets/Direction.js"></script-->
+    <script type="text/javascript" src="direction/Direction.js"></script>
     <script type="text/javascript" src="js/widgets/JumboDisplay.js"></script>
     <script type="text/javascript" src="js/widgets/AWDisplay.js"></script>
     <script type="text/javascript" src="js/widgets/TWDEvolution.js"></script>
@@ -163,10 +165,10 @@
     var selected = themeList.options[themeList.selectedIndex].value;
     cssLink.href = 'css/' + selected + '.css';
     // Repaint the displays
-    displayBSP.repaint();    
-    displayTWS.repaint();
-    rose.repaint();
-    thermometer.repaint();
+//  displayBSP.repaint();    
+//  displayTWS.repaint();
+//  rose.repaint();
+//  thermometer.repaint();
   };
   
   var resetTWBuffer = function()
@@ -221,42 +223,52 @@
     </select>
     <div id="displays" style="display: inline;">
       <!-- Analog Displays -->
-      <table align="center">
+      <table align="center" border="0">
         <tr>
-          <td align="center">Boat Speed in kt &amp; Perf in %</td>
+          <td align="center">Boat Speed, Log, Perf</td>
           <td align="center">Heading in &deg;</td>
           <td align="center">Wind Dir in &deg;</td>
           <td align="center">Wind in knots</td>
           <td align="center">Water&deg;C</td>
         </tr>
         <tr>
-          <td align="center" valign="top">
-            <canvas id="bspCanvas" width="240" height="120" title="Boat Speed in knots"> <!-- class="displayCanvas" --></canvas>
-          </td>
           <td align="center" valign="top" rowspan="2">
-            <canvas id="hdgCanvas" width="240" height="220" title="Heading in degrees"> <!-- class="displayCanvas" --></canvas>
+            <table>
+              <tr>
+                <td align="center" valign="top">
+                  <canvas id="bspCanvas" width="240" height="120" title="Boat Speed in knots"></canvas>
+                </td>
+              </tr>
+              <tr>
+                <td align="center" valign="top">
+                  <canvas id="logCanvas" width="120" height="40" title="Log"></canvas>
+                </td>
+              </tr>
+              <tr>
+                <td align="center" valign="top">
+                  <canvas id="prfCanvas" width="240" height="120" title="Performance in %"></canvas>
+                </td>
+              </tr>
+            </table>
           </td>
-          <td align="center" valign="top" rowspan="2">
-            <canvas id="twdCanvas" width="240" height="220" title="True Wind Direction in degrees"> <!-- class="displayCanvas" --></canvas>
+          <td align="center" valign="top" rowspan="1">
+            <canvas id="hdgCanvas" width="240" height="220" title="Heading in degrees"></canvas>
           </td>
-          <td align="center" valign="top" rowspan="2">
-            <canvas id="twsCanvas" width="240" height="220" title="True Wind Speed in knots"> <!-- class="displayCanvas" --></canvas>
+          <td align="center" valign="top" rowspan="1">
+            <canvas id="twdCanvas" width="240" height="220" title="True Wind Direction in degrees"></canvas>
           </td>
-          <td align="center" valign="top" rowspan="2">
-            <canvas id="tmpCanvas" width="100" height="240" title="Water Temperature in Celcius"> <!-- class="displayCanvas" --></canvas>
+          <td align="center" valign="top" rowspan="1">
+            <canvas id="twsCanvas" width="240" height="220" title="True Wind Speed in knots"></canvas>
+          </td>
+          <td align="center" valign="top" rowspan="1">
+            <canvas id="tmpCanvas" width="100" height="240" title="Water Temperature in Celcius"></canvas>
           </td>
         </tr>
         <tr>
-          <td align="center" valign="top">
-            <div id="log">00.00</div>
-            <canvas id="prfCanvas" width="240" height="120" title="Performance in %"> <!-- class="displayCanvas" --></canvas>
+          <td align="center" valign="top" colspan="3">
+            <canvas id="roseCanvas" width="500" height="50" title="True Heading"></canvas>
           </td>
         </tr>        
-        <tr>
-          <td align="center" valign="top" colspan="5">
-            <canvas id="roseCanvas" width="400" height="50" title="True Heading"> <!-- class="displayCanvas" --></canvas>
-          </td>
-        </tr>
       </table>   
     </div>
     <div id="overview" style="display: none;">
@@ -286,67 +298,67 @@
             </td>
             <td align="center" valign="top">
               <!-- Digital displays -->
-              <canvas id="jumboBSPCanvas" width="120" height="60" title="Boat Speed in knots"> <!-- class="displayCanvas" --></canvas>
+              <canvas id="jumboBSPCanvas" width="120" height="60" title="Boat Speed in knots"></canvas>
             </td>
             <td align="center" valign="top">
               <!-- Digital displays -->
-              <canvas id="jumboTWDCanvas" width="120" height="60" title="True Wind Direction in degrees"> <!-- class="displayCanvas" --></canvas>
-            </td>
-          </tr>
-          <tr>
-            <td align="center" valign="top">
-              <!-- Digital displays -->
-              <canvas id="jumboHDGCanvas" width="120" height="60" title="Boat True Heading in degrees"> <!-- class="displayCanvas" --></canvas>
-            </td>
-            <td align="center" valign="top">
-              <!-- Digital displays -->
-              <canvas id="jumboLWYCanvas" width="120" height="60" title="Leeway in degrees"> <!-- class="displayCanvas" --></canvas>
+              <canvas id="jumboTWDCanvas" width="120" height="60" title="True Wind Direction in degrees"></canvas>
             </td>
           </tr>
           <tr>
             <td align="center" valign="top">
               <!-- Digital displays -->
-              <canvas id="jumboAWACanvas" width="120" height="60" title="Apparent Wind Angle in degrees"> <!-- class="displayCanvas" --></canvas>
+              <canvas id="jumboHDGCanvas" width="120" height="60" title="Boat True Heading in degrees"></canvas>
             </td>
             <td align="center" valign="top">
               <!-- Digital displays -->
-              <canvas id="jumboTWACanvas" width="120" height="60" title="True Wind Angle in degrees"> <!-- class="displayCanvas" --></canvas>
-            </td>
-          </tr>
-          <tr>
-            <td align="center" valign="top">
-              <!-- Digital displays -->
-              <canvas id="jumboAWSCanvas" width="120" height="60" title="Apparent Wind Speed in knots"> <!-- class="displayCanvas" --></canvas>
-            </td>
-            <td align="center" valign="top">
-              <!-- Digital displays -->
-              <canvas id="jumboTWSCanvas" width="120" height="60" title="True Wind Speed in knots"> <!-- class="displayCanvas" --></canvas>
+              <canvas id="jumboLWYCanvas" width="120" height="60" title="Leeway in degrees"></canvas>
             </td>
           </tr>
           <tr>
             <td align="center" valign="top">
               <!-- Digital displays -->
-              <canvas id="jumboCOGCanvas" width="120" height="60" title="Course Over Ground in degrees"> <!-- class="displayCanvas" --></canvas>
+              <canvas id="jumboAWACanvas" width="120" height="60" title="Apparent Wind Angle in degrees"></canvas>
             </td>
             <td align="center" valign="top">
               <!-- Digital displays -->
-              <canvas id="jumboCDRCanvas" width="120" height="60" title="Direction of the Current in degrees"> <!-- class="displayCanvas" --></canvas>
-            </td>
-          </tr>
-          <tr>
-            <td align="center" valign="top">
-              <!-- Digital displays -->
-              <canvas id="jumboSOGCanvas" width="120" height="60" title="Speed Over Ground in knots"> <!-- class="displayCanvas" --></canvas>
-            </td>
-            <td align="center" valign="top">
-              <!-- Digital displays -->
-              <canvas id="jumboCSPCanvas" width="120" height="60" title="Speed of the Current in knots"> <!-- class="displayCanvas" --></canvas>
+              <canvas id="jumboTWACanvas" width="120" height="60" title="True Wind Angle in degrees"></canvas>
             </td>
           </tr>
           <tr>
             <td align="center" valign="top">
               <!-- Digital displays -->
-              <canvas id="jumboVMGCanvas" width="120" height="60" title="VMG in knots"> <!-- class="displayCanvas" --></canvas>
+              <canvas id="jumboAWSCanvas" width="120" height="60" title="Apparent Wind Speed in knots"></canvas>
+            </td>
+            <td align="center" valign="top">
+              <!-- Digital displays -->
+              <canvas id="jumboTWSCanvas" width="120" height="60" title="True Wind Speed in knots"></canvas>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" valign="top">
+              <!-- Digital displays -->
+              <canvas id="jumboCOGCanvas" width="120" height="60" title="Course Over Ground in degrees"></canvas>
+            </td>
+            <td align="center" valign="top">
+              <!-- Digital displays -->
+              <canvas id="jumboCDRCanvas" width="120" height="60" title="Direction of the Current in degrees"></canvas>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" valign="top">
+              <!-- Digital displays -->
+              <canvas id="jumboSOGCanvas" width="120" height="60" title="Speed Over Ground in knots"></canvas>
+            </td>
+            <td align="center" valign="top">
+              <!-- Digital displays -->
+              <canvas id="jumboCSPCanvas" width="120" height="60" title="Speed of the Current in knots"></canvas>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" valign="top">
+              <!-- Digital displays -->
+              <canvas id="jumboVMGCanvas" width="120" height="60" title="VMG in knots"></canvas>
             </td>
             <td align="center" valign="top">
               <!-- Digital displays -->

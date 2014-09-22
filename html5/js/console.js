@@ -1,7 +1,7 @@
 /*
  * @author Olivier Le Diouris
  */
-var displayBSP, displayPRF, displayTWD, displayTWS, thermometer, displayHDG, rose, displayOverview,
+var displayBSP, displayLog, displayPRF, displayTWD, displayTWS, thermometer, displayHDG, rose, displayOverview,
     jumboBSP, jumboHDG, jumboTWD, jumboLWY, jumboAWA, jumboTWA, jumboAWS, jumboTWS, jumboCOG, jumboCDR, jumboSOG, jumboCSP, jumboVMG,
     displayAW,
     twdEvolution, twsEvolution;
@@ -13,6 +13,7 @@ var editing = false;
 var init = function() 
 {
   displayBSP      = new AnalogDisplay('bspCanvas', 100,   15,  5,  1);
+  displayLog      = new NumericDisplay('logCanvas', 60, 5);
   displayPRF      = new AnalogDisplay('prfCanvas', 100,   200,  25,  5, false);
   displayPRF.setNbDec(1);
   displayHDG      = new Direction('hdgCanvas', 100, 45, 5);
@@ -186,8 +187,8 @@ var pingNMEAConsole = function()
      try
     {
       var log = parseFloat(doc.getElementsByTagName("log")[0].childNodes[0].nodeValue);
-//    displayBSP.animate(bsp);
-      document.getElementById("log").innerText = log.toFixed(0);
+      displayLog.setValue(log);
+   // document.getElementById("log").innerText = log.toFixed(0);
     }
     catch (err)
     {

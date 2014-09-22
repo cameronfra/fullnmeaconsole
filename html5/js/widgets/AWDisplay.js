@@ -1,6 +1,50 @@
 /*
  * @author Olivier Le Diouris
  */
+var awDisplayColorConfigWhite = 
+{
+  bgColor:           'white',
+  digitColor:        'black',
+  withGradient:      true,
+  displayBackgroundGradient: { from: 'LightGrey', to: 'white' },
+  withDisplayShadow: true,
+  shadowColor:       'rgba(0, 0, 0, 0.75)',
+  outlineColor:      'DarkGrey',
+  majorTickColor:    'black',
+  minorTickColor:    'black',
+  valueColor:        'grey',
+  valueOutlineColor: 'black',
+  valueNbDecimal:    1,
+  handColor:         'rgba(0, 0, 100, 0.25)',
+  handOutlineColor:  'black',
+  withHandShadow:    true,
+  knobColor:         'DarkGrey',
+  knobOutlineColor:  'black',
+  font:              'Arial' /* 'Source Code Pro' */
+};
+
+var awDisplayColorConfigBlack = 
+{
+  bgColor:           'black',
+  digitColor:        'white',
+  withGradient:      true,
+  displayBackgroundGradient: { from: 'black', to: 'LightGrey' },
+  shadowColor:       'black',
+  outlineColor:      'DarkGrey',
+  majorTickColor:    'red',
+  minorTickColor:    'red',
+  valueColor:        'red',
+  valueOutlineColor: 'black',
+  valueNbDecimal:    1,
+  handColor:         'rgba(0, 0, 100, 0.25)',
+  handOutlineColor:  'blue',
+  withHandShadow:    true,
+  knobColor:         '#8ED6FF', // Kind of blue
+  knobOutlineColor:  'blue',
+  font:              'Arial'
+};
+var awDisplayColorConfig = awDisplayColorConfigWhite; // 
+
 function AWDisplay(cName, dSize, majorTicks, minorTicks, withDigits)
 {
   if (majorTicks === undefined)
@@ -129,9 +173,31 @@ function AWDisplay(cName, dSize, majorTicks, minorTicks, withDigits)
     drawDisplay(canvasName, displaySize, val);
   };
 
+  function getStyleRuleValue(style, selector, sheet) {
+    var sheets = typeof sheet !== 'undefined' ? [sheet] : document.styleSheets;
+    for (var i = 0, l = sheets.length; i < l; i++) {
+      var sheet = sheets[i];
+      if (!sheet.cssRules) { continue; }
+      for (var j = 0, k = sheet.cssRules.length; j < k; j++) {
+        var rule = sheet.cssRules[j];
+        if (rule.selectorText && rule.selectorText.split(',').indexOf(selector) !== -1) {
+          return rule.style[style];
+        }
+      }
+    }
+    return null;
+  };
+
   function drawDisplay(displayCanvasName, displayRadius, displayValue)
   {
-    var digitColor = 'LightBlue';
+    var schemeColor = getStyleRuleValue('color', '.display-scheme');
+//  console.log(">>> DEBUG >>> color:" + schemeColor);
+    if (schemeColor === 'black')
+      awDisplayColorConfig = awDisplayColorConfigBlack;
+    else if (schemeColor === 'white')
+      awDisplayColorConfig = awDisplayColorConfigWhite;
+
+    var digitColor = awDisplayColorConfig.digitColor;
     
     var canvas = document.getElementById(displayCanvasName);
     var context = canvas.getContext('2d');
@@ -140,8 +206,8 @@ function AWDisplay(cName, dSize, majorTicks, minorTicks, withDigits)
   
     // Cleanup
   //context.fillStyle = "#ffffff";
-  //context.fillStyle = "LightBlue";
-    context.fillStyle = "transparent";
+    context.fillStyle = analogDisplayColorConfig.bgColor;
+  //context.fillStyle = "transparent";
     context.fillRect(0, 0, canvas.width, canvas.height);    
   //context.fillStyle = 'rgba(255, 255, 255, 0.0)';
   //context.fillRect(0, 0, canvas.width, canvas.height);    
@@ -151,17 +217,27 @@ function AWDisplay(cName, dSize, majorTicks, minorTicks, withDigits)
     context.arc(canvas.width / 2, radius + 10, radius, 0, 2 * Math.PI, false);
     context.lineWidth = 5;
   
-    var grd = context.createLinearGradient(0, 5, 0, radius);
-    grd.addColorStop(0, 'black');// 0  Beginning
-    grd.addColorStop(1, 'LightGrey');// 1  End
-    context.fillStyle = grd;
-    
-    context.shadowBlur  = 20;
-    context.shadowColor = 'black';
-  
+    if (analogDisplayColorConfig.withGradient)
+    {
+      var grd = context.createLinearGradient(0, 5, 0, radius);
+      grd.addColorStop(0, awDisplayColorConfig.displayBackgroundGradient.from);// 0  Beginning
+      grd.addColorStop(1, awDisplayColorConfig.displayBackgroundGradient.to);// 1  End
+      context.fillStyle = grd;
+    }
+    else
+      context.fillStyle = awDisplayColorConfig.displayBackgroundGradient.to;
+     
+    if (awDisplayColorConfig.withDisplayShadow)
+    {
+      context.shadowOffsetX = 3;
+      context.shadowOffsetY = 3;
+      context.shadowBlur  = 3;
+      context.shadowColor = awDisplayColorConfig.shadowColor;
+    }
+
     context.lineJoin    = "round";
     context.fill();
-    context.strokeStyle = 'DarkGrey';
+    context.strokeStyle = awDisplayColorConfig.outlineColor;
     context.stroke();
     context.closePath();
     
@@ -177,7 +253,7 @@ function AWDisplay(cName, dSize, majorTicks, minorTicks, withDigits)
       context.lineTo(xTo, yTo);
     }
     context.lineWidth = 3;
-    context.strokeStyle = 'LightGreen';
+    context.strokeStyle = awDisplayColorConfig.majorTickColor;
     context.stroke();
     context.closePath();
   
@@ -195,7 +271,7 @@ function AWDisplay(cName, dSize, majorTicks, minorTicks, withDigits)
         context.lineTo(xTo, yTo);
       }
       context.lineWidth = 1;
-      context.strokeStyle = 'LightGreen';
+      context.strokeStyle = awDisplayColorConfig.minorTickColor;
       context.stroke();
       context.closePath();
     }
@@ -207,7 +283,7 @@ function AWDisplay(cName, dSize, majorTicks, minorTicks, withDigits)
       context.save();
       context.translate(canvas.width/2, (radius + 10)); // canvas.height);
       context.rotate((2 * Math.PI * (i / 360)));
-      context.font = "bold " + Math.round(scale * 15) + "px Arial"; // Like "bold 15px Arial"
+      context.font = "bold " + Math.round(scale * 15) + "px " + awDisplayColorConfig.font; // Like "bold 15px Arial"
       context.fillStyle = digitColor;
       str = i.toString();
       len = context.measureText(str).width;
@@ -244,20 +320,28 @@ function AWDisplay(cName, dSize, majorTicks, minorTicks, withDigits)
 //    while (dv < 0) dv += 360;
     text = aws.toFixed(1);
     len = 0;
-    context.font = "bold " + Math.round(scale * 40) + "px Arial"; // "bold 40px Arial"
+    context.font = "bold " + Math.round(scale * 40) + "px " + awDisplayColorConfig.font; // "bold 40px Arial"
     var metrics = context.measureText(text);
     len = metrics.width;
   
     context.beginPath();
-    context.fillStyle = 'LightGreen';
+    context.fillStyle = awDisplayColorConfig.valueColor;
     context.fillText(text, (canvas.width / 2) - (len / 2), ((radius * .75) + 10));
     context.lineWidth = 1;
-    context.strokeStyle = 'black';
+    context.strokeStyle = awDisplayColorConfig.valueOutlineColor;
     context.strokeText(text, (canvas.width / 2) - (len / 2), ((radius * .75) + 10)); // Outlined  
     context.closePath();
   
     // Hand
     context.beginPath();
+    context.beginPath();
+    if (awDisplayColorConfig.withHandShadow)
+    {
+      context.shadowColor = awDisplayColorConfig.shadowColor;
+      context.shadowOffsetX = 3;
+      context.shadowOffsetY = 3;
+      context.shadowBlur = 3;
+    }
     // Center
     context.moveTo(canvas.width / 2, radius + 10);
     // Left
@@ -274,18 +358,18 @@ function AWDisplay(cName, dSize, majorTicks, minorTicks, withDigits)
     context.lineTo(x, y);
   
     context.closePath();
-    context.fillStyle = 'rgba(100, 0, 0, 0.25)';
+    context.fillStyle = awDisplayColorConfig.handColor;
     context.fill();
     context.lineWidth = 1;
-    context.strokeStyle = 'red';
+    context.strokeStyle = awDisplayColorConfig.handOutlineColor;
     context.stroke();
     // Knob
     context.beginPath();
     context.arc((canvas.width / 2), (radius + 10), 7, 0, 2 * Math.PI, false);
     context.closePath();
-    context.fillStyle = '#fa5858';
+    context.fillStyle = awDisplayColorConfig.knobColor;
     context.fill();
-    context.strokeStyle = 'red';
+    context.strokeStyle = awDisplayColorConfig.knobOutlineColor;
     context.stroke();
   };
 }
