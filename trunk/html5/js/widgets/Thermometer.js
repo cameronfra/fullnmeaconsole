@@ -3,35 +3,37 @@
  */
 var thermometerColorConfigWhite = 
 {
-  withShadow:        true,
-  shadowColor:       'LightGrey',
-  scaleColor:        'black',
   bgColor:           'white',
-  majorTickColor:    'LightGrey',
+  digitColor:        'red',
+  withGradient:      true,
+  displayBackgroundGradient: { from: 'black', to: 'LightGrey' },
+  withDisplayShadow: true,
+  shadowColor:       'rgba(0, 0, 0, 0.75)',
+  majorTickColor:    'DarkGrey',
   minorTickColor:    'DarkGrey',
+  valueColor:        'LightRed',
   valueOutlineColor: 'black',
-  valueColor:        'DarkGrey',
-  tubeOutlineColor:  'pink',
-  hgOutlineColor:    'DarkGrey',
-  font:              'Arial'
+  valueNbDecimal:    2,
+  font:              'Arial' /* 'Source Code Pro' */
 };
 
 var thermometerColorConfigBlack = 
 {
-  withShadow:        true,
-  shadowColor:       'black',
-  scaleColor:        'LightGrey',
   bgColor:           'black',
-  majorTickColor:    'LightGrey',
+  digitColor:        'red',
+  withGradient:      true,
+  displayBackgroundGradient: { from: 'black', to: 'LightGrey' },
+  withDisplayShadow: true,
+  shadowColor:       'rgba(0, 0, 0, 0.75)',
+  majorTickColor:    'DarkGrey',
   minorTickColor:    'DarkGrey',
+  valueColor:        'LightRed',
   valueOutlineColor: 'black',
-  valueColor:        'LightGrey',
-  tubeOutlineColor:  'pink',
-  hgOutlineColor:    'DarkGrey',
-  font:              'Arial'
+  valueNbDecimal:    2,
+  font:              'Arial' /* 'Source Code Pro' */
 };
 
-var thermometerColorConfig = thermometerColorConfigBlack; // Black is the default
+var thermometerColorConfig = thermometerColorConfigWhite;
 
 function Thermometer(cName, dSize, minValue, maxValue, majorTicks, minorTicks)
 {
@@ -57,11 +59,6 @@ function Thermometer(cName, dSize, minValue, maxValue, majorTicks, minorTicks)
 //try { console.log('in the Thermometer constructor for ' + cName + " (" + dSize + ")"); } catch (e) {}
   
   (function(){ drawDisplay(canvasName, displaySize, previousValue); })(); // Invoked automatically
-  
-  this.repaint = function()
-  {
-    drawDisplay(canvasName, displaySize, previousValue);
-  };
   
   this.setDisplaySize = function(ds)
   {
@@ -101,9 +98,9 @@ function Thermometer(cName, dSize, minValue, maxValue, majorTicks, minorTicks)
 //  console.log(canvasName + " going from " + previousValue + " to " + value);
     
     if (diff > 0)
-      incr = 1; // 0.1 * maxValue; // 0.01 is nocer, but too slow...
+      incr = 0.01 * maxValue;
     else 
-      incr = -1; // -0.1 * maxValue;
+      incr = -0.01 * maxValue;
     intervalID = window.setInterval(function () { displayAndIncrement(incr, value); }, 50);
   };
 
@@ -124,27 +121,31 @@ function Thermometer(cName, dSize, minValue, maxValue, majorTicks, minorTicks)
     }
   };
 
-  function drawDisplay(displayCanvasName, displayRadius, displayValue)
-  {
-    var schemeColor = getCSSClass(".display-scheme");
-    if (schemeColor !== undefined && schemeColor !== null)
-    {
-      var styleElements = schemeColor.split(";");
-      for (var i=0; i<styleElements.length; i++)
-      {
-        var nv = styleElements[i].split(":");
-        if ("color" === nv[0])
-        {
-//        console.log("Scheme Color:[" + nv[1].trim() + "]");
-          if (nv[1].trim() === 'black')
-            thermometerColorConfig = thermometerColorConfigBlack;
-          else if (nv[1].trim() === 'white')
-            thermometerColorConfig = thermometerColorConfigWhite;
+  function getStyleRuleValue(style, selector, sheet) {
+    var sheets = typeof sheet !== 'undefined' ? [sheet] : document.styleSheets;
+    for (var i = 0, l = sheets.length; i < l; i++) {
+      var sheet = sheets[i];
+      if (!sheet.cssRules) { continue; }
+      for (var j = 0, k = sheet.cssRules.length; j < k; j++) {
+        var rule = sheet.cssRules[j];
+        if (rule.selectorText && rule.selectorText.split(',').indexOf(selector) !== -1) {
+          return rule.style[style];
         }
       }
     }
+    return null;
+  };
 
-    var digitColor = thermometerColorConfig.scaleColor;
+  function drawDisplay(displayCanvasName, displayRadius, displayValue)
+  {
+    var schemeColor = getStyleRuleValue('color', '.display-scheme');
+//  console.log(">>> DEBUG >>> color:" + schemeColor);
+    if (schemeColor === 'black')
+      thermometerColorConfig = thermometerColorConfigBlack;
+    else if (schemeColor === 'white')
+      thermometerColorConfig = thermometerColorConfigWhite;
+
+    var digitColor = thermometerColorConfig.digitColor;
     
     var canvas = document.getElementById(displayCanvasName);
     var context = canvas.getContext('2d');
@@ -152,15 +153,13 @@ function Thermometer(cName, dSize, minValue, maxValue, majorTicks, minorTicks)
     var radius = 10; // The ball at the bottom. The tube is (radius / 2) wide.
   
     // Cleanup
-    context.fillStyle = thermometerColorConfig.bgColor;
   //context.fillStyle = "#ffffff";
-  //context.fillStyle = "LightBlue";
+    context.fillStyle = thermometerColorConfig.bgColor;
   //context.fillStyle = "transparent";
     context.fillRect(0, 0, canvas.width, canvas.height);    
   //context.fillStyle = 'rgba(255, 255, 255, 0.0)';
   //context.fillRect(0, 0, canvas.width, canvas.height);    
   
-  //context.fillStyle = "transparent";
      // Bottom of the tube at (canvas.height - 10 - radius)
     var bottomTube = (canvas.height - 10 - radius);
     var topTube = 40;// Top of the tube at y = 20
@@ -210,22 +209,21 @@ function Thermometer(cName, dSize, minValue, maxValue, majorTicks, minorTicks)
     context.arc(canvas.width / 2, topTube, (radius / 2), 0, Math.PI, true); 
     context.lineWidth = 1;
   
-    var grd = context.createLinearGradient(0, 5, 0, radius);
-    grd.addColorStop(0, 'LightGrey'); // 0  Beginning. black
-    grd.addColorStop(1, 'white');     // 1  End. LightGrey
-    context.fillStyle = grd;
-
-    if (thermometerColorConfig.withShadow)
-    {    
-      context.shadowOffsetX = 3;
-      context.shadowOffsetY = 3;
-      context.shadowBlur  = 3;
-      context.shadowColor = thermometerColorConfig.shadowColor;
+    if (thermometerColorConfig.withGradient)
+    {
+      var grd = context.createLinearGradient(0, 5, 0, radius);
+      grd.addColorStop(0, thermometerColorConfig.displayBackgroundGradient.from);// 0  Beginning
+      grd.addColorStop(1, thermometerColorConfig.displayBackgroundGradient.to);// 1  End
+      context.fillStyle = grd;
     }
-  
+    if (thermometerColorConfig.withDisplayShadow)
+    {
+      context.shadowBlur  = 0;
+      context.shadowColor = thermometerColorConfig.shadowColor; // 'black';
+    }
     context.lineJoin    = "round";
     context.fill();
-    context.strokeStyle = thermometerColorConfig.tubeOutlineColor; // Tube outline color
+    context.strokeStyle = 'DarkGrey';
     context.stroke();
     context.closePath();
         
@@ -235,7 +233,7 @@ function Thermometer(cName, dSize, minValue, maxValue, majorTicks, minorTicks)
     {
       xTo = (canvas.width / 2) + 20;
       yTo = bottomTube - ((tubeLength) * ((i - minValue) / (maxValue - minValue)));;
-      context.font = "bold 10px " + thermometerColorConfig.font;
+      context.font = "bold 10px Arial";
       context.fillStyle = digitColor;
       str = i.toString();
       len = context.measureText(str).width;
@@ -244,9 +242,9 @@ function Thermometer(cName, dSize, minValue, maxValue, majorTicks, minorTicks)
     context.closePath();
     
     // Value
-    text = displayValue.toFixed(2);
+    text = displayValue.toFixed(thermometerColorConfig.valueNbDecimal);
     len = 0;
-    context.font = "bold 20px " + thermometerColorConfig.font;
+    context.font = "bold 20px Arial";
     var metrics = context.measureText(text);
     len = metrics.width;
   
@@ -270,19 +268,18 @@ function Thermometer(cName, dSize, minValue, maxValue, majorTicks, minorTicks)
     context.lineWidth = 1;
   
     var _grd = context.createLinearGradient(0, topTube, 0, tubeLength);
-    // Colors are hard-coded
-    _grd.addColorStop(0,   'red');    // 0  Beginning, top
+    _grd.addColorStop(0,   'red');    // 0  Beginning
     _grd.addColorStop(0.6, 'orange');   
     _grd.addColorStop(0.8, 'blue'); 
-    _grd.addColorStop(1,   'navy');   // 1  End, bottom
+    _grd.addColorStop(1,   'navy');   // 1  End
     context.fillStyle = _grd;
     
-//  context.shadowBlur  = 20;
-//  context.shadowColor = 'black';
+    context.shadowBlur  = 20;
+    context.shadowColor = 'black';
   
     context.lineJoin    = "round";
     context.fill();
-    context.strokeStyle = thermometerColorConfig.hgOutlineColor;
+    context.strokeStyle = 'DarkGrey';
     context.stroke();
     context.closePath();
   };

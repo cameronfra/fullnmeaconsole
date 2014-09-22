@@ -1,34 +1,30 @@
 /*
  * @author Olivier Le Diouris
  */
-var compassRoseColorConfigWhite =
+var roseColorConfigWhite = 
 {
-  borderColor:    'black',
-  borderTickness: 3,
-  bgColor:        'white',
-  textColor:      'black',
-  withGradient:   true,
-  displayBackgroundGradient:{ from: 'LightGrey', to: 'white' },
-  tickColor:      'gray',
-  font:           'Source Code Pro',
-  valueColor:     'black',
-  indexColor:     'red'
+  bgColor:           'white',
+  digitColor:        '#404040',
+  withGradient:      true,
+  displayBackgroundGradient: { from: 'gray', to: 'white' },
+  tickColor:         'darkGray',
+  valueColor:        'blue',
+  indexColor:        'red',
+  font:              'Arial'
 };
 
-var compassRoseColorConfigBlack =
+var roseColorConfigBlack = 
 {
-  borderColor:    'white',
-  borderTickness: 3,
-  bgColor:        'black',
-  textColor:      '#ffffd0', // ivory
-  withGradient:   true,
+  bgColor:           'black',
+  digitColor:        '#ffffd0',
+  withGradient:      true,
   displayBackgroundGradient: { from: 'black', to: 'gray' },
-  tickColor:      'white',
-  font:           'Arial',
-  valueColor:     'lightgreen',
-  indexColor:     'red'
+  tickColor:         'white',
+  valueColor:        'cyan',
+  indexColor:        'red',
+  font:              'Arial'
 };
-var compassRoseColorConfig = compassRoseColorConfigBlack;
+var roseColorConfig = roseColorConfigWhite; // analogDisplayColorConfigBlack; // White is the default
 
 function CompassRose(cName,                     // Canvas Name
                      title,
@@ -46,12 +42,12 @@ function CompassRose(cName,                     // Canvas Name
   var displayHeight = height;
 
   var valueToDisplay = 0;
-  var totalViewAngle = 50; // must be even...
+  var totalViewAngle = 60; // must be even...
   
   if (value !== undefined)
     valueToDisplay = value;
   if (textColor === undefined)
-    textColor = compassRoseColorConfig.textColor;
+    textColor = roseColorConfig.digitColor;
   
   var instance = this;
   
@@ -61,7 +57,7 @@ function CompassRose(cName,                     // Canvas Name
   {
     drawDisplay(canvasName, displayWidth, displayHeight);
   };
-  
+
   this.setValue = function(val)
   {
     valueToDisplay = val;
@@ -76,25 +72,29 @@ function CompassRose(cName,                     // Canvas Name
     drawDisplay(canvasName, displayWidth, displayHeight);
   };
   
-  function drawDisplay(displayCanvasName, displayW, displayH)
-  {
-    var schemeColor = getCSSClass(".display-scheme");
-    if (schemeColor !== undefined && schemeColor !== null)
-    {
-      var styleElements = schemeColor.split(";");
-      for (var i=0; i<styleElements.length; i++)
-      {
-        var nv = styleElements[i].split(":");
-        if ("color" === nv[0])
-        {
-//        console.log("Scheme Color:[" + nv[1].trim() + "]");
-          if (nv[1].trim() === 'black')
-            compassRoseColorConfig = compassRoseColorConfigBlack;
-          else if (nv[1].trim() === 'white')
-            compassRoseColorConfig = compassRoseColorConfigWhite;
+  function getStyleRuleValue(style, selector, sheet) {
+    var sheets = typeof sheet !== 'undefined' ? [sheet] : document.styleSheets;
+    for (var i = 0, l = sheets.length; i < l; i++) {
+      var sheet = sheets[i];
+      if (!sheet.cssRules) { continue; }
+      for (var j = 0, k = sheet.cssRules.length; j < k; j++) {
+        var rule = sheet.cssRules[j];
+        if (rule.selectorText && rule.selectorText.split(',').indexOf(selector) !== -1) {
+          return rule.style[style];
         }
       }
     }
+    return null;
+  };
+
+  function drawDisplay(displayCanvasName, displayW, displayH)
+  {
+    var schemeColor = getStyleRuleValue('color', '.display-scheme');
+//  console.log(">>> DEBUG >>> color:" + schemeColor);
+    if (schemeColor === 'black')
+      roseColorConfig = roseColorConfigBlack;
+    else if (schemeColor === 'white')
+      roseColorConfig = roseColorConfigWhite;
 
     if (displayW !== undefined && displayH !== undefined)
     {
@@ -102,25 +102,16 @@ function CompassRose(cName,                     // Canvas Name
     }
     var canvas = document.getElementById(displayCanvasName);
     var context = canvas.getContext('2d');
-    
-    if (compassRoseColorConfig.withGradient)
-    {
-      var grd = context.createLinearGradient(0, 5, 0, document.getElementById(cName).height);
-      grd.addColorStop(0, compassRoseColorConfig.displayBackgroundGradient.from); // 0  Beginning
-      grd.addColorStop(1, compassRoseColorConfig.displayBackgroundGradient.to);  // 1  End
-      context.fillStyle = grd;
-    }
-    else
-      context.fillStyle = compassRoseColorConfig.bgColor;      
+
+    var grd = context.createLinearGradient(0, 5, 0, document.getElementById(cName).height);
+    grd.addColorStop(0, roseColorConfig.displayBackgroundGradient.from); // 0  Beginning
+    grd.addColorStop(1, roseColorConfig.displayBackgroundGradient.to);  // 1  End
+    context.fillStyle = grd;
+  
     // Background
     roundRect(context, 0, 0, canvas.width, canvas.height, 10, true, false);    
-    // frame/border
-    context.strokeStyle = compassRoseColorConfig.borderColor;
-    context.lineWidth = compassRoseColorConfig.borderTickness;
-    roundRect(context, 0, 0, canvas.width, canvas.height, 10, false, false);
-    context.stroke();
     // Ticks
-    context.strokeStyle = compassRoseColorConfig.tickColor;
+    context.strokeStyle = roseColorConfig.tickColor;
     context.lineWidth   = 0.5;
     
     var startValue = valueToDisplay - (totalViewAngle / 2);
@@ -131,7 +122,7 @@ function CompassRose(cName,                     // Canvas Name
       if (tick % 5 === 0)
         tickHeight = canvas.height / 2;
       var x = (tick - startValue) * (canvas.width / totalViewAngle);
-      context.strokeStyle = compassRoseColorConfig.tickColor; // 'rgba(255, 255, 255, 0.7)';
+      context.strokeStyle = roseColorConfig.tickColor; // 'rgba(255, 255, 255, 0.7)';
       context.beginPath();
       context.moveTo(x, 0);
       context.lineTo(x, tickHeight);
@@ -142,28 +133,32 @@ function CompassRose(cName,                     // Canvas Name
         var tk = tick;
         while (tk < 0) tk += 360;
         var txt = tk.toString();
-        if (tick % 90 === 0)
+        if (tick % 45 === 0)
         {
           if (tick === 0)   txt = "N";
+          if (tick === 45)  txt = "NE";
           if (tick === 90)  txt = "E";
+          if (tick === 135) txt = "SE";
           if (tick === 180) txt = "S";
+          if (tick === 225) txt = "SW";
           if (tick === 270) txt = "W";
+          if (tick === 315) txt = "NW";
           if (tick === 360) txt = "N";
         }
-        context.font = "bold " + Math.round(scale * 20) + "px " + compassRoseColorConfig.font; // "bold 16px Arial"
+        context.font = "bold " + Math.round(scale * 20) + "px " + roseColorConfig.font; // "bold 16px Arial"
         var metrics = context.measureText(txt);
         len = metrics.width;    
-        context.fillStyle = compassRoseColorConfig.textColor;
-        context.fillText(txt, x - (len / 2), canvas.height - 5);
+        context.fillStyle = roseColorConfig.digitColor;
+        context.fillText(txt, x - (len / 2), canvas.height - 10);
       }
     }
 
-    context.fillStyle = compassRoseColorConfig.valueColor;
+    context.fillStyle = roseColorConfig.valueColor;
     // Value, top left corner
-    context.font = "bold " + Math.round(scale * 16) + "px " + compassRoseColorConfig.font; // "bold 16px Arial"
+    context.font = "bold " + Math.round(scale * 16) + "px Courier New"; // "bold 16px Arial"
     context.fillText(valueToDisplay.toString() + "\272", 5, 14);
     
-    context.strokeStyle = compassRoseColorConfig.indexColor;
+    context.strokeStyle = roseColorConfig.indexColor; // The index
     context.beginPath();
     context.moveTo(canvas.width / 2, 0);
     context.lineTo(canvas.width / 2, canvas.height);

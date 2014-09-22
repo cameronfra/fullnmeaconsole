@@ -159,7 +159,7 @@ function Direction(cName, dSize, majorTicks, minorTicks)
     grd.addColorStop(1, 'LightGrey');// 1  End
     context.fillStyle = grd;
     
-    context.shadowBlur  = 20;
+    context.shadowBlur  = 10;
     context.shadowColor = 'black';
   
     context.lineJoin    = "round";
@@ -215,6 +215,8 @@ function Direction(cName, dSize, majorTicks, minorTicks)
       str = i.toString();
       len = context.measureText(str).width;
       context.fillText(str, - len / 2, (-(radius * .8) + 10));
+      context.strokeStyle = 'black';
+      context.strokeText(str, - len / 2, (-(radius * .8) + 10)); // Outlined  
       context.restore();
     }
     context.closePath();
