@@ -67,8 +67,12 @@ Line.prototype.drawArrowhead = function(ctx, x, y, radians)
   ctx.fill();
 };
     </script>
-    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAoODkN4W0YAhwwPkCTFcO6xR3muO_BFLsQuvpyhewujSGiI0udBTa4ayEoK33Wss9zbwycXcGhn309Q&amp;sensor=false" type="text/javascript"></script>
+    <script src="http://maps.googleapis.com/maps/api/js?v=3&amp;sensor=false&amp;key=AIzaSyDu5cW4UXjXZTswehBdIO8jCZdzUbk2v5o"
+            type="text/javascript"></script>
     <script type="text/javascript">
+ var markers = [];
+ var windArrow;
+
  var displayScale = 0.75;
 
  var displayTWD, displayTWS, displayPRMSL, displayRain, thermometer, graph, map;
@@ -136,14 +140,23 @@ Line.prototype.drawArrowhead = function(ctx, x, y, radians)
    if (withTWD) // with wind
      graph.drawWind(SpotParser.nmeaData);
    
-   map.clearOverlays();
-   var point = new GLatLng(SpotParser.position.lat, SpotParser.position.lng);
-   var marker = new GMarker(point);
-   map.addOverlay(marker);   
+   clearMarkers();
+   if (windArrow !== undefined) {
+     windArrow.setMap(null);
+   }
+   
+   var marker = new google.maps.Marker({
+      position: new google.maps.LatLng(SpotParser.position.lat, SpotParser.position.lng),
+      map: map
+   });
+   markers.push(marker);
+   map.setCenter(new google.maps.LatLng(SpotParser.position.lat, SpotParser.position.lng));
+// map.setZoom(11);
+
    drawWindFeather(SpotParser.position.lat, 
                    SpotParser.position.lng,
                    ws,
-                   wd);									  
+                   wd);                    
 
  };
 
@@ -152,7 +165,7 @@ Line.prototype.drawArrowhead = function(ctx, x, y, radians)
  var drawWindFeather = function(lat, lng, speed, dir)
  {
    var windpoints = [];  
-   windpoints.push(new GLatLng(lat, lng));
+   windpoints.push(new google.maps.LatLng(lat, lng));
   
    var onedash = false;
    if (onedash)
@@ -162,24 +175,31 @@ Line.prototype.drawArrowhead = function(ctx, x, y, radians)
      windpoints.push(deadReckoning(lat, lng, speed * SPEED_PRM, dir - 10));
      windpoints.push(deadReckoning(lat, lng, speed * SPEED_PRM * 0.9, dir));
      windpoints.push(deadReckoning(lat, lng, speed * SPEED_PRM, dir + 10));
-     windpoints.push(new GLatLng(lat, lng));
+     windpoints.push(new google.maps.LatLng(lat, lng));
    }
-	
+  
    var color = "#ffff00"; // yellow
-	
+  
    var lightblue = "#00ffff";
    var green     = "#00ff00";
    var yellow    = "#ffff00";
    var orange    = "#ff8000";
    var red       = "#ff0000";
-	
+  
    if (speed < 10) color = lightblue;
    else if (speed < 20) color = green;
    else if (speed < 30) color = yellow;
    else if (speed < 40) color = orange;
    else color = red;
-	
-   map.addOverlay(new GPolyline(windpoints, color, 1, 0.9));                                       
+
+   windArrow = new google.maps.Polyline({
+     path: windpoints,
+     geodesic: true,
+     strokeColor: color,
+     strokeOpacity: 1.0,
+     strokeWeight: 2
+   });
+   windArrow.setMap(map);
  };
 
  var deadReckoning = function(l, g, s, d)
@@ -191,7 +211,7 @@ Line.prototype.drawArrowhead = function(ctx, x, y, radians)
    var deltaLc = lc2 - lc1;
    var deltaG = deltaLc * Math.tan(toRadians(d));
    var g2 = g + deltaG;
-   return new GLatLng(l2, g2);
+   return new google.maps.LatLng(l2, g2);
  };
 
  var getIncLat = function(lat)
@@ -273,10 +293,13 @@ Line.prototype.drawArrowhead = function(ctx, x, y, radians)
  {
    try
    {
-     map.setCenter(new GLatLng(SpotParser.position.lat, SpotParser.position.lng), 13);
-     var point = new GLatLng(SpotParser.position.lat, SpotParser.position.lng);
-     var marker = new GMarker(point);
-     map.addOverlay(marker);
+      var marker = new google.maps.Marker({
+        position: new google.maps.LatLng(SpotParser.position.lat, SpotParser.position.lng),
+        map: map
+      });
+      map.setCenter(new google.maps.LatLng(SpotParser.position.lat, SpotParser.position.lng));
+  //  map.setZoom(11);
+      markers.push(marker);
    }
    catch (err)
    {
@@ -332,39 +355,50 @@ Line.prototype.drawArrowhead = function(ctx, x, y, radians)
    }
  };
  
- var defaultLocation = "37.5N,122.5W"; // Pillar Point
+ var defaultLocation = "0.0N,0.0E"; 
  
  var loadMap = function() 
  {
-   if (GBrowserIsCompatible()) 
-   {
-     map = new GMap2(document.getElementById("map"));
+   map = new google.maps.Map(document.getElementById("map"),
+    {
+      center: new google.maps.LatLng(0, 0),
+      zoom: 3,
+      mapTypeId: google.maps.MapTypeId.SATELLITE
+    });
 
-     map.addControl(new GLargeMapControl());
-     map.addControl(new GMapTypeControl());
-     map.addControl(new GOverviewMapControl());
-     map.enableContinuousZoom();
-     map.enableDoubleClickZoom();
-     map.enableScrollWheelZoom();
-
-     map.setCenter(new GLatLng(0, 0), 2);
-     map.setMapType(G_SATELLITE_MAP);
-     
-     GEvent.addListener(map, "click", function(overlay, latlng)
-     {
-//     console.log("Lat:" + latlng.lat() + ", Lng:" + latlng.lng());
-       map.clearOverlays();
-       var point = latlng;
-       var marker = new GMarker(point);
-       map.addOverlay(marker);   
-       defaultLocation = (latlng.lat() > 0?(latlng.lat() + "N"):(-latlng.lat() + "S")) + "," +
-                         (latlng.lng() > 0?(latlng.lng() + "E"):(-latlng.lng() + "W"));
-       buildRequest();
-     });
-     
-   }
+   google.maps.event.addListener(map, 'click', function(event) {
+     placeMarker(event.latLng);
+   });
  };
  
+ function setAllMap(map) {
+   for (var i = 0; i < markers.length; i++) {
+     markers[i].setMap(map);
+   }
+ };
+
+ // Removes the markers from the map, but keeps them in the array.
+ function clearMarkers() {
+   setAllMap(null);
+ };
+
+ function placeMarker(location) {
+   var marker = new google.maps.Marker({
+      position: location,
+      map: map
+   });
+  clearMarkers();
+  if (windArrow !== undefined) {
+    windArrow.setMap(null);
+  }
+  markers.push(marker);
+  map.setCenter(location);
+//map.setZoom(11);
+  defaultLocation = (location.lat() > 0?(location.lat() + "N"):(-location.lat() + "S")) + "," +
+                    (location.lng() > 0?(location.lng() + "E"):(-location.lng() + "W"));
+  buildRequest();
+ };
+
  var buildRequest = function()
  {
    // Like spot:37.5N,122.5W|5,3|PRMSL,WIND,RAIN
@@ -417,7 +451,7 @@ Line.prototype.drawArrowhead = function(ctx, x, y, radians)
       <tr>
         <td valign="top" colspan="4">
           Send this spot request to <a href="mailto:query@saildocs.com?subject=spot" id="custom-request" onclick="compose();">query@saildocs.com</a>:
-          <div id="spot-req" style="color: red;">send spot:37.5N,122.5W|5,3|PRMSL,WIND,RAIN</div>
+          <div id="spot-req" style="color: red;">send spot:0.0N,0.0E|5,3|PRMSL,WIND,RAIN</div>
         </td>
       </tr>
       <tr>

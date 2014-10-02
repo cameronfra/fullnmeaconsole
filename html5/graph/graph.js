@@ -199,7 +199,7 @@ function Graph(cName,       // Canvas Name
       if (document.getElementById("utc-display").checked)
         str = SpotParser.nmeaData[i].getNMEADate() + " UT";
       else
-        str = reformatDate(SpotParser.nmeaData[i].getNMEADate(), "d-M H:i");
+        str = reformatDate(SpotParser.nmeaData[i].getNMEADate(), "D d-M H:i");
       len = context.measureText(str).width;
       context.fillText(str, 2, -1); //i * xScale, cHeight - (len));
       context.restore();            
