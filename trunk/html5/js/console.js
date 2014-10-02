@@ -197,7 +197,7 @@ var pingNMEAConsole = function()
     }
     try
     {
-      var hdg = parseFloat(doc.getElementsByTagName("hdg")[0].childNodes[0].nodeValue);
+      var hdg = parseFloat(doc.getElementsByTagName("hdg")[0].childNodes[0].nodeValue) % 360;
 //    displayHDG.animate(hdg);
       displayHDG.setValue(hdg);
       displayOverview.setHDG(hdg);
@@ -212,7 +212,7 @@ var pingNMEAConsole = function()
     }
     try
     {
-      var twd = parseFloat(doc.getElementsByTagName("twd")[0].childNodes[0].nodeValue);
+      var twd = parseFloat(doc.getElementsByTagName("twd")[0].childNodes[0].nodeValue) % 360;
 //    displayTWD.animate(twd);
       displayTWD.setValue(twd);
       displayOverview.setTWD(twd);

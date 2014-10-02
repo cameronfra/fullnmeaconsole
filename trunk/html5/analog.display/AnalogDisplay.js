@@ -84,7 +84,7 @@ function AnalogDisplay(cName,                     // Canvas Name
     startValue = 0;
   if (nbDecimal === undefined)
     nbDecimal = analogDisplayColorConfig.valueNbDecimal;
-    
+
   var scale = dSize / 100;
 
   var canvasName = cName;
@@ -95,7 +95,7 @@ function AnalogDisplay(cName,                     // Canvas Name
   var intervalID;
   var valueToDisplay = 0;
   var incr = 1;
-  var nbDec = 2;
+  var nbDec = nbDecimal;
   
   var instance = this;
   
