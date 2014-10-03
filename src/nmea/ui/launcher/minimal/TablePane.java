@@ -283,7 +283,11 @@ public class TablePane extends JPanel
           "-verbose=n",
           "-fmt=xml"
         };
-      nmeaHttpServer = new HTTPServer(prms, "nmea-config.properties", data);
+      try { nmeaHttpServer = new HTTPServer(prms, "nmea-config.properties", data); }
+      catch (Exception ex)
+      {
+        ex.printStackTrace();
+      }
     }
     else
     {

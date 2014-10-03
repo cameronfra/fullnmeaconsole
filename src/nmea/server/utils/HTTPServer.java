@@ -1,9 +1,13 @@
 package nmea.server.utils;
 
+import coreutilities.log.Logger;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -88,7 +92,7 @@ public class HTTPServer
   private Object[][] data;
   private int _port = 0;
   
-  public HTTPServer(String[] prms, String pfn, Object[][] tableData)
+  public HTTPServer(String[] prms, String pfn, Object[][] tableData) throws Exception
   {
     propFileName = pfn;
     data = tableData;
@@ -144,9 +148,9 @@ public class HTTPServer
     }
 
     // Infinite loop, waiting for requests
-    Thread httpListenerThread = new Thread()
+    Thread httpListenerThread = new Thread() 
     {
-      public void run()
+      public void run()        
       {
         boolean go = true;
         try
@@ -414,6 +418,7 @@ public class HTTPServer
         catch (Exception e)
         {
           System.err.println(e.toString());
+          Logger.log(e.getLocalizedMessage(), Logger.INFO);      
           e.printStackTrace();
         }
       }
