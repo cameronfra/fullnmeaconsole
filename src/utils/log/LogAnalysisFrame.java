@@ -28,6 +28,7 @@ public class LogAnalysisFrame
   private transient LogAnalysis caller;
   private JScrollPane jScrollPane = null;
   private String title = "";
+  private JCheckBox narrowCheckBox = new JCheckBox();
 
   public LogAnalysisFrame(LogAnalysis parent, String title, String unit)
   {
@@ -84,6 +85,7 @@ public class LogAnalysisFrame
     final JCheckBox withSmoothData = new JCheckBox("Smooth Data");
     bottomPanel.add(withRawData, null);
     bottomPanel.add(withSmoothData, null);
+    bottomPanel.add(narrowCheckBox, null);
     withRawData.setSelected(true);
     withSmoothData.setSelected(true);
     withRawData.addActionListener(new ActionListener()
@@ -101,6 +103,16 @@ public class LogAnalysisFrame
       public void actionPerformed(ActionEvent actionEvent)
       {
         displayPanel.setWithSmoothData(withSmoothData.isSelected());
+        displayPanel.repaint();
+      }
+    });
+    narrowCheckBox.setText("Narrow");
+    narrowCheckBox.addActionListener(new ActionListener()
+    {
+      @Override
+      public void actionPerformed(ActionEvent actionEvent)
+      {
+        displayPanel.setNarrow(narrowCheckBox.isSelected());
         displayPanel.repaint();
       }
     });
