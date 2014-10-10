@@ -54,7 +54,7 @@ public class LogAnalysisPanel
   private String unit = "";
   private String tz = "";
   
-  private boolean withRawData = true, withSmoothData = true;
+  private boolean withRawData = true, withSmoothData = false;
   private boolean narrow = false;
 
   public void setWithRawData(boolean withRawData)
@@ -105,18 +105,31 @@ public class LogAnalysisPanel
   
   private SortedSet<Date> keys = null;
   private Map<Date, Double> smoothValue = null;
+  private int smoothWidth = 1000;
+
+  public void setSmoothWidth(int smoothWidth)
+  {
+    this.smoothWidth = smoothWidth;
+  }
+
+  public void reSmooth()
+  {
+    this.smoothValue = null;
+    prepareData();  
+  }
   
   private void prepareData()
   {
     if (logdata != null)
     {
       // Smooth Values
-      this.smoothValue = new HashMap<Date, Double>();
-      final int SMOOTH_WIDTH = 1000;
       this.keys = new TreeSet<Date>(logdata.keySet());
       Date[] keyArray = keys.toArray(new Date[keys.size()]);
-      if (withSmoothing)
+      if (withSmoothing && this.smoothValue == null)
       {
+        System.out.println("Smoothing values, width is " + Integer.toString(smoothWidth));
+        long before = System.currentTimeMillis();
+        this.smoothValue = new HashMap<Date, Double>();
         List<ScalarValue> ld = new ArrayList<ScalarValue>();
         for (Date d : this.keys)
           ld.add(logdata.get(d));
@@ -124,7 +137,7 @@ public class LogAnalysisPanel
         for (int i=0; i<ld.size(); i++)
         {
           double yAccu = 0f;
-          for (int acc=i-(SMOOTH_WIDTH / 2); acc<i+(SMOOTH_WIDTH/2); acc++)
+          for (int acc=i-(smoothWidth / 2); acc<i+(smoothWidth/2); acc++)
           {
             double y;
             if (acc < 0)
@@ -135,35 +148,44 @@ public class LogAnalysisPanel
               y = ld.get(acc).getValue();
             yAccu += y;
           }
-          yAccu = yAccu / SMOOTH_WIDTH;
-      //      System.out.println("Smooth Value:" + yAccu);
+          yAccu = yAccu / smoothWidth;
+//      System.out.println("Smooth Value:" + yAccu);
           this.smoothValue.put(keyArray[i], yAccu); 
         }
+        long after = System.currentTimeMillis();
+        System.out.println("Smoothing Completed in " + Long.toString(after - before) + " ms.");;
+      }
+      else
+      {
+        System.out.println(">>> Skipping smoothing values");;        
       }
       
-      // Sort, mini maxi.
-      this.keys = new TreeSet<Date>(logdata.keySet());
-      for (Date key : this.keys) 
-      { 
-        ScalarValue value = logdata.get(key);
-        if (minDate == null)
-          minDate = key;
-        else
-        {
-          if (key.before(minDate))
+      if (minDate == null && maxDate == null)
+      {
+        // Sort, mini maxi.
+        this.keys = new TreeSet<Date>(logdata.keySet());
+        for (Date key : this.keys) 
+        { 
+          ScalarValue value = logdata.get(key);
+          if (minDate == null)
             minDate = key;
-        }
-        if (maxDate == null)
-          maxDate = key;
-        else
-        {
-          if (key.after(maxDate))
+          else
+          {
+            if (key.before(minDate))
+              minDate = key;
+          }
+          if (maxDate == null)
             maxDate = key;
-        }
-        minValue = Math.min(minValue, value.getValue());
-        maxValue = Math.max(maxValue, value.getValue());
-      }   
-//    minValue = 0;
+          else
+          {
+            if (key.after(maxDate))
+              maxDate = key;
+          }
+          minValue = Math.min(minValue, value.getValue());
+          maxValue = Math.max(maxValue, value.getValue());
+        }   
+  //    minValue = 0;
+      }
     }
   }
   
@@ -245,6 +267,7 @@ public class LogAnalysisPanel
       // Raw Data
       if (withRawData)
       {
+//      long before = System.currentTimeMillis();
         for (Date key : this.keys) 
         { 
           ScalarValue value = logdata.get(key);
@@ -260,13 +283,16 @@ public class LogAnalysisPanel
             g2d.drawLine(previous.x, previous.y, current.x, current.y);
           previous = current;
         }
+//      long after = System.currentTimeMillis();
+//      System.out.println("Displaying raw data took " + Long.toString(after - before) + " ms. " + Integer.toString(logdata.size()) + " entries");
       }
       if (withSmoothData)
       {
         // Smooth Data
+//      long before = System.currentTimeMillis();
         g2d.setColor(Color.blue);
-        Stroke orig = g2d.getStroke();
-        g2d.setStroke(thick);
+//      Stroke orig = g2d.getStroke();
+//      g2d.setStroke(thick); // WARNING! That one takes time...
         previous = null;      
         for (Date key : this.keys) 
         {
@@ -281,7 +307,9 @@ public class LogAnalysisPanel
             g2d.drawLine(previous.x, previous.y, current.x, current.y);
           previous = current;
         }
-        g2d.setStroke(orig);
+//      g2d.setStroke(orig);
+//      long after = System.currentTimeMillis();
+//      System.out.println("Displaying smoothed data took " + Long.toString(after - before) + " ms. " + Integer.toString(smoothValue.size()) + " entries");
       }
       if (mouseIsDown)
       {
