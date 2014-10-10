@@ -55,6 +55,7 @@ public class LogAnalysisPanel
   private String tz = "";
   
   private boolean withRawData = true, withSmoothData = true;
+  private boolean narrow = false;
 
   public void setWithRawData(boolean withRawData)
   {
@@ -64,6 +65,11 @@ public class LogAnalysisPanel
   public void setWithSmoothData(boolean withSmoothData)
   {
     this.withSmoothData = withSmoothData;
+  }
+  
+  public void setNarrow(boolean b)
+  {
+    this.narrow = b;
   }
 
   private boolean mouseIsDown = false;
@@ -154,10 +160,10 @@ public class LogAnalysisPanel
           if (key.after(maxDate))
             maxDate = key;
         }
-    //  minValue = Math.min(minValue, value.getValue());
+        minValue = Math.min(minValue, value.getValue());
         maxValue = Math.max(maxValue, value.getValue());
       }   
-      minValue = 0;
+//    minValue = 0;
     }
   }
   
@@ -173,7 +179,7 @@ public class LogAnalysisPanel
     if (logdata != null)
     {
       long timespan  = maxDate.getTime() - minDate.getTime();
-      double valueSpan = maxValue - minValue;
+      double valueSpan = maxValue - (this.narrow ? minValue : 0d);
       
       g2d.setColor(Color.white);
       g2d.fillRect(0, 0, this.getWidth(), this.getHeight());
@@ -216,12 +222,12 @@ public class LogAnalysisPanel
         }
       }
       // Value grid
-      int minValueGrid = (int)Math.floor(minValue);
+      int minValueGrid = (int)Math.floor((this.narrow ? minValue : 0d));
       int maxValueGrid = (int)Math.ceil(maxValue);
       g2d.setColor(Color.lightGray);
       for (int v=minValueGrid; v<maxValueGrid; v++)
       {
-        double valueOffset = v - minValue;
+        double valueOffset = v - (this.narrow ? minValue : 0d);
         int y = this.getHeight() - (int)(this.getHeight() * ((float)valueOffset / (float)valueSpan));
         g2d.drawLine(0, y, this.getWidth(), y);
       }
@@ -229,7 +235,7 @@ public class LogAnalysisPanel
       Rectangle visible = this.getVisibleRect();
       for (int v=minValueGrid; v<maxValueGrid; v++)
       {      
-        double valyueOffset = v - minValue;
+        double valyueOffset = v - (this.narrow ? minValue : 0d);
         int y = this.getHeight() - (int)(this.getHeight() * ((float)valyueOffset / (float)valueSpan));
         g2d.drawString(Integer.toString(v) + " " + this.unit, visible.x + 2, y - 1);
       }
@@ -245,7 +251,7 @@ public class LogAnalysisPanel
           Date date = key;
           double val = value.getValue();
           long timeoffset = date.getTime() - minDate.getTime();
-          double valOffset = val - minValue;
+          double valOffset = val - (this.narrow ? minValue : 0d);
           int x = (int)(this.getWidth() * ((float)timeoffset / (float)timespan));
           int y = this.getHeight() - (int)(this.getHeight() * ((float)valOffset / (float)valueSpan));
           Point current = new Point(x, y);
@@ -266,7 +272,7 @@ public class LogAnalysisPanel
         {
           value = this.smoothValue.get(key).floatValue();
           long timeoffset = key.getTime() - minDate.getTime();
-          double valOffset = value - minValue;
+          double valOffset = value - (this.narrow ? minValue : 0d);
           int x = (int)(this.getWidth() * ((float)timeoffset / (float)timespan));
           int y = this.getHeight() - (int)(this.getHeight() * ((float)valOffset / (float)valueSpan));
           Point current = new Point(x, y);
@@ -401,7 +407,7 @@ public class LogAnalysisPanel
       int y = mouseEvent.getPoint().y;
       try
       {
-        double valueSpan = maxValue - minValue;
+        double valueSpan = maxValue - (this.narrow ? minValue : 0d);
         long timespan = maxDate.getTime() - minDate.getTime();
         long minTime = minDate.getTime();
         long time = minTime + (long)(timespan * ((float)x / (float)this.getWidth()));
@@ -412,7 +418,7 @@ public class LogAnalysisPanel
         { 
           ScalarValue value = logdata.get(key);
           double val = value.getValue();
-          double valOffset = val - minValue;
+          double valOffset = val - (this.narrow ? minValue : 0d);
           postit = VALUE_FMT.format(val) + " " + this.unit + "\n" +
                    DATE_FMT.format(date);
           mouseYValue = this.getHeight() - (int)(this.getHeight() * ((float)valOffset / (float)valueSpan));
@@ -473,9 +479,9 @@ public class LogAnalysisPanel
     // Value
     try
     {
-      double valSpan = maxValue - minValue;
+      double valSpan = maxValue - (this.narrow ? minValue : 0d);
       long timespan = maxDate.getTime() - minDate.getTime();
-      double value = minValue + (valSpan * (float)(this.getHeight() - y) / (float)this.getHeight());
+      double value = (this.narrow ? minValue : 0d) + (valSpan * (float)(this.getHeight() - y) / (float)this.getHeight());
       long minTime = minDate.getTime();
       long time = minTime + (long)(timespan * ((float)x / (float)this.getWidth()));
       Date date = new Date(time);
