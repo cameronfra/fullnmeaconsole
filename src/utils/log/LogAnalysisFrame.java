@@ -8,16 +8,24 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import java.text.DecimalFormat;
+
+import java.text.NumberFormat;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+
+import javax.swing.JTextField;
 
 import utils.NMEAAnalyzer.ScalarValue;
 
@@ -29,11 +37,20 @@ public class LogAnalysisFrame
   private JScrollPane jScrollPane = null;
   private String title = "";
   private JCheckBox narrowCheckBox = new JCheckBox();
+  
+  private static NumberFormat nf = new DecimalFormat("##########0"); // NumberFormat.getIntegerInstance();
+  static { nf.setMaximumFractionDigits(0); }
+  
+  private JFormattedTextField smoothWidthTextField = new JFormattedTextField(nf);
+  private JLabel smoothWidthLabel = new JLabel();
+  private JButton applySmoothWidthButton = new JButton();
+  private String titleRoot = "";
 
   public LogAnalysisFrame(LogAnalysis parent, String title, String unit)
   {
     this.caller = parent;
     this.title = title;
+    this.titleRoot = title;
     displayPanel = new LogAnalysisPanel(unit);
     try
     {
@@ -86,8 +103,28 @@ public class LogAnalysisFrame
     bottomPanel.add(withRawData, null);
     bottomPanel.add(withSmoothData, null);
     bottomPanel.add(narrowCheckBox, null);
+    bottomPanel.add(smoothWidthLabel, null);
+    bottomPanel.add(smoothWidthTextField, null);
+    bottomPanel.add(applySmoothWidthButton, null);
+    applySmoothWidthButton.addActionListener(new ActionListener()
+    {
+      @Override
+      public void actionPerformed(ActionEvent actionEvent)
+      {
+        try
+        {
+          displayPanel.setSmoothWidth(Integer.parseInt(smoothWidthTextField.getText()));
+          displayPanel.reSmooth();
+          displayPanel.repaint();
+        }
+        catch (Exception ex)
+        {
+          JOptionPane.showMessageDialog(null, ex.getLocalizedMessage(), "Smooth Width Value", JOptionPane.ERROR_MESSAGE);
+        }
+      }
+    }); 
     withRawData.setSelected(true);
-    withSmoothData.setSelected(true);
+    withSmoothData.setSelected(false);
     withRawData.addActionListener(new ActionListener()
     {
       @Override
@@ -106,6 +143,12 @@ public class LogAnalysisFrame
         displayPanel.repaint();
       }
     });
+    applySmoothWidthButton.setText("Apply");
+    applySmoothWidthButton.setToolTipText("Apply Smoothing Width Value");
+    smoothWidthLabel.setText("Smooth. width:");
+    smoothWidthTextField.setPreferredSize(new Dimension(70, 19));
+    smoothWidthTextField.setText("1000");
+    smoothWidthTextField.setHorizontalAlignment(JTextField.RIGHT);
     narrowCheckBox.setText("Narrow");
     narrowCheckBox.addActionListener(new ActionListener()
     {
@@ -141,9 +184,18 @@ public class LogAnalysisFrame
     displayPanel.setSize(newDim);
     displayPanel.repaint();
   }
+
+  public void setSmoothWidthValue(int v)
+  {
+    this.smoothWidthTextField.setText(Integer.toString(v)); 
+  }
   
   public void setLogData(Map<Date, ScalarValue> logdata, Map<Long, Calendar[]> riseAndSet, String tz)
   {
+    this.setTitle(this.titleRoot + " - " + Integer.toString(logdata.size()) + " entries");
+    int sw = logdata.size() / 200;
+    setSmoothWidthValue(sw);
+    displayPanel.setSmoothWidth(sw);
     displayPanel.setLogData(logdata, riseAndSet, tz);
   }
   
