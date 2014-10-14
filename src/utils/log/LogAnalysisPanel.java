@@ -47,7 +47,7 @@ public class LogAnalysisPanel
   private Date minDate = null, maxDate = null;
   private double minValue = Double.MAX_VALUE, maxValue = Double.MIN_VALUE;
   private final static NumberFormat VALUE_FMT = new DecimalFormat("#0.00");
-  private final static DateFormat DATE_FMT = new SimpleDateFormat("dd-MMM-yyyy HH:mm Z");
+  private final static DateFormat DATE_FMT = new SimpleDateFormat("EEE dd-MMM-yyyy'\n'HH:mm Z");
 //static { DATE_FMT.setTimeZone(TimeZone.getTimeZone("etc/UTC")); }
   protected transient Stroke thick = new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
   private boolean withSmoothing = "true".equals(System.getProperty("with.smoothing", "true"));
@@ -247,7 +247,12 @@ public class LogAnalysisPanel
       int minValueGrid = (int)Math.floor((this.narrow ? minValue : 0d));
       int maxValueGrid = (int)Math.ceil(maxValue);
       g2d.setColor(Color.lightGray);
-      for (int v=minValueGrid; v<maxValueGrid; v++)
+      int step = 1;
+      if (maxValueGrid - minValueGrid > 1000)
+        step = 100;
+      else if (maxValueGrid - minValueGrid > 100)
+        step = 10;
+      for (int v=minValueGrid; v<maxValueGrid; v+=step)
       {
         double valueOffset = v - (this.narrow ? minValue : 0d);
         int y = this.getHeight() - (int)(this.getHeight() * ((float)valueOffset / (float)valueSpan));
@@ -255,7 +260,7 @@ public class LogAnalysisPanel
       }
       // Scale
       Rectangle visible = this.getVisibleRect();
-      for (int v=minValueGrid; v<maxValueGrid; v++)
+      for (int v=minValueGrid; v<maxValueGrid; v+=step)
       {      
         double valyueOffset = v - (this.narrow ? minValue : 0d);
         int y = this.getHeight() - (int)(this.getHeight() * ((float)valyueOffset / (float)valueSpan));
@@ -514,7 +519,7 @@ public class LogAnalysisPanel
       long time = minTime + (long)(timespan * ((float)x / (float)this.getWidth()));
       Date date = new Date(time);
       String mess = "<html><center><b>" + VALUE_FMT.format(value) + " " + this.unit + "</b><br>" +
-                    DATE_FMT.format(date) + "</center></html>";
+                    DATE_FMT.format(date).replace("\n", "<br>") + "</center></html>";
   //  System.out.println(mess);
       this.setToolTipText(mess);
     }

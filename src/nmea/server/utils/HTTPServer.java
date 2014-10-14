@@ -1222,6 +1222,8 @@ public class HTTPServer
       {
         ex.printStackTrace();
       }
+      // Running since...
+      str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat((((Long)cache.get(NMEADataCache.TIME_RUNNING)).toString()), "running", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
   
       if (output == XML_OUTPUT)
       {
