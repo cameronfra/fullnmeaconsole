@@ -8,12 +8,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import nmea.event.NMEAReaderListener;
+
 import nmea.ui.calc.CalculatedDataTablePane;
 
+import ocss.nmea.api.NMEAEvent;
+import ocss.nmea.api.NMEAListener;
 import ocss.nmea.parser.Angle;
 import ocss.nmea.parser.Angle360;
 import ocss.nmea.parser.NMEADoubleValueHolder;
 import ocss.nmea.parser.Speed;
+import ocss.nmea.parser.StringParsers;
 
 public class NMEADataCache extends HashMap<String, Object> implements Serializable
 {
@@ -74,6 +79,8 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
   public static final String POLAR_FILE_NAME = "Polar File name";
   public static final String POLAR_FACTOR    = "Polar Factor";
 
+  public static final String TIME_RUNNING    = "Time Running";
+
   private final static boolean DEBUG = false;
 
   public static final HashMap<String, String> TOOLTIP_MAP = new HashMap<String, String>();
@@ -83,10 +90,19 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
   
   private transient HashMap<String, List<Object>> dampingMap = new HashMap<String, List<Object>>();
   
+  private long started = 0L;
+  private boolean originalCache = false;
+  
   public NMEADataCache()
   {
+    this(false);
+  }
+  
+  public NMEADataCache(boolean originalCache)
+  {
     super();
-    
+    this.originalCache = originalCache;
+    started = System.currentTimeMillis();
     if (System.getProperty("verbose", "false").equals("true"))
     {
       System.out.println("+=================================+");
@@ -149,6 +165,7 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
     TOOLTIP_MAP.put(POLAR_FILE_NAME, "Polar file name, with 'polar-coeff' extension");
     TOOLTIP_MAP.put(POLAR_FACTOR,    "Coefficient to apply to the target speed.");
     TOOLTIP_MAP.put(PERF,            "Performance, calculated with the polars");
+    TOOLTIP_MAP.put(TIME_RUNNING,    "NMEA Server (cache) has been running for 'X' ms");
 
     dampingMap.put(BSP,      new ArrayList<Object>());
     dampingMap.put(HDG_TRUE, new ArrayList<Object>());
@@ -165,6 +182,9 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
     
     // Initialization
     this.put(CALCULATED_CURRENT, new HashMap<Long, CurrentDefinition>());
+    
+    if (this.originalCache)
+      startBroadcastingCacheAge();
   }
 
   @Override
@@ -285,7 +305,15 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
       return ret;
     }
     else
-      return super.get(key);
+    {
+      if (!TIME_RUNNING.equals(key) || (!originalCache && TIME_RUNNING.equals(key)))
+        return super.get(key);
+      else
+      {
+        long age = System.currentTimeMillis() - started;
+        return new Long(age);
+      }
+    }
   }
 
   public void setDampingSize(int dampingSize)
@@ -334,5 +362,84 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
       this.speed = sp;
       this.direction = dir;
     }
+  }
+  
+  private static String generateCacheAge(String devicePrefix, long age)
+  {
+    String std = devicePrefix + "STD,";
+    std += Long.toString(age);
+    // Checksum
+    int cs = StringParsers.calculateCheckSum(std);
+    std += ("*" + lpad(Integer.toString(cs, 16).toUpperCase(), "0", 2));    
+    return "$" + std;
+  }
+  
+  private static String lpad(String s, String with, int len)
+  {
+    String str = s;
+    while (str.length() < len)
+      str = with + str;
+    return str;
+  }
+  
+  private void broadcastNMEASentence(String nmea)
+  {
+    synchronized (NMEAContext.getInstance().getNMEAListeners())
+    {
+      for (NMEAListener l : NMEAContext.getInstance().getNMEAListeners())
+      {
+        synchronized (l)
+        {
+          try { l.dataDetected(new NMEAEvent(this, nmea)); }
+          catch (Exception err)
+          {
+            err.printStackTrace();
+          }
+        }
+      }
+    }
+    synchronized (NMEAContext.getInstance().getReaderListeners())
+    {
+      for (NMEAReaderListener l : NMEAContext.getInstance().getReaderListeners())
+      {
+        synchronized (l)
+        {
+          try { l.manageNMEAString(nmea); } 
+          catch (Exception err)
+          {
+            err.printStackTrace();
+          }
+        }
+      }
+    }
+  }
+  
+  private void startBroadcastingCacheAge()
+  {
+    long sleepTime = 1000L;
+    try
+    {
+      sleepTime = Long.parseLong(System.getProperty("cache.age.sleep.time", "1000"));
+    }
+    catch (Exception ex)
+    {
+      System.err.println("Cache Age Sleep Time:" + ex.getLocalizedMessage());
+    }
+    final long _sleepTime = sleepTime;
+    Thread ageBroadcaster = new Thread()
+    {
+      public void run()
+      {
+        while (true)
+        {
+          long age = ((Long)get(TIME_RUNNING)).longValue();
+          String nmeaAge = generateCacheAge("XX", age);
+          broadcastNMEASentence(nmeaAge);
+//        System.out.println(">>> DEBUG >>> Broadcasted: " + nmeaAge);
+          try { Thread.sleep(_sleepTime); } catch (Exception ex) {}
+        }
+      }
+    };
+    ageBroadcaster.start();
   }
 }

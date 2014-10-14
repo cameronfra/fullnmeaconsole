@@ -425,7 +425,6 @@ public class NMEAAnalyzerLandingPanel
         loggedDataTable.setSelectedRow(id, false);
       }
     });
-
     this.add(mainPanel, BorderLayout.CENTER);
     bottomPanel.setLayout(new BorderLayout());
     this.add(bottomPanel, BorderLayout.SOUTH);

@@ -614,7 +614,7 @@ public class Utils
           ndc.put(NMEADataCache.SAT_IN_VIEW, satmap);
       }
     }
-    else if ("BAT".equals(sentenceId))     // Battery Voltgae. Not Standard, from the Raspberry PI
+    else if ("BAT".equals(sentenceId))     // Battery Voltage. Not Standard, from the Raspberry PI
     {
       float volt = StringParsers.parseBAT(value);
       if (volt > -1)
@@ -623,6 +623,17 @@ public class Utils
           NMEAContext.getInstance().putDataCache(NMEADataCache.BATTERY, new Float(volt));
         else
           ndc.put(NMEADataCache.BATTERY, new Float(volt));
+      }
+    }
+    else if ("STD".equals(sentenceId))     // Cache age. Not Standard. From Original cache
+    {
+      long age = StringParsers.parseSTD(value);
+      if (age > -1)
+      {
+        if (ndc == null)
+          NMEAContext.getInstance().putDataCache(NMEADataCache.TIME_RUNNING, new Long(age));
+        else
+          ndc.put(NMEADataCache.TIME_RUNNING, new Long(age));
       }
     }
     

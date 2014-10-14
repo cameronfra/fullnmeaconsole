@@ -92,7 +92,8 @@ public class NMEAContext implements Serializable
     NMEAReaderListeners = new ArrayList<NMEAReaderListener>(2); // 2: Initial Capacity
     NMEAListeners = new ArrayList<NMEAListener>();
     parser = new DOMParser();
-    dataCache = new NMEADataCache();
+    boolean isOriginalCache = "true".equals(System.getProperty("original.cache", "false"));
+    dataCache = new NMEADataCache(isOriginalCache);
   }
     
   public static synchronized NMEAContext getInstance()
