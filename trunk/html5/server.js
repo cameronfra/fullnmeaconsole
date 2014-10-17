@@ -191,9 +191,20 @@ wsServer.on('request', function(request)
     });
  
     // user disconnected
-    connection.on('close', function(connection)
+    connection.on('close', function(code)
     {
       // Close
+      console.log((new Date()) + ' Connection closed.');
+      var nb = clients.length;
+      for (var i=0; i<clients.length; i++) {
+        if (clients[i] === connection) {
+          clients.splice(i, 1);
+          break;
+        }
+      }
+      if (verbose) {
+        console.log("We have (" + nb + "->) " + clients.length + " client(s) connected.");
+      }
     });
  
 });

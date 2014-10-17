@@ -269,7 +269,7 @@ function Thermometer(cName, dSize, minValue, maxValue, majorTicks, minorTicks)
   
     var _grd = context.createLinearGradient(0, topTube, 0, tubeLength);
     _grd.addColorStop(0,   'red');    // 0  Beginning
-    _grd.addColorStop(0.6, 'orange');   
+    _grd.addColorStop(0.6, 'red');   
     _grd.addColorStop(0.8, 'blue'); 
     _grd.addColorStop(1,   'navy');   // 1  End
     context.fillStyle = _grd;

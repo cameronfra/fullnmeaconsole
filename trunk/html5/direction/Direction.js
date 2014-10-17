@@ -27,7 +27,7 @@ var directionColorConfigWhite =
 var directionColorConfigBlack = 
 {
   bgColor:           'black',
-  digitColor:        'white',
+  digitColor:        'cyan',
   withGradient:      true,
   displayBackgroundGradient: { from: 'black', to: 'LightGrey' },
   shadowColor:       'black',

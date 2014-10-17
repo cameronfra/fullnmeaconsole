@@ -102,6 +102,8 @@ import utils.PolarHelper;
 
 public class Utils
 {
+  private static CustomNMEAParser customNMEAParser = null;
+  
   private final static SimpleDateFormat SDF = new SimpleDateFormat("EEE dd-MMM-yyyy HH:mm:ss (z)");
   static
   {
@@ -634,6 +636,40 @@ public class Utils
           NMEAContext.getInstance().putDataCache(NMEADataCache.TIME_RUNNING, new Long(age));
         else
           ndc.put(NMEADataCache.TIME_RUNNING, new Long(age));
+      }
+    }
+    else
+    {
+      if (customNMEAParser == null)
+      {
+        String customNMEAParserClassName = System.getProperty("custom.nmea.parser");
+        if (customNMEAParserClassName == null)
+          System.out.println(">>> DEBUG >>> String [" + sentenceId + "] not managed");
+        else
+        {
+          try
+          {
+            Class cl = Class.forName(customNMEAParserClassName);
+            customNMEAParser = (CustomNMEAParser)cl.newInstance();
+          }
+          catch (Exception ex)
+          {
+            ex.printStackTrace();
+          }
+        }
+      }
+      if (customNMEAParser != null)
+      {
+        Object obj = customNMEAParser.customParse(value);        
+        if (obj != null)
+        {
+          if (ndc == null)
+            NMEAContext.getInstance().putDataCache(customNMEAParser.getCacheID(value), obj);
+          else
+            ndc.put(customNMEAParser.getCacheID(value), obj);
+        }
+        else if ("true".equals(System.getProperty("verbose", "false")))
+          System.out.println(">>> DEBUG >>> String [" + sentenceId + "] not managed, or invalid.");
       }
     }
     
