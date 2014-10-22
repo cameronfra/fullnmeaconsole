@@ -640,11 +640,12 @@ public class Utils
     }
     else
     {
+      // Try custom parser
       if (customNMEAParser == null)
       {
         String customNMEAParserClassName = System.getProperty("custom.nmea.parser");
         if (customNMEAParserClassName == null)
-          System.out.println(">>> DEBUG >>> String [" + sentenceId + "] not managed");
+          System.out.println(">>> DEBUG >>> String [" + sentenceId + "] not managed (no custom parser)");
         else
         {
           try
