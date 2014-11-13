@@ -20,6 +20,7 @@ import java.awt.datatransfer.StringSelection;
 import java.io.BufferedReader;
 
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 
@@ -645,7 +646,10 @@ public class Utils
       {
         String customNMEAParserClassName = System.getProperty("custom.nmea.parser");
         if (customNMEAParserClassName == null)
-          System.out.println(">>> DEBUG >>> String [" + sentenceId + "] not managed (no custom parser)");
+        {
+          if ("true".equals(System.getProperty("verbose", "false")))
+            System.out.println(">>> DEBUG >>> String [" + sentenceId + "] not managed (no custom parser)");
+        }
         else
         {
           try
@@ -1264,6 +1268,28 @@ public class Utils
       data = loadDeviationHashtable(br);
       br.close();
       fr.close();
+    }
+    catch (FileNotFoundException fnfe)
+    {
+      System.err.println("Deviation curve data file [" + deviationFileName + "] does not exist.\n" + 
+                         "Please change your preferences accordingly.\n" +
+                         "Using default [zero-deviation.csv] instead.");
+      try
+      {
+        FileReader fr = new FileReader("zero-deviation.csv");
+        BufferedReader br = new BufferedReader(fr);
+        data = loadDeviationHashtable(br);
+        br.close();
+        fr.close();
+      }
+      catch (FileNotFoundException fnfe2)
+      {
+        System.err.println("Installation problem: file [zero-deviation.csv] not found.");
+      }
+      catch (Exception ex2)
+      {
+        ex2.printStackTrace();
+      }
     }
     catch (Exception ex)
     {

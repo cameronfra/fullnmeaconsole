@@ -1222,8 +1222,18 @@ public class HTTPServer
       {
         ex.printStackTrace();
       }
-      // Running since...
-      str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat((((Long)cache.get(NMEADataCache.TIME_RUNNING)).toString()), "running", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+      try
+      {
+        // Running since...
+        Object obj = cache.get(NMEADataCache.TIME_RUNNING);
+        if (obj != null)
+          str += (((!first && output == JSON_OUTPUT)?",\n":"") + "  " + dataFormat((((Long)cache.get(NMEADataCache.TIME_RUNNING)).toString()), "running", output, NUMERIC_OPTION) + ((output != JSON_OUTPUT)?"\n":""));
+      }
+      catch (Exception ex) 
+      {
+        System.err.println("NMEADataCache.TIME_RUNNING:");
+        ex.printStackTrace();
+      }
   
       if (output == XML_OUTPUT)
       {
