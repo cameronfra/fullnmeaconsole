@@ -51,7 +51,10 @@ public class LogAnalysisFrame
     this.caller = parent;
     this.title = title;
     this.titleRoot = title;
-    displayPanel = new LogAnalysisPanel(unit);
+    if (unit.equals("hPa"))
+      displayPanel = new LogAnalysisPanel(unit, 985, 1035);
+    else
+      displayPanel = new LogAnalysisPanel(unit);
     try
     {
       jbInit();
