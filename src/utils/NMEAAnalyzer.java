@@ -92,6 +92,7 @@ public class NMEAAnalyzer
     br.close();
     return map;
   }
+  
   public Map<String, Map<Date, Object>> getDataMap(String fileName) throws Exception
   {
     Map<String, Map<Date, Object>> dataMap = new HashMap<String, Map<Date, Object>>();
