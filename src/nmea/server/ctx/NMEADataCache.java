@@ -93,6 +93,8 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
   private long started = 0L;
   private boolean originalCache = false;
   
+  private NMEADataCache instance = this;
+  
   public NMEADataCache()
   {
     this(false);
@@ -425,7 +427,7 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
     {
       System.err.println("Cache Age Sleep Time:" + ex.getLocalizedMessage());
     }
-    final long _sleepTime = sleepTime;
+    final long _sleepTime = sleepTime; // Faut pas m'faire chier.
     Thread ageBroadcaster = new Thread()
     {
       public void run()
@@ -434,7 +436,8 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
         {
           long age = ((Long)get(TIME_RUNNING)).longValue();
           String nmeaAge = generateCacheAge("XX", age);
-          broadcastNMEASentence(nmeaAge);
+          // ConcurrentModification Exception
+          synchronized (instance) { broadcastNMEASentence(nmeaAge); }
 //        System.out.println(">>> DEBUG >>> Broadcasted: " + nmeaAge);
           try { Thread.sleep(_sleepTime); } catch (Exception ex) {}
         }
