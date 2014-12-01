@@ -103,7 +103,7 @@ public class NMEAContext implements Serializable
     return applicationContext;
   }
     
-  public List<NMEAReaderListener> getReaderListeners()
+  public synchronized List<NMEAReaderListener> getReaderListeners()
   {
     return NMEAReaderListeners;
   }    
@@ -202,7 +202,7 @@ public class NMEAContext implements Serializable
   {
     this.replayFile = replayFile;
     // Count the number of records in the file
-    Thread counter = new Thread()
+    Thread counter = new Thread("LoggedDataReplayer")
       {
         public void run()
         {
@@ -499,7 +499,7 @@ public class NMEAContext implements Serializable
     }
   }
   
-  public synchronized NMEADataCache getCache()
+  public /* synchronized */ NMEADataCache getCache()
   {
 //  System.out.println("NMEAContext getCache:" + Integer.toString(dataCache.size()) + " pos.");
     return dataCache;
@@ -533,7 +533,7 @@ public class NMEAContext implements Serializable
     NMEAContext.deviation = deviation;
   }
 
-  public synchronized List<double[]> getDeviation()
+  public /* synchronized */ List<double[]> getDeviation()
   {
     return deviation;
   }

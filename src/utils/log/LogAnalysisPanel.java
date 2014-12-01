@@ -80,15 +80,25 @@ public class LogAnalysisPanel
   private int mouseYValue = 0;
   private float value;
 
+  private int modLabel = 1;
+  private int modUnit  = 1;
+
   public LogAnalysisPanel(String unit)
   {
     this(unit, 0D, Double.MIN_VALUE);
   }
   public LogAnalysisPanel(String unit, double base, double top)
   {
+    this(unit, base, top, 1, 1);
+  }
+
+  public LogAnalysisPanel(String unit, double base, double top, int modLabel, int modUnit)
+  {
     this.unit = unit;
     this.baseScaleValue = base;
     this.topScaleValue  = top;
+    this.modLabel = modLabel;
+    this.modUnit  = modUnit;
     
     try
     {
@@ -263,17 +273,23 @@ public class LogAnalysisPanel
         step = 10;
       for (int v=minValueGrid; v<maxValueGrid; v+=step)
       {
-        double valueOffset = v - (this.narrow ? minValue : baseScaleValue /*0d*/);
-        int y = this.getHeight() - (int)(this.getHeight() * ((float)valueOffset / (float)valueSpan));
-        g2d.drawLine(0, y, this.getWidth(), y);
+        if (v % this.modUnit == 0)
+        {
+          double valueOffset = v - (this.narrow ? minValue : baseScaleValue /*0d*/);
+          int y = this.getHeight() - (int)(this.getHeight() * ((float)valueOffset / (float)valueSpan));
+          g2d.drawLine(0, y, this.getWidth(), y);
+        }
       }
       // Scale
       Rectangle visible = this.getVisibleRect();
       for (int v=minValueGrid; v<maxValueGrid; v+=step)
       {      
-        double valyueOffset = v - (this.narrow ? minValue : baseScaleValue /*0d*/);
-        int y = this.getHeight() - (int)(this.getHeight() * ((float)valyueOffset / (float)valueSpan));
-        g2d.drawString(Integer.toString(v) + " " + this.unit, visible.x + 2, y - 1);
+        if (v % this.modLabel == 0)
+        {
+          double valyueOffset = v - (this.narrow ? minValue : baseScaleValue /*0d*/);
+          int y = this.getHeight() - (int)(this.getHeight() * ((float)valyueOffset / (float)valueSpan));
+          g2d.drawString(Integer.toString(v) + " " + this.unit, visible.x + 2, y - 1);
+        }
       }
       
       g2d.setColor(Color.red);
