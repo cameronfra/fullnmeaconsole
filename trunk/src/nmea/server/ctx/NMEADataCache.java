@@ -190,7 +190,7 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
   }
 
   @Override
-  public synchronized Object put(String key, Object value)
+  public /*synchronized*/ Object put(String key, Object value)
   {
     Object o = super.put(key, value);
     if (dampingSize > 1 && dampingMap.containsKey(key))
@@ -211,12 +211,12 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
    * @return Damped Data, by default
    */
   @Override
-  public synchronized Object get(Object key)
+  public /*synchronized*/ Object get(Object key)
   {
     return get(key, true);
   }
 
-  public synchronized Object get(Object key, boolean useDamping)
+  public /*synchronized*/ Object get(Object key, boolean useDamping)
   {
 //  System.out.println("Damping = " + dampingSize);
     if (useDamping && dampingSize > 1 && dampingMap != null && dampingMap.containsKey(key))
@@ -386,11 +386,11 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
   
   private void broadcastNMEASentence(String nmea)
   {
-    synchronized (NMEAContext.getInstance().getNMEAListeners())
+//  synchronized (NMEAContext.getInstance().getNMEAListeners())
     {
       for (NMEAListener l : NMEAContext.getInstance().getNMEAListeners())
       {
-        synchronized (l)
+//      synchronized (l)
         {
           try { l.dataDetected(new NMEAEvent(this, nmea)); }
           catch (Exception err)
@@ -400,11 +400,11 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
         }
       }
     }
-    synchronized (NMEAContext.getInstance().getReaderListeners())
+//  synchronized (NMEAContext.getInstance().getReaderListeners())
     {
       for (NMEAReaderListener l : NMEAContext.getInstance().getReaderListeners())
       {
-        synchronized (l)
+//      synchronized (l)
         {
           try { l.manageNMEAString(nmea); } 
           catch (Exception err)
@@ -428,7 +428,7 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
       System.err.println("Cache Age Sleep Time:" + ex.getLocalizedMessage());
     }
     final long _sleepTime = sleepTime; // Faut pas m'faire chier.
-    Thread ageBroadcaster = new Thread()
+    Thread ageBroadcaster = new Thread("CacheAgeBroadcaster")
     {
       public void run()
       {
@@ -437,7 +437,7 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
           long age = ((Long)get(TIME_RUNNING)).longValue();
           String nmeaAge = generateCacheAge("XX", age);
           // ConcurrentModification Exception
-          synchronized (instance) { broadcastNMEASentence(nmeaAge); }
+     /*   synchronized (instance) */ { broadcastNMEASentence(nmeaAge); }
 //        System.out.println(">>> DEBUG >>> Broadcasted: " + nmeaAge);
           try { Thread.sleep(_sleepTime); } catch (Exception ex) {}
         }

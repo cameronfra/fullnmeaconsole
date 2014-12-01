@@ -90,7 +90,7 @@ public class NMEAConsole
     });
 
     frame.setVisible(true);
-    Thread timeThread = new Thread()
+    Thread timeThread = new Thread("ConsoleTimer")
       {
         public void run()
         {

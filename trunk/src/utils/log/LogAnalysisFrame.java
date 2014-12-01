@@ -52,7 +52,9 @@ public class LogAnalysisFrame
     this.title = title;
     this.titleRoot = title;
     if (unit.equals("hPa"))
-      displayPanel = new LogAnalysisPanel(unit, 985, 1035);
+      displayPanel = new LogAnalysisPanel(unit, 985, 1035, 5, 1);
+    else if (unit.equals("V"))
+      displayPanel = new LogAnalysisPanel(unit, 5, 16);
     else
       displayPanel = new LogAnalysisPanel(unit);
     try

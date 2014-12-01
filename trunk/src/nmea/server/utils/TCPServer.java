@@ -75,7 +75,7 @@ public class TCPServer
     }
 
     // Infinite loop, waiting for requests
-    Thread tcpListenerThread = new Thread()
+    Thread tcpListenerThread = new Thread("TCPServer")
     {
       public void run()
       {

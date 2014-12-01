@@ -148,7 +148,7 @@ public class CustomTCPReader extends NMEAReader implements DataReader
           // Wait and try again
           try
           {
-            Thread userThread = new Thread()
+            Thread userThread = new Thread("TCPReader")
             {
               public void run()
               {

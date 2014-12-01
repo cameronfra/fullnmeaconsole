@@ -148,7 +148,7 @@ public class HTTPServer
     }
 
     // Infinite loop, waiting for requests
-    Thread httpListenerThread = new Thread() 
+    Thread httpListenerThread = new Thread("HTTPListener") 
     {
       public void run()        
       {
@@ -417,7 +417,7 @@ public class HTTPServer
         }
         catch (Exception e)
         {
-          System.err.println(e.toString());
+          System.err.println(">>> Port " + _port + ", " + e.toString());
           Logger.log(e.getLocalizedMessage(), Logger.INFO);      
           e.printStackTrace();
         }
@@ -1477,7 +1477,7 @@ public class HTTPServer
   {
   //System.setProperty("http.port", "9999");
     new HTTPServer(new String[] { "-verbose=y", "-fmt=xml" }, null, null);
-    Thread t = new Thread()
+    Thread t = new Thread("HTTPWaiter")
       {
         public void run()
         {
