@@ -110,11 +110,14 @@ public class NMEAContext implements Serializable
 
   public synchronized void addNMEAReaderListener(NMEAReaderListener l)
   {
-    if (!NMEAReaderListeners.contains(l))
+    synchronized (NMEAReaderListeners)
     {
-      NMEAReaderListeners.add(l);
+      if (!NMEAReaderListeners.contains(l))
+      {
+        NMEAReaderListeners.add(l);
+      }
+      if (System.getProperty("verbose", "false").equals("true")) System.out.println("We have " + NMEAReaderListeners.size() + " NMEAListener(s). Last one belongs to group [" + l.getGroupID() + "]");
     }
-    if (System.getProperty("verbose", "false").equals("true")) System.out.println("We have " + NMEAReaderListeners.size() + " NMEAListener(s). Last one belongs to group [" + l.getGroupID() + "]");
   }
 
   public synchronized void removeNMEAReaderListener(NMEAReaderListener l)

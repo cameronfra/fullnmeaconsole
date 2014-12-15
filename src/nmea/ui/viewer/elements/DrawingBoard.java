@@ -111,7 +111,7 @@ public class DrawingBoard
   private void jbInit()
     throws Exception
   {
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID, "Drawing Board")
       {
         public void dataUpdate() 
         {
@@ -257,8 +257,16 @@ public class DrawingBoard
     if (freeze)
       leeway = Utils.getLeeway(awa + awaOffset, maxLeeway);
     else
-      leeway = ((Angle180LR) NMEAContext.getInstance().getCache().get(NMEADataCache.LEEWAY)).getValue();
-    
+    {
+      try 
+      {
+        leeway = ((Angle180LR) NMEAContext.getInstance().getCache().get(NMEADataCache.LEEWAY)).getValue();
+      }
+      catch (NullPointerException npe)
+      {
+        System.err.println("Leeway:" + npe.getMessage());
+      }
+    }
     double rsX = boatPosX + ((bsp * bspCoeff) * (bspLengthAt10 / 10D) * Math.sin(Math.toRadians(hdg + hdgOffset + leeway)));
     double rsY = boatPosY - ((bsp * bspCoeff) * (bspLengthAt10 / 10D) * Math.cos(Math.toRadians(hdg + hdgOffset + leeway)));
     if (debug || (Math.abs(leeway) > 0.1 && bsp > 0))

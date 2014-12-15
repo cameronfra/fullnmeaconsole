@@ -139,7 +139,7 @@ public class DirectionEvolutionDisplay
     headingPanel.setRoseWidth(180f);
     headingPanel.setWithNumber(false);
 
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID, "Direction Evolution")
     {
       public void dataBufferSizeChanged(int size) 
       {

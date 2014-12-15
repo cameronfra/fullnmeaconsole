@@ -3,6 +3,7 @@ package nmea.server.ctx;
 import java.io.Serializable;
 
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 
 import java.util.List;
@@ -65,6 +66,7 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
   
   public static final String BATTERY     = "Battery Voltage"; 
   public static final String CALCULATED_CURRENT = "Current calculated with damping";
+  public static final String VDR_CURRENT = "Set and Drift";
   
   public static final String BSP_FACTOR  = "BSP Factor";
   public static final String AWS_FACTOR  = "AWS Factor";
@@ -151,8 +153,9 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
     TOOLTIP_MAP.put(CMG,         "<html>Course Made Good<br>Calculated</html>");
     TOOLTIP_MAP.put(SAT_IN_VIEW, "<html>Satellites in view<br>From the GPS</html>");
 
-    TOOLTIP_MAP.put(BATTERY, "<html>Battery Voltage<br>From Raspberry PI</html>");
-    TOOLTIP_MAP.put(CALCULATED_CURRENT, "<html>Curent calculated with damping (0, 1 minute, 10 minutes...)</html>");
+    TOOLTIP_MAP.put(BATTERY,     "<html>Battery Voltage<br>From Raspberry PI</html>");
+    TOOLTIP_MAP.put(CALCULATED_CURRENT, "<html>Current calculated with damping (0, 1 minute, 10 minutes...)</html>");
+    TOOLTIP_MAP.put(VDR_CURRENT, "<html>Set and Drift</html>");
     
     TOOLTIP_MAP.put(BSP_FACTOR, "<html>Coefficient to apply to Boat Speed<br>(1.0 = 100%)</html>");
     TOOLTIP_MAP.put(AWS_FACTOR, "<html>Coefficient to apply to Appaprent Wind Speed<br>(1.0 = 100%)</html>");
@@ -192,7 +195,8 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
   @Override
   public /*synchronized*/ Object put(String key, Object value)
   {
-    Object o = super.put(key, value);
+    Object o = null;
+    synchronized (this) { o = super.put(key, value); }
     if (dampingSize > 1 && dampingMap.containsKey(key))
     {
       List<Object> ald = dampingMap.get(key);
@@ -218,104 +222,115 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
 
   public /*synchronized*/ Object get(Object key, boolean useDamping)
   {
-//  System.out.println("Damping = " + dampingSize);
-    if (useDamping && dampingSize > 1 && dampingMap != null && dampingMap.containsKey(key))
+    Object ret = null;
+    try
     {
-      Object ret = null;
-      Class cl = null;
-      List<?> ald = dampingMap.get(key);
-      double sum = 0d;
-      double sumCos = 0d,
-             sumSin = 0d;
-      
-      for (Object v : ald)
+  //  System.out.println("Damping = " + dampingSize);
+      if (useDamping && dampingSize > 1 && dampingMap != null && dampingMap.containsKey(key))
       {
-        if (cl == null)
-          cl = v.getClass();
-        if (v instanceof Double)
-          sum += ((Double)v).doubleValue();
-        else if (v instanceof NMEADoubleValueHolder)
+        Class cl = null;
+        List<?> ald = dampingMap.get(key);
+        double sum = 0d;
+        double sumCos = 0d,
+               sumSin = 0d;
+        
+        for (Object v : ald)
         {
-          // Debug
-          if (false && key.equals(TWD))
-            System.out.print(((NMEADoubleValueHolder)v).getDoubleValue() + ";");
-
-          if (v instanceof Angle) // Angle360 || v instanceof Angle180 || v instanceof Angle180EW || v instanceof Angle180LR)
+          if (cl == null)
+            cl = v.getClass();
+          if (v instanceof Double)
+            sum += ((Double)v).doubleValue();
+          else if (v instanceof NMEADoubleValueHolder)
           {
-            double val = ((NMEADoubleValueHolder)v).getDoubleValue();
-            sumCos += (Math.cos(Math.toRadians(val)));
-            sumSin += (Math.sin(Math.toRadians(val)));
-          }
-          else
-            sum += ((NMEADoubleValueHolder)v).getDoubleValue();
-        }
-        else
-          System.out.println("What'zat:" + v.getClass().getName());
-      }
-      try
-      {
-        if (ald.size() != 0) // Average here
-        {
-          sum    /= ald.size();
-          sumCos /= ald.size();
-          sumSin /= ald.size();
-        }
-        if (cl != null)
-        {          
-          if (cl.equals(Double.class))
-          {
-            ret = new Double(sum);
-          }
-          else
-          {
-            ret = Class.forName(cl.getName()).newInstance();
-            if (ret instanceof Angle) // Angle360 || ret instanceof Angle180 || ret instanceof Angle180EW || ret instanceof Angle180LR)
+            // Debug
+            if (false && key.equals(TWD))
+              System.out.print(((NMEADoubleValueHolder)v).getDoubleValue() + ";");
+  
+            if (v instanceof Angle) // Angle360 || v instanceof Angle180 || v instanceof Angle180EW || v instanceof Angle180LR)
             {
-              double a = Math.toDegrees(Math.acos(sumCos));
-              if (sumSin < 0)
-                a = 360d - a;
-              sum = a;
-              if (DEBUG && key.equals(TWD))
+              double val = ((NMEADoubleValueHolder)v).getDoubleValue();
+              sumCos += (Math.cos(Math.toRadians(val)));
+              sumSin += (Math.sin(Math.toRadians(val)));
+            }
+            else
+              sum += ((NMEADoubleValueHolder)v).getDoubleValue();
+          }
+          else
+            System.out.println("What'zat:" + v.getClass().getName());
+        }
+        try
+        {
+          if (ald.size() != 0) // Average here
+          {
+            sum    /= ald.size();
+            sumCos /= ald.size();
+            sumSin /= ald.size();
+          }
+          if (cl != null)
+          {          
+            if (cl.equals(Double.class))
+            {
+              ret = new Double(sum);
+            }
+            else
+            {
+              ret = Class.forName(cl.getName()).newInstance();
+              if (ret instanceof Angle) // Angle360 || ret instanceof Angle180 || ret instanceof Angle180EW || ret instanceof Angle180LR)
               {
-                System.out.println(" Average:" + sum);
-                if (ald.size() == dampingSize && Math.abs(sum - prevTWD) > 2)
-                  System.out.println("Honk!!");
-                prevTWD = sum;
+                double a = Math.toDegrees(Math.acos(sumCos));
+                if (sumSin < 0)
+                  a = 360d - a;
+                sum = a;
+                if (DEBUG && key.equals(TWD))
+                {
+                  System.out.println(" Average:" + sum);
+                  if (ald.size() == dampingSize && Math.abs(sum - prevTWD) > 2)
+                    System.out.println("Honk!!");
+                  prevTWD = sum;
+                }
+              }
+              ((NMEADoubleValueHolder)ret).setDoubleValue(sum);
+              
+              if (DEBUG) 
+              {
+                double orig = 0;
+                if (cl.equals(Double.class))
+                  orig = ((Double)super.get(key)).doubleValue();
+                else
+                  orig = ((NMEADoubleValueHolder)super.get(key)).getDoubleValue();
+                System.out.println("Damping on " + dampingSize + " value(s):" + sum + " instead of " + orig + " for " + key);
               }
             }
-            ((NMEADoubleValueHolder)ret).setDoubleValue(sum);
-            
-            if (DEBUG) 
-            {
-              double orig = 0;
-              if (cl.equals(Double.class))
-                orig = ((Double)super.get(key)).doubleValue();
-              else
-                orig = ((NMEADoubleValueHolder)super.get(key)).getDoubleValue();
-              System.out.println("Damping on " + dampingSize + " value(s):" + sum + " instead of " + orig + " for " + key);
-            }
           }
+          else
+            ret = super.get(key);
         }
-        else
-          ret = super.get(key);
+        catch (Exception ex)
+        {
+          System.err.println("For key:" + key);
+          ex.printStackTrace();
+        }
       }
-      catch (Exception ex)
-      {
-        System.err.println("For key:" + key);
-        ex.printStackTrace();
-      }
-      return ret;
-    }
-    else
-    {
-      if (!TIME_RUNNING.equals(key) || (!originalCache && TIME_RUNNING.equals(key)))
-        return super.get(key);
       else
       {
-        long age = System.currentTimeMillis() - started;
-        return new Long(age);
+        if (!TIME_RUNNING.equals(key) || (!originalCache && TIME_RUNNING.equals(key)))
+        {
+          Object o = null;
+          synchronized(this) { o = super.get(key); } 
+          return o;
+        }
+        else
+        {
+          long age = System.currentTimeMillis() - started;
+          ret = new Long(age);
+        }
       }
     }
+    catch (ConcurrentModificationException cme)
+    {
+      System.err.println("Conflict for key [" + key + "] -> " + cme.toString());      
+    }
+    return ret;
   }
 
   public void setDampingSize(int dampingSize)
@@ -386,33 +401,52 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
   
   private void broadcastNMEASentence(String nmea)
   {
-//  synchronized (NMEAContext.getInstance().getNMEAListeners())
+    try
     {
-      for (NMEAListener l : NMEAContext.getInstance().getNMEAListeners())
+      synchronized (NMEAContext.getInstance().getNMEAListeners())
       {
-//      synchronized (l)
+        for (NMEAListener l : NMEAContext.getInstance().getNMEAListeners())
         {
-          try { l.dataDetected(new NMEAEvent(this, nmea)); }
-          catch (Exception err)
+          synchronized (l)
           {
-            err.printStackTrace();
+            try { l.dataDetected(new NMEAEvent(this, nmea)); }
+            catch (Exception err)
+            {
+              err.printStackTrace();
+            }
           }
         }
       }
     }
-//  synchronized (NMEAContext.getInstance().getReaderListeners())
+    catch (ConcurrentModificationException cme)
     {
-      for (NMEAReaderListener l : NMEAContext.getInstance().getReaderListeners())
+      System.err.println("Managed (1)................");
+      cme.printStackTrace();
+      System.err.println("..........................");
+    }
+    
+    try
+    {
+      synchronized (NMEAContext.getInstance().getReaderListeners())
       {
-//      synchronized (l)
+        for (NMEAReaderListener l : NMEAContext.getInstance().getReaderListeners())
         {
-          try { l.manageNMEAString(nmea); } 
-          catch (Exception err)
+          synchronized (l)
           {
-            err.printStackTrace();
+            try { l.manageNMEAString(nmea); } 
+            catch (Exception err)
+            {
+              err.printStackTrace();
+            }
           }
         }
       }
+    }
+    catch (ConcurrentModificationException cme)
+    {
+      System.err.println("Managed (2)................");
+      cme.printStackTrace();
+      System.err.println("..........................");
     }
   }
   
@@ -434,11 +468,19 @@ public class NMEADataCache extends HashMap<String, Object> implements Serializab
       {
         while (true)
         {
-          long age = ((Long)get(TIME_RUNNING)).longValue();
-          String nmeaAge = generateCacheAge("XX", age);
-          // ConcurrentModification Exception
-     /*   synchronized (instance) */ { broadcastNMEASentence(nmeaAge); }
-//        System.out.println(">>> DEBUG >>> Broadcasted: " + nmeaAge);
+          try
+          {
+            long age = ((Long)get(TIME_RUNNING)).longValue();
+            String nmeaAge = generateCacheAge("RP", age);
+            // ConcurrentModification Exception
+     /*     synchronized (instance) */ { broadcastNMEASentence(nmeaAge); }
+//          System.out.println(">>> DEBUG >>> Broadcasted: " + nmeaAge);
+          }
+          catch (Exception ex)
+          {
+            // Do not stop!
+            ex.printStackTrace();
+          }
           try { Thread.sleep(_sleepTime); } catch (Exception ex) {}
         }
       }

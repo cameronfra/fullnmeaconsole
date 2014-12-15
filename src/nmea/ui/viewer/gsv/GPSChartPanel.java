@@ -57,7 +57,7 @@ public class GPSChartPanel
   private void jbInit()
         throws Exception
   {
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener()
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener("GPS", "GPS Chart Panel")
     {
       public void manageNMEAString(String str)
       {

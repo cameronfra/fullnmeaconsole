@@ -130,7 +130,7 @@ public class WindGaugePanel
     int y = 0;
     boolean last = false;
     boolean go   = true;
-    while (tws > 0f && go)
+    while (tws > 0f && !Double.isInfinite(tws) && go)
     {
       int colorIdx = (int)(i / 5d);
       if (colorIdx > colorfield.length - 1) colorIdx = colorfield.length - 1;

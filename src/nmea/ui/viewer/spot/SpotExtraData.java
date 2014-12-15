@@ -148,7 +148,7 @@ public class SpotExtraData
   {
     this.setLayout(borderLayout1);
     this.setPreferredSize(new Dimension(200, 600));
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener()
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener("SPOT", "Extra")
       {
         public void newSpotData(List<SpotLine> spotLines, GeoPos pos)
         {

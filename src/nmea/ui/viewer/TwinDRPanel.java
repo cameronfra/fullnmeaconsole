@@ -92,7 +92,7 @@ public class TwinDRPanel
     bottomPanel.add(currentDisplay);
     panelHolder.add(bottomPanel, BorderLayout.SOUTH);
 
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID, "DR")
       {
         public void dataUpdate()
         {

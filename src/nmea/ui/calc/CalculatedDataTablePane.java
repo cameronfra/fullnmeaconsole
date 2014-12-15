@@ -183,7 +183,7 @@ public class CalculatedDataTablePane
     colOne.setCellRenderer(new ColorCellRenderer());
     colTwo.setCellRenderer(new ColorCellRenderer());
 
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID, "CalculatedData")
       {
         public void dataUpdate() 
         {

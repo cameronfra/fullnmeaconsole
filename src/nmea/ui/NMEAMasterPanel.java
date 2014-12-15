@@ -169,7 +169,7 @@ public class NMEAMasterPanel
     }
   }
   
-  private transient NMEAReaderListener nl = new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+  private transient NMEAReaderListener nl = new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID, "MasterPanel")
     {
       public void manageNMEAString(String str)
       {

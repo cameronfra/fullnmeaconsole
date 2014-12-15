@@ -132,7 +132,7 @@ public class SpeedEvolutionDisplay
     this.add(dataPanel, BorderLayout.CENTER);
     this.add(rangePanel, BorderLayout.EAST);
 
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID, "Speed Evolution")
     {
       public void dataBufferSizeChanged(int size) 
       {

@@ -57,7 +57,7 @@ public class SpotPanelHolder
 
     add(mainTabbedPanel, java.awt.BorderLayout.CENTER);
     add(dataPanel, java.awt.BorderLayout.EAST);
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener()
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener("SPOT", "Panel Holder")
       {
         public void newSpotData(List<SpotLine> spotLines, GeoPos pos)
         {

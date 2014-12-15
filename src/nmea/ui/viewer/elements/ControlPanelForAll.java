@@ -530,7 +530,7 @@ public class ControlPanelForAll
       fileProgress.setValue(0);
     }
     
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID, "Control Panel")
       {
         @Override
         public void setWindScale(float f) 
