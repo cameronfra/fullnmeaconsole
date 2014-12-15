@@ -68,7 +68,7 @@ public class BoatSpeed
     
     bsp.setDisplayColor(Color.orange);
 
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID, "Boat Speed")
       {
         @Override
         public void dataUpdate()

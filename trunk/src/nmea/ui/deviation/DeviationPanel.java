@@ -121,7 +121,7 @@ public class DeviationPanel
     this.setPreferredSize(new Dimension(400, 500));
     
     setHtDeviationCurve(Utils.loadDeviationCurve(NMEAContext.getInstance().getDeviation()));
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID, "Deviation")
       {
         @Override
         public void dataUpdate() 

@@ -42,7 +42,7 @@ public class GPSSatellitesPanel
   public GPSSatellitesPanel()
   {
     jbInit();
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener()
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener("GPS", "GPS Stellites")
     {
       public void manageNMEAString(String str)
       {

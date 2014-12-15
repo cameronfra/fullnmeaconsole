@@ -31,7 +31,7 @@ public class NMEAServer
   public NMEAServer() throws RemoteException
   {
     super();
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener()
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener("RMI", "RMI Server (1)")
       {
         public void dataUpdate() 
         {

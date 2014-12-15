@@ -31,7 +31,7 @@ public class RightPanel
   public RightPanel()
   {
     jbInit();
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener()
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener("Viewers", "Right Panel")
     {
       public void manageNMEAString(String str)
       {

@@ -133,20 +133,23 @@ public class BulkPanel
 
     hexaCheckBox.setText("Hexa");
     hexaCheckBox.setToolTipText("Display stream in hexadecimal or text");
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID, "Bulk")
      {
        public void manageNMEAString(String str) 
        {
 //       System.out.println("Displaying NMEA Sentences");
-         // Add the new loine to the panel.
-         sentences.add(str.trim());
-         while (sentences.size() > nbLines)
-           sentences.remove(0);
-
-         StringBuffer content = new StringBuffer();
-         for (String s : sentences)
-           content.append(s + "\n");
-         bulkEditorPane.setText(content.toString());
+         // Add the new line to the panel.
+         synchronized (sentences)
+         {
+           sentences.add(str.trim());
+           while (sentences.size() > nbLines)
+             sentences.remove(0);
+  
+           StringBuffer content = new StringBuffer();
+           for (String s : sentences)
+             content.append(s + "\n");
+           bulkEditorPane.setText(content.toString());
+         }
        }
      });
   }  

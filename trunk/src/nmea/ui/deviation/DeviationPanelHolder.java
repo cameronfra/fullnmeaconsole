@@ -245,7 +245,7 @@ public class DeviationPanelHolder
           decomposeCheckBox_actionPerformed(e);
         }
       });
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID, "Deviation(2)")
       {
         public void loadDataPointsForDeviation(List<double[]> dp) 
         {

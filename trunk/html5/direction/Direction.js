@@ -303,7 +303,7 @@ function Direction(cName, dSize, majorTicks, minorTicks)
     var dv = displayValue;
     while (dv > 360) dv -= 360;
     while (dv < 0) dv += 360;
-    text = displayValue.toFixed(directionColorConfig.valueNbDecimal);
+    text = dv.toFixed(directionColorConfig.valueNbDecimal);
     len = 0;
     context.font = "bold " + Math.round(scale * 40) + "px " + directionColorConfig.font; // "bold 40px Arial"
     var metrics = context.measureText(text);

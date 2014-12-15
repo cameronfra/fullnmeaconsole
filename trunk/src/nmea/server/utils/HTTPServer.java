@@ -129,7 +129,7 @@ public class HTTPServer
       }
     }
     
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener()
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener("HTTP", "HTTPServer")
     {
       public void enableHttpServer(boolean b) 
       {
@@ -157,6 +157,7 @@ public class HTTPServer
         {
           Map<String, String> header = new HashMap<String, String>();
           ServerSocket ss = new ServerSocket(_port);
+          System.err.println("Port " + _port + " opened successfully.");
           boolean help = false;
           boolean latitude = false, longitude = false,
                   latitudefmt = false, longitudefmt = false;
@@ -417,9 +418,10 @@ public class HTTPServer
         }
         catch (Exception e)
         {
-          System.err.println(">>> Port " + _port + ", " + e.toString());
+          System.err.println(">>> Port " + _port + ", " + e.toString() + " >>>");
           Logger.log(e.getLocalizedMessage(), Logger.INFO);      
           e.printStackTrace();
+          System.err.println("<<< Port " + _port + " <<<");
         }
       }
     };

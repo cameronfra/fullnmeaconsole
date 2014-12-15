@@ -68,7 +68,7 @@ public class DirectionEvolutionPanel
     twdLoggingDisplay.setPreferredSize(dim);
     cdrLoggingDisplay.setPreferredSize(dim);
 
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID, "Direction")
       {
         public void dataUpdate()
         {
@@ -78,9 +78,19 @@ public class DirectionEvolutionPanel
             Date d = new Date();
             try
             {
-              hdgLoggingDisplay.addValue(d, ((Angle360) cache.get(NMEADataCache.HDG_TRUE)).getValue());
-              hdgLoggingDisplay.addNDValue(d, ((Angle360) cache.get(NMEADataCache.HDG_TRUE, false)).getValue());
-              hdgLoggingDisplay.repaint();
+              synchronized (hdgLoggingDisplay)
+              {
+                try 
+                {
+                  hdgLoggingDisplay.addValue(d, ((Angle360) cache.get(NMEADataCache.HDG_TRUE)).getValue());
+                  hdgLoggingDisplay.addNDValue(d, ((Angle360) cache.get(NMEADataCache.HDG_TRUE, false)).getValue());
+                  hdgLoggingDisplay.repaint();
+                }
+                catch (NullPointerException npe)
+                {
+                  // Not in cache
+                }
+              }
             }
             catch (Exception ex)
             {
@@ -88,9 +98,19 @@ public class DirectionEvolutionPanel
             }
             try
             {
-              cogLoggingDisplay.addValue(d, ((Angle360) cache.get(NMEADataCache.COG)).getValue());
-              cogLoggingDisplay.addNDValue(d, ((Angle360) cache.get(NMEADataCache.COG, false)).getValue());
-              cogLoggingDisplay.repaint();
+              synchronized (cogLoggingDisplay)
+              {
+                try 
+                {
+                  cogLoggingDisplay.addValue(d, ((Angle360) cache.get(NMEADataCache.COG)).getValue());
+                  cogLoggingDisplay.addNDValue(d, ((Angle360) cache.get(NMEADataCache.COG, false)).getValue());
+                  cogLoggingDisplay.repaint();
+                }
+                catch (NullPointerException npe)
+                {
+                  // Not in cache
+                }
+              }
             }
             catch (Exception ex)
             {
@@ -98,9 +118,19 @@ public class DirectionEvolutionPanel
             }
             try
             {
-              awaLoggingDisplay.addValue(d, ((Angle180) cache.get(NMEADataCache.AWA)).getValue());
-              awaLoggingDisplay.addNDValue(d, ((Angle180) cache.get(NMEADataCache.AWA, false)).getValue());
-              awaLoggingDisplay.repaint();
+              synchronized (awaLoggingDisplay)
+              {
+                try 
+                {
+                  awaLoggingDisplay.addValue(d, ((Angle180) cache.get(NMEADataCache.AWA)).getValue());
+                  awaLoggingDisplay.addNDValue(d, ((Angle180) cache.get(NMEADataCache.AWA, false)).getValue());
+                  awaLoggingDisplay.repaint();
+                }
+                catch (NullPointerException npe)
+                {
+                  // Not in cache
+                }
+              }
             }
             catch (Exception ex)
             {
@@ -108,9 +138,19 @@ public class DirectionEvolutionPanel
             }
             try
             {
-              twdLoggingDisplay.addValue(d, ((TrueWindDirection) cache.get(NMEADataCache.TWD)).getValue());
-              twdLoggingDisplay.addNDValue(d, ((TrueWindDirection) cache.get(NMEADataCache.TWD, false)).getValue());
-              twdLoggingDisplay.repaint();
+              synchronized (twdLoggingDisplay)
+              {
+                try 
+                {
+                  twdLoggingDisplay.addValue(d, ((TrueWindDirection) cache.get(NMEADataCache.TWD)).getValue());
+                  twdLoggingDisplay.addNDValue(d, ((TrueWindDirection) cache.get(NMEADataCache.TWD, false)).getValue());
+                  twdLoggingDisplay.repaint();
+                }
+                catch (NullPointerException npe)
+                {
+                  // Not in cache
+                }
+              }
             }
             catch (Exception ex)
             {
@@ -118,9 +158,19 @@ public class DirectionEvolutionPanel
             }
             try
             {
-              cdrLoggingDisplay.addValue(d, ((Angle360) cache.get(NMEADataCache.CDR)).getValue());
-              cdrLoggingDisplay.addNDValue(d, ((Angle360) cache.get(NMEADataCache.CDR, false)).getValue());
-              cdrLoggingDisplay.repaint();
+              synchronized (cdrLoggingDisplay)
+              {
+                try 
+                {
+                  cdrLoggingDisplay.addValue(d, ((Angle360) cache.get(NMEADataCache.CDR)).getValue());
+                  cdrLoggingDisplay.addNDValue(d, ((Angle360) cache.get(NMEADataCache.CDR, false)).getValue());
+                  cdrLoggingDisplay.repaint();
+                }
+                catch (NullPointerException npe)
+                {
+                  // Not in cache
+                }
+              }
             }
             catch (Exception ex)
             {

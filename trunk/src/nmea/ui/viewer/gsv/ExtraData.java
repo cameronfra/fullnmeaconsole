@@ -31,7 +31,7 @@ public class ExtraData
   public ExtraData()
   {
     jbInit();
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener()
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener("Extra", "Extra Data")
     {
       public void manageNMEAString(String str)
       {

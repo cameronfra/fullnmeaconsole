@@ -61,7 +61,7 @@ public class SpotChartPanel
   private void jbInit()
         throws Exception
   {
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener()
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener("SPOT", "SPOT Chart Panel")
     {
       public void manageNMEAString(String str)
       {

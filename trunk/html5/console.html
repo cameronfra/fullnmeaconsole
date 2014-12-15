@@ -25,6 +25,7 @@
     <script type="text/javascript" src="direction/Direction.js"></script>
     <script type="text/javascript" src="js/widgets/JumboDisplay.js"></script>
     <script type="text/javascript" src="js/widgets/AWDisplay.js"></script>
+    <script type="text/javascript" src="js/widgets/CurrentDisplay.js"></script>
     <script type="text/javascript" src="js/widgets/TWDEvolution.js"></script>
     <script type="text/javascript" src="js/widgets/TWSEvolution.js"></script>
     <script type="text/javascript" src="js/console.js"></script>
@@ -141,6 +142,9 @@
     // TEMP
     document.getElementById('tmpCanvas').width = 100 * (Math.min(ww, totalWidth) / totalWidth);
     document.getElementById('tmpCanvas').height = 240 * (Math.min(ww, totalWidth) / totalWidth);
+
+    document.getElementById('atmpCanvas').width = 100 * (Math.min(ww, totalWidth) / totalWidth);
+    document.getElementById('atmpCanvas').height = 240 * (Math.min(ww, totalWidth) / totalWidth);
     // Jumbos
     var jumboCanvasList = ['jumboBSPCanvas', 'jumboTWDCanvas', 'jumboHDGCanvas', 'jumboLWYCanvas',
                            'jumboAWACanvas', 'jumboTWACanvas', 'jumboAWSCanvas', 'jumboTWSCanvas',
@@ -239,6 +243,7 @@
           <td align="center">Wind Dir in &deg;</td>
           <td align="center">Wind in knots</td>
           <td align="center">Water&deg;C</td>
+          <td align="center">Air&deg;C</td>
         </tr>
         <tr>
           <td align="center" valign="top" rowspan="2">
@@ -269,8 +274,11 @@
           <td align="center" valign="top" rowspan="1">
             <canvas id="twsCanvas" width="240" height="220" title="True Wind Speed in knots"></canvas>
           </td>
-          <td align="center" valign="top" rowspan="1">
+          <td align="center" valign="top" rowspan="2">
             <canvas id="tmpCanvas" width="100" height="240" title="Water Temperature in Celcius"></canvas>
+          </td>
+          <td align="center" valign="top" rowspan="2">
+            <canvas id="atmpCanvas" width="100" height="240" title="Air Temperature in Celcius"></canvas>
           </td>
         </tr>
         <tr>
@@ -301,6 +309,8 @@
               <br>
               <br>
               <canvas id="awDisplayCanvas" height="180" width="180" title="Apparent Wind, speed and direction"><!-- class="displayCanvas" --></canvas>
+              <br>
+              <canvas id="currentDisplayCanvas" height="180" width="180" title="Current, speed and direction"><!-- class="displayCanvas" --></canvas>
             </td>
             <td align="center" valign="top" rowspan="7">
               <canvas id="overviewCanvas" height="500" width="600" class="displayCanvas"></canvas>

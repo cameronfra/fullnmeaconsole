@@ -72,6 +72,7 @@ import ocss.nmea.parser.Angle180EW;
 import ocss.nmea.parser.Angle180LR;
 import ocss.nmea.parser.Angle360;
 import ocss.nmea.parser.ApparentWind;
+import ocss.nmea.parser.Current;
 import ocss.nmea.parser.Depth;
 import ocss.nmea.parser.Distance;
 import ocss.nmea.parser.GeoPos;
@@ -453,6 +454,32 @@ public class Utils
           ndc.putAll(map);
       }
     }
+    else if ("VDR".equals(sentenceId))
+    {
+      Current current = StringParsers.parseVDR(value);
+      if (false && ndc != null)
+      {
+        if (current != null)
+        {
+  //      System.out.println("CALCULATED CURRENT...:" + current.toString());
+          try { ((Map<Long, NMEADataCache.CurrentDefinition>)ndc.get(NMEADataCache.CALCULATED_CURRENT)).put(0L, new NMEADataCache.CurrentDefinition(0L, new Speed(current.speed), new Angle360(current.angle))); }
+          catch (Exception ex)
+          {
+            System.err.println("ParseVDR in parseAndCalculate:");
+            ex.printStackTrace();
+          }
+        }
+  //    else
+  //      System.err.println("No current in " + value);
+      }
+      else
+      {
+        if (ndc == null)
+          NMEAContext.getInstance().putDataCache(NMEADataCache.VDR_CURRENT, current);
+        else
+          ndc.put(NMEADataCache.VDR_CURRENT, current);         
+      }
+    }
     else if ("VWR".equals(sentenceId)) // Apparent Wind Speed and Direction (2)
     {
       Wind wind = StringParsers.parseVWR(value);
@@ -753,45 +780,56 @@ public class Utils
     double hdgOffset = 0d;
     try { hdgOffset = ((Double)cache.get(NMEADataCache.HDG_OFFSET)).doubleValue(); } catch (Exception ex) {}
     
-    if ("true".equals(System.getProperty("use.gps.method", "true")))
+    if (aws != -Double.MAX_VALUE)
     {
-//    System.out.println("Using the GOOD method");
-      double[] tw = calculateTWwithGPS(aws, 
-                                       awsCoeff,
-                                       awa,
-                                       awaOffset,
-                                       heading,
-                                       hdgOffset,
-                                       sog, 
-                                       cog);
-      twa = tw[0]; 
-      tws = tw[1];    
-      twd = (int)tw[2];
-      // To display the other values
-      if (false)
+      if ("true".equals(System.getProperty("use.gps.method", "true"))) // Default
       {
-        double bsp = ((Speed)cache.get(NMEADataCache.BSP)).getValue();
-        double[] tw_ = calculateTW(aws, awsCoeff, awa, awaOffset, bsp, bspCoeff, heading, hdgOffset);
-        NumberFormat nf = new DecimalFormat("000");
-        System.out.println("Good method:\tTWA:" +  nf.format(twa) + "\tTWS:" + nf.format(tws) + "\tTWD:" + (int)twd);
-        System.out.println("Bad method:\tTWA:" +  nf.format(tw_[0]) + "\tTWS:" + nf.format(tw_[1]) + "\tTWD:" + (int)tw_[2]);
-        System.out.println("================================================");
+  //    System.out.println("Using the GOOD method");
+        double[] tw = calculateTWwithGPS(aws, 
+                                         awsCoeff,
+                                         awa,
+                                         awaOffset,
+                                         heading,
+                                         hdgOffset,
+                                         sog, 
+                                         cog);
+        twa = tw[0]; 
+        tws = tw[1];    
+        twd = (int)tw[2];
+        // To display the other values
+        if (false)
+        {
+          double bsp = ((Speed)cache.get(NMEADataCache.BSP)).getValue();
+          double[] tw_ = calculateTW(aws, awsCoeff, awa, awaOffset, bsp, bspCoeff, heading, hdgOffset);
+          NumberFormat nf = new DecimalFormat("000");
+          System.out.println("Good method:\tTWA:" +  nf.format(twa) + "\tTWS:" + nf.format(tws) + "\tTWD:" + (int)twd);
+          System.out.println("Bad method:\tTWA:" +  nf.format(tw_[0]) + "\tTWS:" + nf.format(tw_[1]) + "\tTWD:" + (int)tw_[2]);
+          System.out.println("================================================");
+        }
       }
+      else
+      {
+        try
+        {
+    //    System.out.println("Using the baaaaad method");
+          double bsp = ((Speed)cache.get(NMEADataCache.BSP)).getValue();
+          double[] tw = calculateTW(aws, awsCoeff, awa, awaOffset, bsp, bspCoeff, heading, hdgOffset);
+          twa = tw[0]; 
+          tws = tw[1];    
+          twd = (int)tw[2];
+        }
+        catch (Exception ex)
+        {
+          
+        }
+      }
+      
+      cache.put(NMEADataCache.TWA, new Angle180(twa));
+      cache.put(NMEADataCache.TWS, new TrueWindSpeed(tws));
+      cache.put(NMEADataCache.TWD, new TrueWindDirection(twd));
     }
     else
-    {
-//    System.out.println("Using the baaaaad method");
-      double bsp = ((Speed)cache.get(NMEADataCache.BSP)).getValue();
-      double[] tw = calculateTW(aws, awsCoeff, awa, awaOffset, bsp, bspCoeff, heading, hdgOffset);
-      twa = tw[0]; 
-      tws = tw[1];    
-      twd = (int)tw[2];
-    }
-    
-    cache.put(NMEADataCache.TWA, new Angle180(twa));
-    cache.put(NMEADataCache.TWS, new TrueWindSpeed(tws));
-    cache.put(NMEADataCache.TWD, new TrueWindDirection(twd));
-    
+      System.out.println(" NO AW !!!");
 //  System.out.println("AWS:" + aws + ", TWS:" + tws + ", AWA:" + awa + ", TWA:" + twa);
     
     double bsp = 0d;

@@ -206,7 +206,7 @@ public class SpotParserPanel
     parsedDataPanel.add(prmslLabel,
                         new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
                                                new Insets(0, 0, 0, 0), 0, 0));
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener()
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener("SPOT", "Parser Panel")
       {
         public void newSpotData(List<SpotLine> spotLines, GeoPos pos)
         {

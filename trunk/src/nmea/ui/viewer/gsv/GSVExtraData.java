@@ -37,7 +37,7 @@ public class GSVExtraData
   public GSVExtraData()
   {
     jbInit();
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener()
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener("GPS", "GSV")
     {
       public void manageNMEAString(String str)
       {

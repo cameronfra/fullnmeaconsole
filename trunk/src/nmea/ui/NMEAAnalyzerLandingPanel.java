@@ -393,7 +393,7 @@ public class NMEAAnalyzerLandingPanel
       }
     });
     
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener()
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener("Analyzer", "NMEAAnalyzer")
     {
       public void manageNMEAString(String str)
       {

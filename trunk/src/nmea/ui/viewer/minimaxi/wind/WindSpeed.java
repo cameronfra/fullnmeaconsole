@@ -124,27 +124,34 @@ implements MinMaxPanelInterface
     this.add(tws, BorderLayout.SOUTH);
     tws.setDisplayColor(Color.orange);
 
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID, "Wind Speed")
       {
         @Override
         public void dataUpdate()
         {
-          double trueWS = ((TrueWindSpeed) NMEAContext.getInstance().getCache().get(NMEADataCache.TWS)).getValue();
-          if (trueWS != -Double.MAX_VALUE && !Double.isInfinite(trueWS))
+          try
           {
-  //        wgp.setValue(trueWS);          
-            tws.setValue(NMEAContext.DF22.format(trueWS));
-            if (trueWS > maximum) 
+            double trueWS = ((TrueWindSpeed) NMEAContext.getInstance().getCache().get(NMEADataCache.TWS)).getValue(); 
+            if (trueWS != -Double.MAX_VALUE && !Double.isInfinite(trueWS))
             {
-              maximum = trueWS;
-              maxDate = new Date();
+    //        wgp.setValue(trueWS);          
+              tws.setValue(NMEAContext.DF22.format(trueWS));
+              if (trueWS > maximum) 
+              {
+                maximum = trueWS;
+                maxDate = new Date();
+              }
+              if (trueWS < minimum) 
+              {
+                minimum = trueWS;
+                minDate = new Date();
+              }
+              wgp.setValues(trueWS, maximum, minimum);
             }
-            if (trueWS < minimum) 
-            {
-              minimum = trueWS;
-              minDate = new Date();
-            }
-            wgp.setValues(trueWS, maximum, minimum);
+          }
+          catch (NullPointerException npe)
+          {
+            // Not in cache (yet)              
           }
         }
       });

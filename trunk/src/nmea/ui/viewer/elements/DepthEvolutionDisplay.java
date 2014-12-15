@@ -117,7 +117,7 @@ public class DepthEvolutionDisplay
 
     this.add(dataPanel, BorderLayout.CENTER);
 
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID, "Depth")
       {
         public void dataBufferSizeChanged(int size)
         {

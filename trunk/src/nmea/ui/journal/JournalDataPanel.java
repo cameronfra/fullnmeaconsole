@@ -203,7 +203,7 @@ public class JournalDataPanel
     }    
     refreshJournal();
 
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID, "Journal")
       {
         public void refreshLogJournal() 
         {

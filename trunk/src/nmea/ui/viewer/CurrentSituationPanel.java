@@ -150,7 +150,7 @@ public class CurrentSituationPanel
   private void jbInit()
     throws Exception
   {
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID, "Current Situation")
       {
         public void dataUpdate() 
         {

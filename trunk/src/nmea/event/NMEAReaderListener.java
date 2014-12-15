@@ -15,16 +15,21 @@ import ocss.nmea.parser.GeoPos;
 public abstract class NMEAReaderListener implements EventListener
 {
   private String groupID = "";
+  private String name = "";
   
   public NMEAReaderListener() 
   { this("default"); }
   public NMEAReaderListener(String gID)
+  { this(gID, "default"); }
+  public NMEAReaderListener(String gID, String listenerName)
   { 
     if ("true".equals(System.getProperty("verbose", "false")))
       System.out.println(" -- Creating " + this.getClass().getName() + ", group " + gID);
     this.groupID = gID; 
+    this.name = listenerName;
   }
   public final String getGroupID() { return groupID; }
+  public final String getListenerName() { return name; }
   
   public void log(boolean b) {}
   public void log(boolean log, boolean withDateTime) {}

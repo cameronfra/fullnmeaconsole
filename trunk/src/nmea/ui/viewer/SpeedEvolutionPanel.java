@@ -87,7 +87,7 @@ public class SpeedEvolutionPanel
     prfLoggingDisplay.setMin(0.0);
     prfLoggingDisplay.setMax(200d);
 
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID)
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener(Constants.NMEA_SERVER_LISTENER_GROUP_ID, "Speed")
     {
       public void dataUpdate() 
       {

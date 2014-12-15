@@ -4,6 +4,7 @@ import nmea.server.ctx.NMEAContext;
 
 import java.io.InputStream;
 
+import java.net.BindException;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -133,6 +134,12 @@ public class CustomTCPReader extends NMEAReader implements DataReader
 
       System.out.println("Stop Reading TCP port.");
       theInput.close();
+    }
+    catch (BindException be)
+    {
+      System.err.println("From " + this.getClass().getName() + ", " + hostName + ":" + tcpport);
+      be.printStackTrace();   
+      manageError(be);
     }
     catch (SocketException se)
     {

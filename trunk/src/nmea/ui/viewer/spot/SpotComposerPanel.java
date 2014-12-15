@@ -97,7 +97,7 @@ public class SpotComposerPanel
   public SpotComposerPanel()
   {
     jbInit();
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener()
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener("SPOT", "Spot Composer Panel")
     {
       public void manageNMEAString(String str)
       {
@@ -274,7 +274,7 @@ public class SpotComposerPanel
                  new GridBagConstraints(2, 6, 2, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
                                         new Insets(0, 0, 0, 0), 0, 0));
     generatedRequestLabel.setText(composeRequest());
-    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener()
+    NMEAContext.getInstance().addNMEAReaderListener(new NMEAReaderListener("SPOT", "Spot Composer Panel (2)")
       {
         @Override
         public void positionManuallyUpdated(GeoPos gp) 
