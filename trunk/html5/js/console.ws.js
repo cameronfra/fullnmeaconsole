@@ -1,9 +1,9 @@
 /*
  * @author Olivier Le Diouris
  */
-var displayBSP, displayLog, displayPRF, displayTWD, displayTWS, thermometer, displayHDG, rose, displayOverview,
+var displayBSP, displayLog, displayPRF, displayTWD, displayTWS, thermometer, athermometer, displayHDG, rose, displayOverview,
     jumboBSP, jumboHDG, jumboTWD, jumboLWY, jumboAWA, jumboTWA, jumboAWS, jumboTWS, jumboCOG, jumboCDR, jumboSOG, jumboCSP, jumboVMG,
-    displayAW,
+    displayAW, displayCurrent,
     twdEvolution, twsEvolution;
     
 var jumboList = [];
@@ -16,11 +16,12 @@ var init = function()
   displayLog      = new NumericDisplay('logCanvas', 60, 5);
   displayPRF      = new AnalogDisplay('prfCanvas', 100,   200,  25,  5, false);
   displayPRF.setNbDec(1);
-  displayHDG      = new Direction('hdgCanvas', 100, 45, 5);
-  displayTWD      = new Direction('twdCanvas', 100, 45, 5);
+  displayHDG      = new Direction('hdgCanvas', 100, 45, 5, true);
+  displayTWD      = new Direction('twdCanvas', 100, 45, 5, true);
 //displayTWD      = new Direction('twdCanvas', 100, 1060,  10,  1, false, 60, 960);
   displayTWS      = new AnalogDisplay('twsCanvas', 100,   50,  10,  1, true, 40);
   thermometer     = new Thermometer('tmpCanvas', 200);
+  athermometer    = new Thermometer('atmpCanvas', 200);
   rose            = new CompassRose('roseCanvas', 400, 50);
   
   displayOverview = new BoatOverview('overviewCanvas');
@@ -42,6 +43,7 @@ var init = function()
   jumboList = [jumboBSP, jumboHDG, jumboTWD, jumboLWY, jumboAWA, jumboTWA, jumboAWS, jumboTWS, jumboCOG, jumboCDR, jumboSOG, jumboCSP, jumboVMG];
   
   displayAW       = new AWDisplay('awDisplayCanvas', 80, 45, 5);
+  displayCurrent  = new CurrentDisplay('currentDisplayCanvas', 80, 45, 5);
   twdEvolution    = new TWDEvolution('twdEvolutionCanvas');
   twsEvolution    = new TWSEvolution('twsEvolutionCanvas');
 
@@ -97,6 +99,7 @@ var resizeDisplays = function(width)
     displayHDG.setDisplaySize(100 * (Math.min(width, TOTAL_WIDTH) / TOTAL_WIDTH)); 
     displayTWD.setDisplaySize(100 * (Math.min(width, TOTAL_WIDTH) / TOTAL_WIDTH)); 
     thermometer.setDisplaySize(200 * (Math.min(width, TOTAL_WIDTH) / TOTAL_WIDTH)); 
+    athermometer.setDisplaySize(200 * (Math.min(width, TOTAL_WIDTH) / TOTAL_WIDTH)); 
     rose.setDisplaySize(400 * (Math.min(width, TOTAL_WIDTH) / TOTAL_WIDTH)); 
     displayOverview.drawGraph();
     twdEvolution.drawGraph();
@@ -259,6 +262,18 @@ var setValues = function(doc)
     }
     try
     {
+      var airTemp = parseFloat(json.atemp.toFixed(0));
+//    athermometer.animate(airTemp);
+      athermometer.setValue(airTemp);
+    }
+    catch (err)
+    {
+      errMess += ((errMess.length > 0?"\n":"") + "Problem with air temperature...");
+//    athermometer.animate(0.0);
+      athermometer.setValue(0.0);
+    }
+    try
+    {
       var aws = parseFloat(json.aws.toFixed(2));
       displayAW.setAWS(aws);
       displayOverview.setAWS(aws);
@@ -290,6 +305,7 @@ var setValues = function(doc)
       var cdr = parseFloat(json.cdr.toFixed(0));
       displayOverview.setCDR(cdr);
       jumboCDR.setValue(lpad(Math.round(cdr).toString(), '0', 3));
+      displayCurrent.setValue(cdr);
     }
     catch (err)
     {
@@ -336,6 +352,7 @@ var setValues = function(doc)
       var csp = parseFloat(json.csp.toFixed(2));
       displayOverview.setCSP(csp);
       jumboCSP.setValue(csp.toFixed(2));
+      displayCurrent.setCurrentSpeed(csp);
     }
     catch (err)
     {

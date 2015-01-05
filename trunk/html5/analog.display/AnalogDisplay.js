@@ -374,13 +374,13 @@ function AnalogDisplay(cName,                     // Canvas Name
     drawDisplay(canvasName, displaySize, val);  
   };
   
-  function toDegrees(rad)
+  var toDegrees = function(rad)
   {
     return rad * (180 / Math.PI);
-  }
+  };
   
-  function toRadians(deg)
+  var toRadians = function(deg)
   {
     return deg * (Math.PI / 180);
-  }
+  };
 }
