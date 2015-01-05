@@ -46,12 +46,14 @@ var directionColorConfigBlack =
 };
 var directionColorConfig = directionColorConfigWhite; 
 
-function Direction(cName, dSize, majorTicks, minorTicks)
+function Direction(cName, dSize, majorTicks, minorTicks, withRose)
 {
   if (majorTicks === undefined)
     majorTicks = 45;
   if (minorTicks === undefined)
     minorTicks = 0;
+  if (withRose === undefined)
+    withRose = false;
 
   var canvasName = cName;
   var displaySize = dSize;
@@ -281,6 +283,73 @@ function Direction(cName, dSize, majorTicks, minorTicks)
       context.closePath();
     }
     
+    // with rose?
+    if (withRose === true)
+    {
+      context.beginPath();
+
+      context.lineWidth = 1;
+      var outsideRadius = radius * 0.6;
+      var insideRadius  = radius * 0.1;
+
+//    context.arc(canvas.width / 2, radius + 10, outsideRadius, 0, 2 * Math.PI, false);
+//    context.arc(canvas.width / 2, radius + 10, insideRadius,  0, 2 * Math.PI, false);
+
+      // NS/EW axis, the origin is -90 (W)
+      var N = (0 + 90) % 360;
+      var S = (180 + 90) % 360;
+      var E = (90 + 90) % 360;
+      var W = (270 + 90) % 360;
+
+      var NE = (45 + 90) % 360;
+      var SE = (135 + 90) % 360;
+      var NW = (315 + 90) % 360;
+      var SW = (225 + 90) % 360;
+
+      // N-S 
+      xFrom = (canvas.width / 2) - (outsideRadius * Math.cos(2 * Math.PI * (N / 360)));
+      yFrom = (radius + 10) - (outsideRadius * Math.sin(2 * Math.PI * (N / 360)));
+      xTo   = (canvas.width / 2) - (outsideRadius * Math.cos(2 * Math.PI * (S / 360)));
+      yTo   = (radius + 10) - (outsideRadius * Math.sin(2 * Math.PI * (S / 360)));
+      context.moveTo(xFrom, yFrom);
+      context.lineTo(xTo, yTo);
+      // E-W 
+      xFrom = (canvas.width / 2) - (outsideRadius * Math.cos(2 * Math.PI * (E / 360)));
+      yFrom = (radius + 10) - (outsideRadius * Math.sin(2 * Math.PI * (E / 360)));
+      xTo   = (canvas.width / 2) - (outsideRadius * Math.cos(2 * Math.PI * (W / 360)));
+      yTo   = (radius + 10) - (outsideRadius * Math.sin(2 * Math.PI * (W / 360)));
+      context.moveTo(xFrom, yFrom);
+      context.lineTo(xTo, yTo);
+      // NE-SW 
+      xFrom = (canvas.width / 2) - (outsideRadius * 0.9 * Math.cos(2 * Math.PI * (NE / 360)));
+      yFrom = (radius + 10) - (outsideRadius * 0.9 * Math.sin(2 * Math.PI * (NE / 360)));
+      xTo   = (canvas.width / 2) - (outsideRadius * 0.9 * Math.cos(2 * Math.PI * (SW / 360)));
+      yTo   = (radius + 10) - (outsideRadius * 0.9 * Math.sin(2 * Math.PI * (SW / 360)));
+      context.moveTo(xFrom, yFrom);
+      context.lineTo(xTo, yTo);
+      // NW-SE 
+      xFrom = (canvas.width / 2) - (outsideRadius * 0.9 * Math.cos(2 * Math.PI * (NW / 360)));
+      yFrom = (radius + 10) - (outsideRadius * 0.9 * Math.sin(2 * Math.PI * (NW / 360)));
+      xTo   = (canvas.width / 2) - (outsideRadius * 0.9 * Math.cos(2 * Math.PI * (SE / 360)));
+      yTo   = (radius + 10) - (outsideRadius * 0.9 * Math.sin(2 * Math.PI * (SE / 360)));
+      context.moveTo(xFrom, yFrom);
+      context.lineTo(xTo, yTo);
+      
+      this.drawSpike(canvas, radius, outsideRadius, insideRadius, N, context);
+      this.drawSpike(canvas, radius, outsideRadius, insideRadius, S, context);
+      this.drawSpike(canvas, radius, outsideRadius, insideRadius, E, context);
+      this.drawSpike(canvas, radius, outsideRadius, insideRadius, W, context);
+
+      this.drawSpike(canvas, radius, outsideRadius * 0.9, insideRadius, NE, context);
+      this.drawSpike(canvas, radius, outsideRadius * 0.9, insideRadius, SE, context);
+      this.drawSpike(canvas, radius, outsideRadius * 0.9, insideRadius, SW, context);
+      this.drawSpike(canvas, radius, outsideRadius * 0.9, insideRadius, NW, context);
+
+      context.strokeStyle = 'gray';
+      context.stroke();
+      context.closePath();
+    }
+
     // Numbers
     context.beginPath();
     for (i = 0;i < 360 ;i+=majorTicks)
@@ -355,6 +424,22 @@ function Direction(cName, dSize, majorTicks, minorTicks)
     context.fill();
     context.strokeStyle = directionColorConfig.knobOutlineColor;
     context.stroke();
+  };
+
+  this.drawSpike = function(canvas, radius, outsideRadius, insideRadius, angle, context) {
+      var xFrom = (canvas.width / 2) - (outsideRadius * Math.cos(2 * Math.PI * (angle / 360)));
+      var yFrom = (radius + 10) - (outsideRadius * Math.sin(2 * Math.PI * (angle / 360)));
+      // 
+      var xTo = (canvas.width / 2) - (insideRadius * Math.cos(2 * Math.PI * ((angle - 90)/ 360)));
+      var yTo = (radius + 10) - (insideRadius * Math.sin(2 * Math.PI * ((angle - 90) / 360)));
+      context.moveTo(xFrom, yFrom);
+      context.lineTo(xTo, yTo);
+      //
+      xTo = (canvas.width / 2) - (insideRadius * Math.cos(2 * Math.PI * ((angle + 90)/ 360)));
+      yTo = (radius + 10) - (insideRadius * Math.sin(2 * Math.PI * ((angle + 90) / 360)));
+      context.moveTo(xFrom, yFrom);
+      context.lineTo(xTo, yTo);
+
   };
   
   this.setValue = function(val)

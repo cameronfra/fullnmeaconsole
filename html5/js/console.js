@@ -16,8 +16,8 @@ var init = function()
   displayLog      = new NumericDisplay('logCanvas', 60, 5);
   displayPRF      = new AnalogDisplay('prfCanvas', 100,   200,  25,  5, false);
   displayPRF.setNbDec(1);
-  displayHDG      = new Direction('hdgCanvas', 100, 45, 5);
-  displayTWD      = new Direction('twdCanvas', 100, 45, 5);
+  displayHDG      = new Direction('hdgCanvas', 100, 45, 5, true);
+  displayTWD      = new Direction('twdCanvas', 100, 45, 5, true);
 //displayTWD      = new Direction('twdCanvas', 100, 1060,  10,  1, false, 60, 960);
   displayTWS      = new AnalogDisplay('twsCanvas', 100,   50,  10,  1, true, 40);
   thermometer     = new Thermometer('tmpCanvas', 200);
@@ -290,7 +290,7 @@ var pingNMEAConsole = function()
     }
     catch (err)
     {
-      errMess += ((errMess.length > 0?"\n":"") + "Problem with water temperature...");
+      errMess += ((errMess.length > 0?"\n":"") + "Problem with air temperature...");
 //    athermometer.animate(0.0);
       athermometer.setValue(0.0);
     }
